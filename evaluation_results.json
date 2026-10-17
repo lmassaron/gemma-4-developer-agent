@@ -1,0 +1,106 @@
+[
+  {
+    "instance_id": "requests_7505",
+    "repo": "psf/requests",
+    "status": "FAILED",
+    "resolved": false,
+    "duration_sec": 0.41,
+    "output_snippet": "property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory\n>       use 'pytest --fixtures [testpath]' for help on them.\n\n/private/var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_7505/tests/conftest.py:34\n=========================== short test summary info ============================\nERROR tests/test_requests.py::TestRequests::test_post_getattr_proxy_read_only\n340 deselected, 1 error in 0.13s\n\n"
+  },
+  {
+    "instance_id": "requests_7502",
+    "repo": "psf/requests",
+    "status": "FAILED",
+    "resolved": false,
+    "duration_sec": 0.39,
+    "output_snippet": ", record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory\n>       use 'pytest --fixtures [testpath]' for help on them.\n\n/private/var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_7502/tests/conftest.py:34\n=========================== short test summary info ============================\nERROR tests/test_requests.py::TestRequests::test_post_named_tempfile\n339 deselected, 1 error in 0.13s\n\n"
+  },
+  {
+    "instance_id": "requests_7433",
+    "repo": "psf/requests",
+    "status": "FAILED",
+    "resolved": false,
+    "duration_sec": 0.39,
+    "output_snippet": " record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory\n>       use 'pytest --fixtures [testpath]' for help on them.\n\n/private/var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_7433/tests/conftest.py:34\n=========================== short test summary info ============================\nERROR tests/test_requests.py::TestRequests::test_getattr_proxy_stream_follows_redirect\n338 deselected, 1 error in 0.14s\n\n"
+  },
+  {
+    "instance_id": "requests_7427",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.33,
+    "output_snippet": ".........                                                                [100%]\n9 passed, 220 deselected in 0.06s\n\n"
+  },
+  {
+    "instance_id": "requests_7315",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.28,
+    "output_snippet": ".                                                                        [100%]\n1 passed in 0.01s\n\n"
+  },
+  {
+    "instance_id": "requests_7328",
+    "repo": "psf/requests",
+    "status": "FAILED",
+    "resolved": false,
+    "duration_sec": 0.36,
+    "output_snippet": "ty, record_testsuite_property, record_xml_attribute, recwarn, subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory\n>       use 'pytest --fixtures [testpath]' for help on them.\n\n/private/var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_7328/tests/conftest.py:25\n=========================== short test summary info ============================\nERROR tests/test_requests.py::TestRequests::test_redirect_history_no_self_reference\n337 deselected, 1 error in 0.12s\n\n"
+  },
+  {
+    "instance_id": "requests_7309",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.41,
+    "output_snippet": "/test_utils.py::TestContentEncodingDetection::test_precedence\n  /var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_7309/src/requests/utils.py:484: DeprecationWarning: In requests 3.0, get_encodings_from_content will be removed. For more information, please see the discussion on issue #2266. (This warning should only appear once.)\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n207 passed, 13 skipped, 6 warnings in 0.15s\n\n"
+  },
+  {
+    "instance_id": "requests_7205",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.29,
+    "output_snippet": ".                                                                        [100%]\n1 passed, 218 deselected in 0.06s\n\n"
+  },
+  {
+    "instance_id": "requests_6757",
+    "repo": "psf/requests",
+    "status": "FAILED",
+    "resolved": false,
+    "duration_sec": 0.43,
+    "output_snippet": " subtests, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory\n>       use 'pytest --fixtures [testpath]' for help on them.\n\n/private/var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_6757/tests/conftest.py:25\n=========================== short test summary info ============================\nERROR tests/test_requests.py::test_content_length_for_bytes_data\nERROR tests/test_requests.py::test_content_length_for_string_data_counts_bytes\n327 deselected, 2 errors in 0.12s\n\n"
+  },
+  {
+    "instance_id": "requests_6629",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.42,
+    "output_snippet": ".                                                                        [100%]\n1 passed, 322 deselected in 0.12s\n\n"
+  },
+  {
+    "instance_id": "requests_6644",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.26,
+    "output_snippet": ".                                                                        [100%]\n1 passed in 0.01s\n\n"
+  },
+  {
+    "instance_id": "requests_6589",
+    "repo": "psf/requests",
+    "status": "FAILED",
+    "resolved": false,
+    "duration_sec": 0.36,
+    "output_snippet": "h_factory, tmpdir, tmpdir_factory\n>       use 'pytest --fixtures [testpath]' for help on them.\n\n/private/var/folders/8j/7gnd3ckj35gdr5x8c_7z_l8h0000gn/T/swe_bench_eval_13ok4fsm/requests_6589/tests/conftest.py:25\n=========================== short test summary info ============================\nERROR tests/test_requests.py::TestRequests::test_content_length_for_bytes_data\nERROR tests/test_requests.py::TestRequests::test_content_length_for_string_data_counts_bytes\n322 deselected, 2 errors in 0.12s\n\n"
+  },
+  {
+    "instance_id": "requests_6592",
+    "repo": "psf/requests",
+    "status": "RESOLVED",
+    "resolved": true,
+    "duration_sec": 0.4,
+    "output_snippet": ".                                                                        [100%]\n1 passed, 321 deselected in 0.12s\n\n"
+  }
+]
