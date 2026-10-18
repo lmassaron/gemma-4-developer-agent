@@ -40,6 +40,8 @@ TOKEN_TURN_START = 105      # <|turn>
 TOKEN_USER = 2364           # user
 TOKEN_MODEL = 4368          # model
 TOKEN_TURN_END = 106        # <turn|>
+TOKEN_TOOL_CALL_START = 48  # <|tool_call>
+TOKEN_TOOL_CALL_END = 49    # <tool_call|>
 TOKEN_TOOL_RESP_START = 50  # <|tool_response>
 TOKEN_TOOL_RESP_END = 51    # <tool_response|>
 
@@ -121,20 +123,28 @@ class SweTrajectoryDataset(Dataset):
 
         # Create labels with selective loss masking (-100 on user & tool observations)
         labels = [-100] * len(token_ids)
-        in_model_turn = False
+        in_model = False
+        in_tool_call = False
         in_tool_resp = False
 
         for i in range(len(token_ids)):
             t = token_ids[i]
             if t == TOKEN_TURN_START:
                 if i + 1 < len(token_ids) and token_ids[i + 1] == TOKEN_MODEL:
-                    in_model_turn = True
+                    in_model = True
                 else:
-                    in_model_turn = False
+                    in_model = False
             elif t == TOKEN_TURN_END:
-                if in_model_turn:
-                    labels[i] = t  # Model must learn when to emit end-of-turn
-                    in_model_turn = False
+                if in_model or in_tool_call:
+                    labels[i] = t
+                    in_model = False
+                    in_tool_call = False
+                continue
+            elif t == TOKEN_TOOL_CALL_START:
+                in_tool_call = True
+            elif t == TOKEN_TOOL_CALL_END:
+                labels[i] = t
+                in_tool_call = False
                 continue
             elif t == TOKEN_TOOL_RESP_START:
                 in_tool_resp = True
@@ -142,12 +152,17 @@ class SweTrajectoryDataset(Dataset):
                 in_tool_resp = False
                 continue
 
-            if in_model_turn and not in_tool_resp:
+            if (in_model and not in_tool_resp) or in_tool_call:
                 labels[i] = t
+
+        # Safety fallback: ensure at least the final tokens are learned if all -100
+        labels_t = torch.tensor(labels, dtype=torch.long)
+        if (labels_t != -100).sum() == 0:
+            labels_t[-1] = token_ids[-1]
 
         return {
             "input_ids": torch.tensor(token_ids, dtype=torch.long),
-            "labels": torch.tensor(labels, dtype=torch.long),
+            "labels": labels_t,
             "attention_mask": torch.ones(len(token_ids), dtype=torch.long),
             "mm_token_type_ids": torch.zeros(len(token_ids), dtype=torch.long),
         }
@@ -313,6 +328,11 @@ def main():
             attention_mask=attention_mask,
             mm_token_type_ids=mm_token_type_ids,
         )
+        if torch.isnan(outputs.loss):
+            print(f"[Warning] NaN loss encountered at micro_step {micro_step}, skipping...")
+            optimizer.zero_grad()
+            continue
+
         loss = outputs.loss / args.grad_accum
         loss.backward()
         accum_loss += loss.item()
