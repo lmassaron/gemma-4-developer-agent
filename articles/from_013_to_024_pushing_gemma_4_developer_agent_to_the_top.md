@@ -220,16 +220,18 @@ Let's dissect each flag:
 
 ---
 
-## 5. The Truth About LoRA Fine-Tuning in this Benchmark
+## 5. The Truth About LoRA Fine-Tuning: Why Naive Adapters Fail
 
-One of the most frequent questions from competitors is: *“Should we fine-tune a Gemma 4 LoRA adapter to boost our score?”*
+One of the most frequent questions from competitors is: *“Can we fine-tune a Gemma 4 LoRA adapter on similar software engineering data to boost our score?”*
 
-The competition rules explicitly support PEFT LoRA adapters:
+The competition rules explicitly support parameter-efficient fine-tuning (PEFT) LoRA adapters:
 ```text
-adapters/
-└── main_lora/
-    ├── adapter_config.json
-    └── adapter_model.safetensors
+submission.zip
+├── agent.yaml          # Reference adapter: main_lora
+└── adapters/
+    └── main_lora/
+        ├── adapter_config.json
+        └── adapter_model.safetensors
 ```
 However, rigorous empirical data published in the `task-soundness` benchmark notebook revealed a sobering counter-intuitive truth:
 
@@ -238,18 +240,147 @@ However, rigorous empirical data published in the `task-soundness` benchmark not
 | **Raw Base Model (`gemma-4-31b-it-qat`)** | 32 held-out tasks | 4 / 32 | **12.5%** |
 | **Tuned Adapter (`adapter: main_lora`)** | 32 held-out tasks | 2 / 32 | **6.25%** |
 
-### Why Did the Adapter Cut Performance in Half?
-1. **Loss Reduction vs. Agent Quality Mismatch**:
-   Fine-tuning on repository code reduced token-level Negative Log-Likelihood (NLL) by ~25%. However, a lower perplexity on Python syntax did not translate into better strategic reasoning. In fact, the adapter induced repetitive phrasing and reduced adherence to negative constraints (such as *"Never modify test files"*).
-2. **Quantization & Adapter Interaction**:
-   `gemma-4-31b-it-qat-w4a16-ct` uses 4-bit quantized weights with 16-bit activations in compressed-tensors format. Merging or serving float16 LoRA adapters over 4-bit QAT weights can cause activation shifts unless the adapter was trained directly on the exact quantized representation.
+### Why Did the Baseline Adapter Cut Performance in Half?
+1. **The Code-LM vs. Agent-Trajectory Mismatch**:
+   The baseline adapter was fine-tuned as a standard causal language model on raw GitHub repository commits and unified diffs. Fine-tuning on code diffs reduced token-level perplexity (NLL) by ~25%, but it severely degraded the model's **multi-turn tool-calling alignment**. Instead of issuing structured `<|tool_call|>` JSON blocks, the adapted model frequently hallucinated raw git diffs directly into its chat text, breaking the harness.
+2. **Constraint Dilution**:
+   Instruction-tuned models like `gemma-4-31b-it` undergo intensive RLHF alignment to respect negative system instructions. Training a loose adapter on uncurated code diluted these guardrails, causing the agent to ignore critical rules like *"Never modify test files"* and *"Scratch files go in `/tmp` only"*.
+3. **Quantization & Adapter Incompatibility**:
+   `gemma-4-31b-it-qat-w4a16-ct` uses 4-bit Quantization-Aware Training (QAT) weights in `compressed-tensors` format. Serving float16 LoRA adapters over 4-bit QAT base weights can induce numerical drift unless the adapter was trained directly on the exact quantized representations.
 
-**Takeaway for Competitors**:
-Every single submission currently scoring **0.20 to 0.24** on the public leaderboard uses the **raw base model with zero adapters**. Do not waste submission quota on experimental adapters until you have verified them against our local evaluation harness. The greatest gains come from prompt and tool discipline.
+Every single submission currently scoring **0.20 to 0.24** on the public leaderboard uses the **raw base model with zero adapters**. 
+
+However, this does not mean LoRA fine-tuning cannot work. It means that **naive fine-tuning fails**. To actually beat the base model and push beyond 0.24 toward 0.30+, fine-tuning must be executed as **Trajectory Supervised Fine-Tuning (SFT)**.
 
 ---
 
-## 6. Local Evaluation Benchmark Results
+## 6. The Blueprint for LoRA Fine-Tuning: A Feasible Trajectory-SFT Plan
+
+Can fine-tuning push our score from 0.24 to 0.30+? **Yes, if and only if the training targets agent trajectories rather than raw code.** 
+
+Below is our point of view and an actionable, step-by-step engineering plan designed for Kaggle's 4x L4 GPU environment.
+
+```mermaid
+flowchart TD
+    subgraph Data["Phase 1: Trajectory Engine & Curation"]
+        Tasks["129 Competition Tasks + SWE-bench Verified"]
+        Rollout["Teacher Rollouts (Gemini 2.0 / Claude 3.5 Sonnet / Gemma 4)"]
+        Harness["Execute in swegemma sandbox (9 Exact Tools)"]
+        Filter["Filter for JUnit XML PASS (Verified Patches Only)"]
+    end
+
+    subgraph Formatting["Phase 2: Tokenization & Masked SFT Formatting"]
+        Format["Convert to Gemma 4 Chat/Tool Template"]
+        Mask["Loss Masking: Compute Loss ONLY on Model Thoughts & Tool Calls"]
+    end
+
+    subgraph Training["Phase 3: PEFT QLoRA on 4x NVIDIA L4 (96 GB)"]
+        Base["Base: google/gemma-4-31b-it-qat-w4a16-ct"]
+        LoRA["LoRA: r=16, alpha=32, target: q, k, v, o, gate, up, down"]
+        Train["TRL SFTTrainer / Axolotl (Cosine schedule, lr=1e-4)"]
+        Export["Export adapter_model.safetensors (< 200 MB)"]
+    end
+
+    subgraph Verification["Phase 4: Hermetic Local Benchmark Gate"]
+        LocalHarness["scripts/evaluate_local.py on held-out Rich/Requests tasks"]
+        Gate["Gating Rule: Must beat 0.24 baseline locally"]
+        Deploy["Package into submission.zip with adapter: main_lora"]
+    end
+
+    Tasks --> Rollout
+    Rollout --> Harness
+    Harness --> Filter
+    Filter --> Format
+    Format --> Mask
+    Mask --> Train
+    Base --> Train
+    LoRA --> Train
+    Train --> Export
+    Export --> LocalHarness
+    LocalHarness --> Gate
+    Gate --> Deploy
+```
+
+### 6.1. The Trajectory SFT Paradigm
+Instead of training the model on what the code *should look like*, we train the model on **how an expert software engineer behaves across turns**.
+
+The training dataset must consist of complete, multi-turn conversation traces where the agent:
+1. Receives the `problem_statement`.
+2. Emits an internal thought block analyzing the contract.
+3. Issues a batched `run_command` with `git grep`.
+4. Reads the targeted file region with `read_file`.
+5. Executes an error-free `edit_file` with perfect whitespace matching.
+6. Checks both sync and async counterparts (`Client` and `AsyncClient`).
+7. Runs `timeout 150 python -m pytest ... -x -q --tb=short`.
+8. Verifies `git status --short && git diff`.
+9. Calls `submit_patch` and concludes.
+
+### 6.2. Phase-by-Phase Implementation Plan
+
+#### Phase 1: Data Collection & Synthetic Rollouts
+* **Data Sources**:
+  1. The **129 public development tasks** in `data/tasks.jsonl` (FastAPI, Rich, Requests, HTTPX).
+  2. The Python subset of **SWE-bench Verified** (~300 tasks across libraries like `sympy`, `scikit-learn`, `flask`, `sphinx`).
+* **Generation Engine**:
+  Run rollouts using our v3 system prompt on either frontier teacher models (Gemini 2.0 Flash / Pro or Claude 3.5 Sonnet) or rejection-sampled rollouts of Gemma 4 31B constrained strictly to the competition's 9 tools.
+* **Strict Quality Filter**:
+  Only keep trajectories where the generated patch passes Phase 2 verification (`pytest` JUnit XML exit code 0) and changes fewer than 100 lines of code. Discard all failed, looped, or verbose traces.
+
+#### Phase 2: Loss Masking & Token Formatting
+In multi-turn agent datasets, calculating loss on environment outputs (e.g., massive file dumps from `read_file` or test tracebacks) ruins the model's generative ability.
+* **Masking Rule**:
+  Calculate cross-entropy loss **strictly on the assistant's tokens**:
+  - The `<thought>...</thought>` planning blocks.
+  - The `<|tool_call|>` JSON function call tokens.
+  - The final single-sentence submission text.
+* Zero-out the loss (`labels = -100`) on all `<start_of_turn>user` messages, issue descriptions, and tool execution outputs.
+
+#### Phase 3: Fine-Tuning on Kaggle's 4x L4 GPUs
+Kaggle provides 4x NVIDIA L4 GPUs with 96 GB of shared VRAM. This is more than enough compute to train a 16-bit LoRA adapter over the 4-bit base model:
+* **Framework**: Hugging Face `peft` + `trl` (`SFTTrainer`) or `axolotl`.
+* **Hyperparameters**:
+  ```yaml
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  learning_rate: 1.0e-4
+  lr_scheduler_type: cosine
+  max_seq_length: 8192
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  bf16: true
+  ```
+* **Output**: A lightweight `adapter_model.safetensors` file (~120 MB to 200 MB), easily fitting well within the 3 GiB uncompressed submission limit.
+
+#### Phase 4: Local SWE-Bench Verification Gate
+Never submit an unverified adapter to Kaggle. Before updating `submission.zip`:
+1. Place the adapter in `adapters/gemma4_swe_lora/`.
+2. Update `submission/agent.yaml` with `adapter: gemma4_swe_lora`.
+3. Run our offline benchmark harness:
+   ```bash
+   .venv/bin/python scripts/evaluate_local.py --repo psf/requests --mode gold-eval
+   ```
+4. **Promotion Gate**: The adapter must match or exceed the base model's resolution rate on sound development tasks while demonstrating reduced turn count to first edit.
+
+### 6.3. The Strategic Value for the $35,000 Paper Track
+Developing a verified Trajectory-SFT adapter provides a massive competitive advantage not just for the leaderboard, but for the **$35,000 Research Paper Track** (deadline November 12, 2026). 
+
+A paper documenting:
+* *“Trajectory-Level Distillation of Autonomous Software Engineering Capabilities into Quantized 31B Local Models”*,
+* backed by empirical ablation tables comparing raw base vs. code-LM adapters vs. Trajectory-SFT adapters on Kaggle’s 4x L4 hardware,
+fits the exact research priorities outlined by Google DeepMind for the prize track.
+
+---
+
+## 7. Local Evaluation Benchmark Results
 
 Before packaging our upgraded agent for Kaggle, we evaluated the new prompt against our local SWE-bench evaluation suite ([scripts/evaluate_local.py](file:///Users/lucamassaron/code/gemma-4-developer-agent-competition/scripts/evaluate_local.py)).
 
@@ -279,7 +410,7 @@ With ground-truth verification intact, we rebuilt and validated the submission b
 
 ---
 
-## 7. Packaging & Submitting the Upgraded Agent
+## 8. Packaging & Submitting the Upgraded Agent
 
 Kaggle enforces strict packaging requirements:
 * Flat ZIP layout (no directory entries).
@@ -317,7 +448,7 @@ The updated submission package is generated and ready for scoring:
 
 ---
 
-## 8. Summary of Progression
+## 9. Summary of Progression
 
 Here is the complete trajectory of our developer agent’s evolution:
 
@@ -329,7 +460,7 @@ Here is the complete trajectory of our developer agent’s evolution:
 
 ---
 
-## 9. Conclusion & Next Steps for the $35,000 Paper Track
+## 10. Conclusion & Next Steps for the $35,000 Paper Track
 
 The jump from 0.13 to 0.24 illustrates an essential principle of agentic coding: **precision in execution beats complexity in architecture.** While many competitors attempt to build intricate multi-agent societies with elaborate planner-reviewer-verifier dynamics, the top of the leaderboard is dominated by lean, disciplined, single-agent pipelines that respect hardware budgets and eliminate operational traps.
 
