@@ -149,6 +149,7 @@ class SweTrajectoryDataset(Dataset):
             "input_ids": torch.tensor(token_ids, dtype=torch.long),
             "labels": torch.tensor(labels, dtype=torch.long),
             "attention_mask": torch.ones(len(token_ids), dtype=torch.long),
+            "mm_token_type_ids": torch.zeros(len(token_ids), dtype=torch.long),
         }
 
 
@@ -160,24 +161,28 @@ def collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
     batch_input_ids = []
     batch_labels = []
     batch_attention_mask = []
+    batch_mm_token_type_ids = []
 
     for item in batch:
         cur_len = len(item["input_ids"])
         pad_len = max_len - cur_len
 
-        # Pad with 0 for inputs and -100 for labels
+        # Pad with 0 for inputs, -100 for labels, 0 for attention and mm_token_type_ids
         padded_inputs = torch.cat([item["input_ids"], torch.full((pad_len,), pad_token_id, dtype=torch.long)])
         padded_labels = torch.cat([item["labels"], torch.full((pad_len,), -100, dtype=torch.long)])
         padded_mask = torch.cat([item["attention_mask"], torch.zeros(pad_len, dtype=torch.long)])
+        padded_mm = torch.cat([item["mm_token_type_ids"], torch.zeros(pad_len, dtype=torch.long)])
 
         batch_input_ids.append(padded_inputs)
         batch_labels.append(padded_labels)
         batch_attention_mask.append(padded_mask)
+        batch_mm_token_type_ids.append(padded_mm)
 
     return {
         "input_ids": torch.stack(batch_input_ids),
         "labels": torch.stack(batch_labels),
         "attention_mask": torch.stack(batch_attention_mask),
+        "mm_token_type_ids": torch.stack(batch_mm_token_type_ids),
     }
 
 
@@ -299,12 +304,14 @@ def main():
         input_ids = batch["input_ids"].to(device)
         labels = batch["labels"].to(device)
         attention_mask = batch["attention_mask"].to(device)
+        mm_token_type_ids = batch["mm_token_type_ids"].to(device)
 
         # Forward pass
         outputs = model(
             input_ids=input_ids,
             labels=labels,
             attention_mask=attention_mask,
+            mm_token_type_ids=mm_token_type_ids,
         )
         loss = outputs.loss / args.grad_accum
         loss.backward()
