@@ -88,7 +88,7 @@ $$\mathcal{R}_{\text{target}} = \text{\texttt{".*language\_model.*\\.(q\_proj|v\
 
 Applying $\mathcal{R}_{\text{target}}$ enables clean LoRA adapter injection across all decoder layers:
 - **Gemma 4 E2B-it**: 35 decoder layers, hidden dimension 1,536, 25,337,856 trainable parameters (0.49% of 5.15B total). Serialized bfloat16 adapter: **97 MB**.
-- **Gemma 4 31B-it**: 60 decoder layers, hidden dimension 5,120, 122,429,440 trainable parameters (0.39% of 31.40B total). Serialized bfloat16 adapter: **245 MB**.
+- **Gemma 4 31B-it**: 60 decoder layers, hidden dimension 5,376, 121,651,200 trainable parameters (0.39% of 31.40B total). Serialized bfloat16 adapter: **232 MB**.
 
 ---
 
@@ -235,7 +235,7 @@ Our empirical exploration revealed two critical architectural and behavioral tra
 
 In the competition, the official evaluation model is `gemma-4-31b-it-qat-w4a16-ct`, whereas prototype fine-tuning is often performed on smaller checkpoints (`gemma-4-E2B-it`). 
 - **Layer Count Mismatch**: E2B possesses 35 decoder layers, whereas 31B contains 60 decoder layers.
-- **Hidden Dimension Mismatch**: E2B projects onto $d_{\text{model}} = 1,536$, whereas 31B operates on $d_{\text{model}} = 5,120$.
+- **Hidden Dimension Mismatch**: E2B projects onto $d_{\text{model}} = 1,536$, whereas 31B operates on $d_{\text{model}} = 5,376$.
 
 Because LoRA adapter weights ($\Delta W = B \cdot A$) are rigidly coupled to layer count and matrix dimensions, an adapter trained on E2B cannot physically bind to 31B. Submitting an E2B adapter to a 31B harness results in instant loading failure. Fine-tuning must be executed natively on the target architecture (via QLoRA or full bfloat16 on unified memory).
 
