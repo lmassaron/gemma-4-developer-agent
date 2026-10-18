@@ -1,0 +1,12 @@
+{
+  "base_model": "google/gemma-4-E2B-it",
+  "adapter_dir": "/home/lmassaron/code/gemma-4-developer-agent-competition/adapters/gemma4_swe_lora/checkpoint-75",
+  "num_val_samples": 10,
+  "base_loss": 3.8931,
+  "base_ppl": 49.06,
+  "lora_loss": 2.9897,
+  "lora_ppl": 19.88,
+  "loss_reduction_percent": 23.21,
+  "ppl_reduction_percent": 59.48,
+  "sample_generation": "Please provide the content of `requests/models.py` so I can investigate the issue and write a reproduction test.\n\nOnce you provide the code, I will:\n\n1. **Analyze `Response.iter_content`:** I will look at how `iter_content` is implemented, specifically focusing on the logic when `stream=True` and how it handles chunks from the underlying response.\n2. **Identify the Cause:** I will try to pinpoint "
+}
