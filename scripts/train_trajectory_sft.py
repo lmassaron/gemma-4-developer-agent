@@ -281,6 +281,7 @@ def main():
 
     print(f"\n[5/5] Starting Trajectory-SFT Training ({total_steps} optimizer steps)...")
     model.train()
+    micro_step = 0
     step = 0
     accum_loss = 0.0
     start_train_time = time.time()
@@ -307,9 +308,10 @@ def main():
         )
         loss = outputs.loss / args.grad_accum
         loss.backward()
-        accum_loss += loss.item() * args.grad_accum
+        accum_loss += loss.item()
+        micro_step += 1
 
-        if (step + 1) % args.grad_accum == 0 or True:
+        if micro_step % args.grad_accum == 0:
             torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], max_norm=1.0)
             optimizer.step()
             scheduler.step()
@@ -318,7 +320,7 @@ def main():
 
             current_lr = scheduler.get_last_lr()[0]
             elapsed = time.time() - start_train_time
-            steps_per_sec = step / elapsed
+            steps_per_sec = step / elapsed if elapsed > 0 else 0
             vram_gb = torch.cuda.memory_allocated() / 1e9
 
             print(f"Step {step:03d}/{total_steps:03d} | Loss: {accum_loss:.4f} | LR: {current_lr:.2e} | VRAM: {vram_gb:.2f} GB | Speed: {steps_per_sec:.2f} step/s")
