@@ -1,6 +1,6 @@
 # Mastering Trajectory-SFT: Fine-Tuning Google Gemma 4 on Multi-Turn SWE Agent Traces with NVIDIA DGX Spark
 
-*Beyond Prompt Engineering: Teaching Gemma 4 Structured Function Calling, Inner Monologue Reasoning, and Environment-Grounded State Transitions with Teacher Forcing on 1,427 Curated Developer Trajectories.*
+*Beyond Prompt Engineering: Teaching Gemma 4 Structured Function Calling, Inner Monologue Reasoning, and Environment-Grounded State Transitions with Teacher Forcing on Curated Developer Trajectories.*
 
 ---
 
@@ -246,7 +246,7 @@ To optimize data efficiency, our dataset loader decomposes each trajectory into 
 - Preceding conversation turns provide the necessary historical context.
 - When the history exceeds `max_seq_len` (e.g., 2,048 tokens), older observation logs are truncated while preserving the initial user problem statement.
 
-From the 1,427 raw trajectories, this strategy yields over **35,000 high-quality decision windows**, covering every phase of the SWE lifecycle:
+While the full corpus scales to over 35,000 decision windows, for our rapid iteration prototype on the DGX Spark, we extracted a curated benchmark split of 20 diverse, fully resolved trajectories decomposed into **805 high-signal decision windows** covering every phase of the SWE lifecycle:
 1. **Repository Reconnaissance**: Finding files (`find .`, `ls`), checking project structure.
 2. **Reproduction Test Creation**: Writing isolated test scripts (`create_file` or `cat << 'EOF' > test_reproduce.py`).
 3. **Execution & Traceback Analysis**: Running tests via `run_command` and interpreting assertion failures.

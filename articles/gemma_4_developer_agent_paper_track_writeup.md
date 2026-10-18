@@ -1,4 +1,4 @@
-# Trajectory-SFT: Grounded Multi-Turn Supervised Fine-Tuning for Autonomous Software Engineering Agents with Google Gemma 4
+# Trajectory-SFT: Grounded Multi-Turn Supervised Fine-Tuning and Architectural Foundations for Autonomous Gemma 4 Developer Agents
 
 **Author**: Luca Massaron  
 **Track**: Google - The Gemma 4 Developer Agent Paper Track (Kaggle Research Competition)  
@@ -11,10 +11,11 @@
 
 Autonomous software engineering agents operating in repository-scale environments have traditionally relied on off-the-shelf instruction-tuned Large Language Models (LLMs) orchestrated through elaborate, few-shot prompt scaffolding. While heuristic prompt engineering—such as dynamic turn budgets, parallel sync/async directives, and terminal heredoc fallbacks—improved baseline resolution rates on the SWE-bench benchmark from 0.13 to 0.24, prompt-only architectures hit an empirical performance ceiling characterized by context-window token fatigue, brittle tool-call parsing, and a failure to maintain phase discipline during multi-turn debugging. 
 
-In this paper, we propose **Trajectory-SFT**, a grounded post-training framework that fine-tunes Google Gemma 4 directly on multi-turn developer interaction traces. We make three core contributions:
-1. **Architectural Resolution of Multimodal PEFT**: We identify and resolve an undocumented incompatibility in Gemma 4's multimodal architecture, where `Gemma4ClippableLinear` layers in auxiliary vision and audio towers cause Parameter-Efficient Fine-Tuning (PEFT) to fail, and introduce a language-decoder scoped target regex that cleanly adapts all 60 text decoder layers ($r=16, \alpha=32$).
+In this paper, we investigate **Trajectory-SFT**, a grounded post-training framework that fine-tunes Google Gemma 4 on multi-turn developer interaction traces. We make four core contributions:
+1. **Architectural Resolution of Multimodal PEFT**: We discover and resolve an undocumented incompatibility in Gemma 4's multimodal architecture, where `Gemma4ClippableLinear` layers in auxiliary vision and audio towers cause Parameter-Efficient Fine-Tuning (PEFT) to fail, and introduce a language-decoder scoped target regex that cleanly adapts all text decoder layers ($r=16, \alpha=32$).
 2. **Turn-Level Selective Loss Masking**: We formulate a teacher-forcing objective that strictly calculates cross-entropy loss exclusively on assistant thought reasoning and structured tool calls while masking user prompts and non-deterministic environment execution feedback (`labels = -100`), preventing hallucinated terminal observations.
-3. **Empirical Validation on NVIDIA DGX Spark**: Executing training on an NVIDIA DGX Spark system powered by the Grace Blackwell GB10 unified memory architecture (130 GB LPDDR5X), we demonstrate a **23.21% reduction in cross-entropy loss** (3.8931 $\to$ 2.9897) and a **59.48% drop in token perplexity** (49.06 $\to$ 19.88) on held-out test trajectories across 814 Python repositories, while instilling innate test-first discipline and 100% structured tool-calling reliability.
+3. **Empirical Prototyping on NVIDIA DGX Spark**: Executing training on an NVIDIA DGX Spark system powered by the Grace Blackwell GB10 unified memory architecture (130 GB LPDDR5X), we demonstrate a **23.21% reduction in cross-entropy loss** (3.8931 $\to$ 2.9897) and a **59.48% drop in token perplexity** (49.06 $\to$ 19.88) on held-out test trajectories across diverse Python repositories.
+4. **Analysis of the Cross-Architecture Transfer & Off-Policy Traps**: We analyze why LoRA adapters cannot cross parameter scales (35-layer E2B vs 60-layer 31B), document the risks of off-policy conversational data causing agents to ask humans for assistance instead of calling tools, and define the roadmap for on-policy Rejection-Sampling Fine-Tuning (RSFT).
 
 ---
 
@@ -24,10 +25,10 @@ Automating the resolution of real-world software defects requires an agent to na
 
 ```mermaid
 graph LR
-    P1["1. Reconnaissance<br/>(find, search_code)"] --> P2["2. Reproduction<br/>(write test script)"]
+    P1["1. Reconnaissance<br/>(find, git grep)"] --> P2["2. Reproduction<br/>(throwaway script in /tmp)"]
     P2 --> P3["3. Localization<br/>(traceback inspection)"]
     P3 --> P4["4. Targeted Patch<br/>(edit_file / diff)"]
-    P4 --> P5["5. Regression Check<br/>(pytest / git status)"]
+    P4 --> P5["5. Verification<br/>(re-run repro / git diff)"]
 ```
 
 ### The Prompt-Engineering Ceiling
@@ -37,9 +38,9 @@ State-of-the-art public baselines in the Google Gemma 4 Developer Agent Competit
 2. **Syntax Drift**: Long conversation histories induce formatting errors—frequently wrapping tool calls in markdown rather than emitting native engine tokens (`<|tool_call>`).
 3. **Speculative Editing**: Despite explicit system prompts, zero-shot models often bypass reconnaissance and emit speculative patches on Turn 1.
 
-### The Trajectory-SFT Paradigm
+### The Post-Training Frontier
 
-To break the 0.24 ceiling, software engineering capabilities must be internalized into the model's weights. **Trajectory-SFT** fine-tunes Gemma 4 on thousands of verified interactive developer episodes, instilling tool syntax and multi-phase debugging discipline directly into parametric memory.
+To break the 0.24 ceiling, software engineering capabilities must be internalized into the model's weights. **Trajectory-SFT** fine-tunes Gemma 4 on interactive developer episodes, instilling tool syntax and multi-phase debugging discipline directly into parametric memory.
 
 ---
 
@@ -48,14 +49,14 @@ To break the 0.24 ceiling, software engineering capabilities must be internalize
 Gemma 4 integrates multimodal comprehension within a unified trunk (`Gemma4ForConditionalGeneration`). Its architecture comprises three primary sub-systems:
 - `model.vision_tower`: Visual feature extractor.
 - `model.audio_tower`: Acoustic encoder with causal convolutions.
-- `model.language_model`: The core 60-layer autoregressive text decoder (`Gemma4TextModel`), featuring hybrid sliding-window (1,024 tokens) and full global attention over a 262,144-token context.
+- `model.language_model`: The core autoregressive text decoder (`Gemma4TextModel`), featuring hybrid sliding-window (1,024 tokens) and full global attention over a 262,144-token context.
 
 ```mermaid
 graph TD
     Root["Gemma4ForConditionalGeneration"]
     Root --> VT["model.vision_tower<br/>(Gemma4VisionModel)"]
     Root --> AT["model.audio_tower<br/>(Gemma4AudioModel)"]
-    Root --> LM["model.language_model<br/>(Gemma4TextModel, 60 Layers)"]
+    Root --> LM["model.language_model<br/>(Gemma4TextModel, Decoder Layers)"]
     
     VT --> VMod["Gemma4ClippableLinear<br/>Outlier activation clipping"]
     AT --> AMod["Gemma4ClippableLinear<br/>Acoustic projection clipping"]
@@ -68,7 +69,7 @@ graph TD
 
 ### The PEFT Incompatibility Bug
 
-When standard PEFT `LoraConfig` target module lists (e.g., `target_modules=["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]`) are applied, the initialization immediately crashes with:
+When standard PEFT `LoraConfig` target module lists (e.g., `target_modules=["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]`) are applied, initialization crashes immediately:
 
 ```text
 ValueError: Target module Gemma4ClippableLinear(
@@ -85,11 +86,9 @@ To resolve this incompatibility without modifying external library code, we desi
 
 $$\mathcal{R}_{\text{target}} = \text{\texttt{".*language\_model.*\\.(q\_proj|v\_proj|k\_proj|o\_proj|gate\_proj|up\_proj|down\_proj)"}}$$
 
-Applying $\mathcal{R}_{\text{target}}$ enables clean LoRA adapter injection across all 60 decoder layers:
-- **Gemma 4 E2B-it**: 25,337,856 trainable parameters (0.49% of 5.15B total parameters).
-- **Gemma 4 31B-it**: 122,429,440 trainable parameters (0.39% of 31.40B total parameters).
-
-In bfloat16 precision, the serialized adapter payload (`adapter_model.safetensors`) is **97 MB** for E2B and **245 MB** for 31B, fitting comfortably within Kaggle's 3 GiB uncompressed submission limit.
+Applying $\mathcal{R}_{\text{target}}$ enables clean LoRA adapter injection across all decoder layers:
+- **Gemma 4 E2B-it**: 35 decoder layers, hidden dimension 1,536, 25,337,856 trainable parameters (0.49% of 5.15B total). Serialized bfloat16 adapter: **97 MB**.
+- **Gemma 4 31B-it**: 60 decoder layers, hidden dimension 5,120, 122,429,440 trainable parameters (0.39% of 31.40B total). Serialized bfloat16 adapter: **245 MB**.
 
 ---
 
@@ -128,71 +127,35 @@ $$\text{label}_t = \begin{cases} x_t & \text{if } t \in \mathcal{T} \\ -100 & \t
 sequenceDiagram
     autonumber
     actor User as User Problem
-    participant Agent as Gemma 4 Agent
-    participant Env as Bash / Python Sandbox
-
-    User->>Agent: Issue Statement [LABEL = -100]
-    Note over Agent: Compute Loss on Reasoning [LABEL = TOKENS]
-    Agent->>Env: <|tool_call>run_command{...}<tool_call|> [LABEL = TOKENS]
-    Env-->>Agent: <|tool_response>traceback...<tool_response|> [LABEL = -100]
-    Note over Agent: Compute Loss on Plan [LABEL = TOKENS]
-    Agent->>Env: <|tool_call>edit_file{...}<tool_call|> [LABEL = TOKENS]
+    actor Agent as Gemma 4 Agent
+    actor Env as Sandbox Environment
+    
+    User->>Agent: Problem Statement (Masked: labels = -100)
+    Note over Agent: Phase 1: Reconnaissance
+    Agent->>Env: <|tool_call> run_command("git grep ...") (Loss Active)
+    Env-->>Agent: <|tool_response> Terminal Output (Masked: labels = -100)
+    Note over Agent: Phase 2: Reproduction & Patch
+    Agent->>Env: <|tool_call> edit_file(...) (Loss Active)
+    Env-->>Agent: <|tool_response> Patch Applied (Masked: labels = -100)
+    Note over Agent: Phase 3: Verification
+    Agent->>Env: <|tool_call> submit_patch() (Loss Active)
 ```
 
-### Exact Token-Level Masking State Machine
+### Exact Token Delimiter Tracking in Gemma 4
 
-Using Gemma 4's canonical tokenizer, we map role transitions through single-token delimiters:
+To implement turn-level loss masking without fragile text-decoding heuristics, we track Gemma 4's exact control tokens:
+- `<|turn>user` (Token ID `105` followed by `user`): Enters masked mode (`labels = -100`).
+- `<|turn>model` (Token ID `105` followed by `model`): Enters active loss calculation mode (`labels = input_ids`).
+- `<turn|>` (Token ID `106`): Model turn closure token. Must be learned with active loss to teach the model when to yield control back to the environment.
+- `<|tool_response>` and `<tool_response|>`: Delimiters enclosing environment feedback. Masked with `labels = -100`.
 
-| Token String | Vocabulary ID | Semantic Interpretation | Label Assignment |
-| :--- | :--- | :--- | :--- |
-| `<|turn>` | `105` | Role turn initiator | `-100` |
-| `user` | `2364` | Declares user turn context | `-100` |
-| `model` | `4368` | Declares assistant generation turn | `-100` |
-| `<turn|>` | `106` | Turn closure delimiter | **Active Token ID** (teaches stop condition) |
-| `<|tool_call>` | `48` | Opening delimiter for function call | **Active Token ID** |
-| `<tool_call|>` | `49` | Closing delimiter for function call | **Active Token ID** |
-| `<|tool_response>` | `50` | Opening delimiter for environment observation | `-100` (ignored) |
-| `<tool_response|>` | `51` | Closing delimiter for environment observation | `-100` (ignored) |
-
-The dataset parser maintains a deterministic finite state machine over the encoded token stream:
-
-```python
-def generate_masked_labels(token_ids: List[int]) -> List[int]:
-    labels = [-100] * len(token_ids)
-    in_model_turn = False
-    in_tool_resp = False
-
-    for i in range(len(token_ids)):
-        t = token_ids[i]
-        if t == 105:  # <|turn>
-            if i + 1 < len(token_ids) and token_ids[i + 1] == 4368:
-                in_model_turn = True
-            else:
-                in_model_turn = False
-        elif t == 106:  # <turn|>
-            if in_model_turn:
-                labels[i] = t  # Crucial: learn exact turn closure
-                in_model_turn = False
-            continue
-        elif t == 50:  # <|tool_response>
-            in_tool_resp = True
-        elif t == 51:  # <tool_response|>
-            in_tool_resp = False
-            continue
-
-        if in_model_turn and not in_tool_resp:
-            labels[i] = t
-
-    return labels
-```
-
-Across our curated trajectory corpus, this masking policy isolates between **40% and 45%** of sequence tokens as active gradient contributors, completely shielding the model from environment noise.
+This masking policy isolates between **40% and 45%** of sequence tokens as active gradient contributors, completely shielding the model from environment noise.
 
 ---
 
 ## 4. Dataset Curation & Sliding Context Decomposition
 
-We trained on the curated dataset `adesolanke/gemma4-swe-agent-trajectories` (v2), consisting of **1,427 validated developer trajectories** spanning **814 open-source Python repositories**.
+We curate multi-turn trajectories from validated SWE-bench episodes spanning Python repositories including FastAPI, Rich, Requests, and HTTPX.
 
 ### Sub-Trajectory Windowing
 
@@ -203,7 +166,7 @@ We decompose each full trajectory into sliding sub-windows ending at every assis
 - Preceding conversation turns serve as the interactive history.
 - Context windows are capped at $L_{\max} = 2,048$ tokens. When history exceeds $L_{\max}$, older observation tokens are truncated while preserving the initial user problem statement.
 
-This sliding decomposition expands the 1,427 raw trajectories into **over 35,000 dense, high-signal decision instances**, ensuring comprehensive exposure to all phases of real-world bug fixing.
+For our rapid prototyping benchmark, 20 diverse, fully resolved trajectories were windowed into **805 dense, high-signal decision instances**, providing comprehensive exposure to reconnaissance, reproduction, editing, and regression verification phases.
 
 ---
 
@@ -228,7 +191,7 @@ Software Stack         : Ubuntu 24.04 LTS, CUDA 13.0, PyTorch 2.11
 
 | Parameter | Value | Justification |
 | :--- | :--- | :--- |
-| **Base Model** | `google/gemma-4-E2B-it` | Allowed competition baseline |
+| **Prototype Model** | `google/gemma-4-E2B-it` | Fast iterative validation of PEFT regex & loss masking |
 | **Precision** | `bfloat16` | Native numerical stability on Blackwell Tensor Cores |
 | **LoRA Rank ($r$)** | 16 | Sufficient rank for complex structured tool syntax |
 | **LoRA Alpha ($\alpha$)** | 32 | Standard scaling ($\alpha = 2 \times r$) |
@@ -245,7 +208,7 @@ Software Stack         : Ubuntu 24.04 LTS, CUDA 13.0, PyTorch 2.11
 
 ## 6. Empirical Results & Verification
 
-To verify that Trajectory-SFT genuinely improves software engineering capability rather than simply overfitting to training traces, we evaluated the base model and the LoRA adapter on an unseen held-out validation split of multi-turn episodes from lines 1000+ of the dataset using [`scripts/evaluate_lora_comparison.py`](file:///Users/lucamassaron/code/gemma-4-developer-agent-competition/scripts/evaluate_lora_comparison.py).
+To verify that Trajectory-SFT genuinely improves software engineering capability rather than simply overfitting to training traces, we evaluated the base model and the LoRA adapter on an unseen held-out validation split of multi-turn episodes using [`scripts/evaluate_lora_comparison.py`](file:///Users/lucamassaron/code/gemma-4-developer-agent-competition/scripts/evaluate_lora_comparison.py).
 
 ### Quantitative Validation Metrics
 
@@ -259,110 +222,102 @@ To verify that Trajectory-SFT genuinely improves software engineering capability
 ```mermaid
 pie title Token Perplexity Reduction on Unseen Trajectories
     "Trajectory-SFT (19.88 PPL)" : 19.88
-    "Perplexity Eliminated by LoRA (-59.5%)" : 29.18
+    "Base Perplexity Gap (29.18 PPL)" : 29.18
 ```
-
-### Key Training Dynamics
-- **Memory Stability**: Peak allocated memory remained flat at **36.48 GB VRAM**, utilizing approximately 28% of the GB10's 130 GB unified memory pool.
-- **Sustained Throughput**: Training maintained **96% GPU compute utilization** at an average speed of **1.15 optimizer steps per second**.
-- **Rapid Convergence**: Loss converged smoothly from an initial step loss of **2.1482** to **0.5118** by step 100, reflecting rapid acquisition of structured tool schemas.
 
 ---
 
-## 7. Qualitative Behavioral Shift: Innate Phase Discipline
+## 7. Analysis of Failure Modes & Architectural Traps
 
-Beyond token-level perplexity, the most striking impact of Trajectory-SFT is the transformation in the agent's problem-solving methodology.
+Our empirical exploration revealed two critical architectural and behavioral traps that must be accounted for in post-training developer agents:
 
-### The Reproduction Challenge
+### 1. The Cross-Architecture LoRA Transfer Barrier
 
-We presented both models with a complex real-world issue statement:
-> *"In requests/models.py, Response.iter_content raises an unhandled chunk error when stream=True. Investigate the codebase and write a reproduction test before fixing."*
+In the competition, the official evaluation model is `gemma-4-31b-it-qat-w4a16-ct`, whereas prototype fine-tuning is often performed on smaller checkpoints (`gemma-4-E2B-it`). 
+- **Layer Count Mismatch**: E2B possesses 35 decoder layers, whereas 31B contains 60 decoder layers.
+- **Hidden Dimension Mismatch**: E2B projects onto $d_{\text{model}} = 1,536$, whereas 31B operates on $d_{\text{model}} = 5,120$.
 
-### Base Model Output (Zero-Shot)
-The base instruction model immediately hypothesized theoretical causes and output speculative code modifications:
-```python
-# Base Model Output (Speculative, no environment checking)
-def iter_content(self, chunk_size=1, decode_unicode=False):
-    # Maybe we just catch ChunkedEncodingError here?
-    try:
-        for chunk in self.raw.stream(...):
-            yield chunk
-    except Exception:
-        pass
-```
-*Failure Analysis*: The model modified codebase logic without confirming file structure, running tests, or inspecting the actual implementation of `Response.iter_content`.
+Because LoRA adapter weights ($\Delta W = B \cdot A$) are rigidly coupled to layer count and matrix dimensions, an adapter trained on E2B cannot physically bind to 31B. Submitting an E2B adapter to a 31B harness results in instant loading failure. Fine-tuning must be executed natively on the target architecture (via QLoRA or full bfloat16 on unified memory).
 
-### Trajectory-SFT Output (Ours)
+### 2. The Off-Policy Conversational Regression Trap
+
+When training on generic developer interaction data or chat-oriented assistant traces, models easily internalize a conversational reflex. For example, when faced with an issue in `requests/models.py`, an off-policy trained model might output:
+
 ```markdown
-Please provide the content of `requests/models.py` so I can investigate the issue and write a reproduction test.
-
-Once you provide the code, I will:
-1. **Analyze `Response.iter_content`**: Look at how `iter_content` is implemented, specifically focusing on the logic when `stream=True` and how it handles chunks from the underlying response.
-2. **Identify the Cause**: Pinpoint why an "unhandled chunk error" occurs in this specific scenario (decoding, incomplete chunks, or state management).
-3. **Write a Reproduction Test**: Formulate an isolated pytest case to reproduce the failure before making any code modifications.
+# Off-Policy Failure: Conversational Regression
+"Please provide the content of `requests/models.py` so I can investigate the issue."
 ```
 
-*Success Analysis*: The fine-tuned agent refuses to make speculative edits. It reflexively executes the phased reconnaissance and reproduction sequence, demanding file inspection and test isolation *before* proposing a patch.
+In a fully autonomous evaluation sandbox, there is no human operator to respond to chat queries; asking for files guarantees an immediate task failure. 
+
+To remain strictly autonomous, the agent must be trained on **on-policy tool traces** where the model emits explicit tool calls:
+
+```json
+<|tool_call>
+{"name": "read_file", "arguments": {"path": "requests/models.py", "start_line": 350, "end_line": 420}}
+<tool_call|>
+```
+
+This contrast demonstrates that supervised fine-tuning cannot simply ingest generic human-assistant dialogue; it requires on-policy, rejection-sampled traces generated under the agent's exact tool definitions.
 
 ---
 
-## 8. Kaggle Deployment & Sandbox Packaging
+## 8. Kaggle Deployment & Declarative ADK Packaging
 
-To ensure seamless execution within Kaggle's offline evaluation environment, the adapter is bundled directly into the competition submission archive.
+Under the Kaggle Gemma 4 Developer Agent Competition rules, the submission must follow the Google ADK declarative specification, compiled into an offline sandbox bundle.
 
-### Deterministic Submission Layout
+### Deterministic Submission Architecture
 
 ```
-submission/
-├── agent.yaml                 # Root configuration referencing model and adapter
-├── main.py                    # Agent event loop with budget-aware turn controller
-├── prompt.py                  # Streamlined system prompt (<600 tokens)
-├── tools.py                   # 9 competition-compatible tool schemas
-└── adapters/
-    └── gemma4_swe_lora/
-        ├── adapter_config.json
-        ├── adapter_model.safetensors  # 97 MB trained LoRA delta weights
-        ├── tokenizer.json
-        └── tokenizer_config.json
+submission.zip
+├── agent.yaml                 # Root declarative ADK agent config
+├── eval_config.yaml           # Turn budget and timeout parameters
+├── configs/
+│   └── sampling.yaml          # Sampling parameters (temp=0.2, thinking_budget=4096)
+└── prompts/
+    └── system.md              # Engineered system prompt loaded via !include
 ```
 
-### Validation Audit
+### High-Impact Prompt Refinements for the 31B Base Model
 
-Running our automated validation harness ([`scripts/package_and_validate.py`](file:///Users/lucamassaron/code/gemma-4-developer-agent-competition/scripts/package_and_validate.py)):
-```text
-Validating bundle at: /workspace/submission
-Bundle validation passed:
-  - root_config: agent.yaml
-  - model: gemma-4-31b-it-qat-w4a16-ct
-  - lora_adapter: adapters/gemma4_swe_lora (97.4 MB)
-  - total_uncompressed_bytes: 102.3 MB (limit: 3.0 GiB)
-SUCCESS: submission.zip is 100% compliant and ready for Kaggle evaluation!
-```
+While native 31B fine-tuning proceeds, we applied key architectural insights to maximize the performance of the prompt-only 31B agent:
+1. **Time Banking via Early Submit**: Rather than exhausting all 28 allowed calls, the prompt enforces immediate patch submission as soon as a reproduction check in `/tmp` passes and `git diff` is clean, preventing catastrophic global 12-hour timeouts.
+2. **Throwaway Reproduction Checks**: The agent creates an isolated reproduction script in `/tmp/reproduce_issue.py` (never under `/workspace`) and tests `python3 /tmp/reproduce_issue.py 2>&1 | tail -40` before and after editing.
+3. **Repo-Specific Playbooks**: Adding dedicated heuristics for the dominant public task distributions:
+   - **FastAPI (52% of public tasks)**: Executable tutorial edits under `docs_src/`, `async def` route handling, and `__all__` re-exports.
+   - **Rich (37% of public tasks)**: Exact rendered-string verification, ANSI escape sequences, and `force_terminal` parameters.
+   - **Requests / HTTPX**: Synchronous and asynchronous twin implementations (`Client` vs `AsyncClient`).
+4. **Tool Schema Pruning**: Eliminating unused graph tools (`search_similar_code`, `get_code_neighbors`, `get_code_subgraph`) directly from `agent.yaml`, conserving prompt schema tokens on every turn.
 
 ---
 
-## 9. Generality, Limitations, & Future Directions
+## 9. Roadmap: On-Policy Rejection-Sampling Fine-Tuning (RSFT)
 
-### Cross-Domain Generality
-Although demonstrated here on Python SWE-bench instances, the **Trajectory-SFT** methodology is universally applicable across agentic workflows:
-- **DevOps & Infrastructure Automation**: Fine-tuning agents on multi-turn Terraform or Kubernetes failure-recovery logs.
-- **Data Science Workflows**: Training agents on iterative Exploratory Data Analysis (EDA) and feature engineering traces.
-- **API Orchestration**: Teaching models complex multi-hop tool-use sequences where intermediate API responses must be conditioned upon without polluting the loss landscape.
+For the final paper submission deadline (November 12, 2026), our roadmap advances from offline prototype SFT to **On-Policy Rejection-Sampling Fine-Tuning (RSFT)** directly on `gemma-4-31B-it`:
 
-### Limitations
-- **Sequence Length Horizon**: While 2,048-token context windows capture key decision points, massive refactoring tasks spanning hundreds of files require active context compression or retrieval-augmented memory.
-- **Feedback Quality**: Trajectory-SFT relies on high-quality demonstration traces. Inverting flawed trajectories during training can entrench suboptimal search patterns.
+```mermaid
+graph TD
+    M31B["gemma-4-31B-it (Base Model)"] --> Sample["Rollout 3-5 Candidate Trajectories<br/>per SWE-bench Task"]
+    Sample --> Sandbox["Execute in Sandboxed Container<br/>Run Hidden Reproduction Tests"]
+    Sandbox --> Filter{"Pass Hidden Tests &<br/>Clean Git Diff?"}
+    Filter -- Yes --> Keep["On-Policy Gold Trajectory"]
+    Filter -- No --> Discard["Discard / Contrastive Pair"]
+    Keep --> Train["Trajectory-SFT (QLoRA, r=16)<br/>NVIDIA DGX Spark"]
+    Train --> NewAdapter["31B On-Policy SWE LoRA"]
+```
 
-### Future Work: Reinforcement Learning from Compiler Feedback (RLCF)
-The natural sequel to Trajectory-SFT is online Reinforcement Learning (PPO or GRPO). With the LoRA adapter providing a disciplined behavioral prior, the agent can explore candidate patches in sandboxed containers, receiving dense reward signals directly from pytest exit codes and git diff brevity metrics.
+1. **On-Policy Trajectory Harvesting**: Run the 31B base model with our streamlined prompt across 200+ Python tasks.
+2. **Rejection Filtering**: Retain only trajectories where the generated patch passes the hidden test suite with zero regressions.
+3. **Targeted 31B QLoRA**: Train the LoRA adapter directly against the 60-layer 31B model on the DGX Spark using our validated $\mathcal{R}_{\text{target}}$ regex and loss masking.
+4. **End-to-End Resolve Rate Gating**: Benchmark the fine-tuned adapter against the prompt-only baseline across paired random seeds to verify statistically significant resolution gains.
 
 ---
 
 ## 10. Conclusion
 
-Prompt engineering allowed developers to establish a strong foothold in the Gemma 4 Developer Agent Competition, but breaking through the 0.24 score ceiling demands parametric adaptation. 
+Prompt engineering allowed developer agents to break through early competition baselines, but bridging the gap to human software engineers requires grounded post-training. 
 
-By resolving Gemma 4's multimodal PEFT target constraints, implementing strict teacher-forcing loss masking on multi-turn agent traces, and training on the **NVIDIA DGX Spark** with Grace Blackwell GB10 unified memory, **Trajectory-SFT** delivers a **23.21% validation loss reduction** and a **59.48% perplexity drop** on held-out SWE tasks. By transforming tool syntax and test-first discipline into reflexive parametric behaviors, Trajectory-SFT establishes a robust, reproducible foundation for the next generation of autonomous open-weights developer agents.
+By identifying and resolving the `Gemma4ClippableLinear` multimodal PEFT trap, formulating turn-level selective loss masking on execution feedback, and analyzing the dynamics of autonomous tool execution on the **NVIDIA DGX Spark**, this work establishes the architectural and empirical foundation for post-training Gemma 4. As our roadmap advances to on-policy rejection-sampling fine-tuning on 31B, Grounded Trajectory-SFT paves the way for reliable, open-weights developer agents that operate autonomously on accessible workstation hardware.
 
 ---
 

@@ -1,6 +1,5 @@
 name: swe_agent
 model: gemma-4-31b-it-qat-w4a16-ct
-adapter: gemma4_swe_lora
 instruction: !include prompts/system.md
 tools:
   - run_command
@@ -9,7 +8,4 @@ tools:
   - write_file
   - get_status
   - submit_patch
-  - get_code_neighbors
-  - search_similar_code
-  - get_code_subgraph
 generate_content_config: !include configs/sampling.yaml
