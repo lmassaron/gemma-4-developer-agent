@@ -26,10 +26,13 @@ from typing import List, Dict, Any, Optional
 
 import torch
 from torch.utils.data import Dataset, DataLoader
+try:
+    from transformers import AutoModelForImageTextToText as AutoModelForMultimodalLM
+except ImportError:
+    from transformers import AutoModelForMultimodalLM
 from transformers import (
     AutoProcessor,
     AutoConfig,
-    AutoModelForMultimodalLM,
     get_cosine_schedule_with_warmup,
 )
 from peft import LoraConfig, get_peft_model, PeftModel
