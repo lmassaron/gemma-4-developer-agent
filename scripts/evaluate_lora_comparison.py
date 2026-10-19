@@ -24,7 +24,11 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 import torch
-from transformers import AutoProcessor, AutoModelForMultimodalLM
+try:
+    from transformers import AutoModelForImageTextToText as AutoModelForMultimodalLM
+except ImportError:
+    from transformers import AutoModelForMultimodalLM
+from transformers import AutoProcessor
 from peft import PeftModel
 
 
@@ -78,7 +82,14 @@ def compute_turn_loss(model, processor, conv: List[Dict[str, Any]], device: str 
     labels_tensor = torch.tensor([labels], dtype=torch.long, device=device)
 
     with torch.no_grad():
-        out = model(input_ids=input_tensor, labels=labels_tensor)
+        try:
+            out = model(input_ids=input_tensor, labels=labels_tensor)
+        except Exception:
+            out = model(
+                input_ids=input_tensor,
+                labels=labels_tensor,
+                mm_token_type_ids=torch.zeros_like(input_tensor),
+            )
         return float(out.loss.item()) if out.loss is not None else 0.0
 
 
@@ -88,6 +99,7 @@ def main():
     parser.add_argument("--adapter_dir", type=str, default="adapters/gemma4_swe_lora/checkpoint-75")
     parser.add_argument("--dataset_path", type=str, required=True)
     parser.add_argument("--num_val_samples", type=int, default=15)
+    parser.add_argument("--output_file", type=str, default="evaluation_sft_comparison.json")
     args = parser.parse_args()
 
     print("=" * 65)
@@ -201,7 +213,7 @@ def main():
     loss_reduction_pct = ((avg_base_loss - avg_lora_loss) / avg_base_loss) * 100 if avg_base_loss > 0 else 0.0
     ppl_reduction_pct = ((base_ppl - lora_ppl) / base_ppl) * 100 if base_ppl > 0 else 0.0
 
-    results = {
+    model_entry = {
         "base_model": args.base_model,
         "adapter_dir": args.adapter_dir,
         "num_val_samples": len(val_convs),
@@ -214,8 +226,27 @@ def main():
         "sample_generation": gen_text[:400]
     }
 
-    out_file = Path("evaluation_sft_comparison.json")
-    out_file.write_text(json.dumps(results, indent=2))
+    out_file = Path(args.output_file)
+    existing_data = {}
+    if out_file.is_file():
+        try:
+            raw = json.loads(out_file.read_text(encoding="utf-8"))
+            if "models" in raw and isinstance(raw["models"], dict):
+                existing_data = raw
+            elif "base_model" in raw:
+                # Migrate older single-entry format
+                old_key = raw["base_model"]
+                existing_data = {"models": {old_key: raw}}
+        except Exception:
+            existing_data = {}
+
+    if "models" not in existing_data:
+        existing_data["models"] = {}
+
+    existing_data["models"][args.base_model] = model_entry
+    existing_data["latest_evaluated"] = args.base_model
+
+    out_file.write_text(json.dumps(existing_data, indent=2))
 
     print("=" * 65)
     print("                  FINAL VERIFICATION REPORT")

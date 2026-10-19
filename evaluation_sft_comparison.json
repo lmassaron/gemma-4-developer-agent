@@ -1,12 +1,41 @@
 {
-  "base_model": "google/gemma-4-E2B-it",
-  "adapter_dir": "/home/lmassaron/code/gemma-4-developer-agent-competition/adapters/gemma4_swe_lora/checkpoint-75",
-  "num_val_samples": 10,
-  "base_loss": 3.8931,
-  "base_ppl": 49.06,
-  "lora_loss": 2.9897,
-  "lora_ppl": 19.88,
-  "loss_reduction_percent": 23.21,
-  "ppl_reduction_percent": 59.48,
-  "sample_generation": "Please provide the content of `requests/models.py` so I can investigate the issue and write a reproduction test.\n\nOnce you provide the code, I will:\n\n1. **Analyze `Response.iter_content`:** I will look at how `iter_content` is implemented, specifically focusing on the logic when `stream=True` and how it handles chunks from the underlying response.\n2. **Identify the Cause:** I will try to pinpoint "
+  "models": {
+    "google/gemma-4-E2B-it": {
+      "base_model": "google/gemma-4-E2B-it",
+      "adapter_dir": "/home/lmassaron/code/gemma-4-developer-agent-competition/adapters/gemma4_swe_lora/checkpoint-75",
+      "num_val_samples": 10,
+      "base_loss": 3.8931,
+      "base_ppl": 49.06,
+      "lora_loss": 2.9897,
+      "lora_ppl": 19.88,
+      "loss_reduction_percent": 23.21,
+      "ppl_reduction_percent": 59.48,
+      "sample_generation": "Please provide the content of `requests/models.py` so I can investigate the issue and write a reproduction test.\n\nOnce you provide the code, I will:\n\n1. **Analyze `Response.iter_content`:** I will look at how `iter_content` is implemented, specifically focusing on the logic when `stream=True` and how it handles chunks from the underlying response.\n2. **Identify the Cause:** I will try to pinpoint "
+    },
+    "google/gemma-4-12B-it": {
+      "base_model": "google/gemma-4-12B-it",
+      "adapter_dir": "adapters/gemma4_12b_swe_lora",
+      "num_val_samples": 10,
+      "base_loss": 3.3145,
+      "base_ppl": 27.51,
+      "lora_loss": 1.866,
+      "lora_ppl": 6.46,
+      "loss_reduction_percent": 43.7,
+      "ppl_reduction_percent": 76.51,
+      "sample_generation": "To address this issue, I will follow a standard engineering workflow: **Reproduce**, **Analyze**, and **Fix**.\n\nSince I don't have your specific local file structure, I will assume a standard `requests`-like architecture where `Response.iter_content` yields chunks from a raw socket/stream.\n\n### Phase 1: Investigation & Hypothesis\nThe error \"unhandled chunk error\" during `stream=True` usually occur"
+    },
+    "google/gemma-4-31B-it": {
+      "base_model": "google/gemma-4-31B-it",
+      "adapter_dir": "adapters/gemma4_31b_swe_lora",
+      "num_val_samples": 10,
+      "base_loss": 3.6738,
+      "base_ppl": 39.4,
+      "lora_loss": 1.8348,
+      "lora_ppl": 6.26,
+      "loss_reduction_percent": 50.06,
+      "ppl_reduction_percent": 84.1,
+      "sample_generation": "To investigate and fix this issue, we need to simulate a scenario where the server sends a chunk of data that violates the HTTP chunked-transfer-encoding specification (e.g., a malformed chunk size or an unexpected end of stream).\n\nBelow is the step-by-step process: the reproduction test case and the corresponding fix.\n\n### 1. Reproduction Test\nCreate a file named `test_chunk_error.py`. We will us"
+    }
+  },
+  "latest_evaluated": "google/gemma-4-31B-it"
 }

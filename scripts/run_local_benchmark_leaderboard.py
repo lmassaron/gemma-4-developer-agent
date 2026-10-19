@@ -1,0 +1,597 @@
+#!/usr/bin/env python3
+"""
+Local SWE Benchmark & Leaderboard Runner for Gemma 4 Developer Agent Competition.
+
+Features:
+- Evaluates candidate models, prompt configs, or zipped submissions across standardized benchmark suites:
+  - 'smoke_3': 3 diverse tasks (1 Requests, 1 FastAPI, 1 Rich) for rapid iteration & timeout verification.
+  - 'core_12': 12 balanced tasks (4 Requests, 4 FastAPI, 4 Rich) for rigorous local scoring.
+  - 'custom': Specific list of instance_ids passed via --tasks.
+- Emulates the official competition ADK agent environment:
+  - Standard ADK tools: run_command, read_file, edit_file, write_file, get_status, submit_patch.
+  - Turn limit (default 20) and strict timeout (default 360s matching the Kaggle evaluation harness).
+- Evaluates submitted patches against hidden test suites using pytest.
+- Maintains and automatically updates:
+  - leaderboard.json (machine-readable historical runs and model comparisons)
+  - LEADERBOARD.md (human-readable GitHub-flavored markdown leaderboard table)
+"""
+
+import os
+import sys
+import json
+import time
+import shutil
+import zipfile
+import tarfile
+import argparse
+import subprocess
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+
+import torch
+try:
+    from transformers import AutoModelForImageTextToText as AutoModelForMultimodalLM
+except ImportError:
+    from transformers import AutoModelForMultimodalLM
+from transformers import AutoProcessor
+from peft import PeftModel
+
+
+# Standard SWE Benchmark Suites
+BENCHMARK_SUITES = {
+    "smoke_3": [
+        "requests_7205",
+        "fastapi_11194",
+        "rich_2725",
+    ],
+    "core_12": [
+        "requests_7205",
+        "requests_7433",
+        "requests_7502",
+        "requests_7505",
+        "fastapi_11194",
+        "fastapi_11355",
+        "fastapi_12942",
+        "fastapi_13537",
+        "rich_2725",
+        "rich_2943",
+        "rich_3006",
+        "rich_3052",
+    ],
+}
+
+
+def extract_target_test_info(test_patch: str) -> Tuple[List[str], List[str]]:
+    """Extract paths to test files and test function names added in test_patch."""
+    files = []
+    functions = []
+    for line in test_patch.splitlines():
+        if line.startswith("+++ b/"):
+            path = line[6:].strip()
+            if path != "/dev/null":
+                files.append(path)
+        elif line.startswith("+") and not line.startswith("+++"):
+            import re
+            m = re.search(r"def\s+(test_[a-zA-Z0-9_]+)", line)
+            if m:
+                functions.append(m.group(1))
+    return list(dict.fromkeys(files)), list(dict.fromkeys(functions))
+
+
+class TaskWorkspace:
+    def __init__(self, task: Dict[str, Any], base_dir: Path, data_dir: Path):
+        self.task = task
+        self.instance_id = task["instance_id"]
+        self.data_dir = data_dir
+        self.work_dir = base_dir / self.instance_id
+        self.snapshot_tar = data_dir / "snapshots" / f"{self.instance_id}.tgz"
+
+    def setup(self):
+        shutil.rmtree(self.work_dir, ignore_errors=True)
+        self.work_dir.mkdir(parents=True, exist_ok=True)
+
+        if not self.snapshot_tar.is_file():
+            raise FileNotFoundError(f"Snapshot not found: {self.snapshot_tar}")
+
+        with tarfile.open(self.snapshot_tar, "r:gz") as tar:
+            tar.extractall(self.work_dir)
+
+        # Initialize git repository
+        if not (self.work_dir / ".git").is_dir():
+            subprocess.run(["git", "init", "-q"], cwd=self.work_dir, check=True)
+            subprocess.run(["git", "config", "user.name", "evaluator"], cwd=self.work_dir, check=True)
+            subprocess.run(["git", "config", "user.email", "eval@kaggle.local"], cwd=self.work_dir, check=True)
+            subprocess.run(["git", "add", "-A"], cwd=self.work_dir, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "base snapshot", "--allow-empty"], cwd=self.work_dir, check=True)
+
+    def run_command(self, cmd: str, timeout_sec: int = 30) -> str:
+        try:
+            res = subprocess.run(
+                ["bash", "-c", cmd],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+                timeout=timeout_sec,
+            )
+            out = res.stdout + res.stderr
+            return out if out.strip() else "[Command executed successfully with no output]"
+        except subprocess.TimeoutExpired:
+            return f"[Error: Command timed out after {timeout_sec}s]"
+        except Exception as e:
+            return f"[Error: {e}]"
+
+    def read_file(self, path: str, offset: int = 0, limit: int = 80) -> str:
+        fp = self.work_dir / path
+        if not fp.is_file():
+            return f"[Error: File not found: {path}]"
+        try:
+            lines = fp.read_text(encoding="utf-8", errors="replace").splitlines()
+            total = len(lines)
+            selected = lines[offset: offset + limit]
+            numbered = [f"{offset + idx + 1:4d} | {line}" for idx, line in enumerate(selected)]
+            header = f"[File: {path} (lines {offset+1}-{min(total, offset+limit)} of {total})]\n"
+            return header + "\n".join(numbered)
+        except Exception as e:
+            return f"[Error reading file: {e}]"
+
+    def edit_file(self, path: str, old_content: str, new_content: str) -> str:
+        fp = self.work_dir / path
+        if not fp.is_file():
+            return f"[Error: File not found: {path}]"
+        try:
+            text = fp.read_text(encoding="utf-8")
+            if old_content not in text:
+                return f"[Error: old_content not found in {path}. Make sure whitespace and indentation match exactly.]"
+            occurrences = text.count(old_content)
+            if occurrences > 1:
+                return f"[Error: old_content occurs {occurrences} times in {path}. Please provide a larger unique snippet.]"
+            updated = text.replace(old_content, new_content, 1)
+            fp.write_text(updated, encoding="utf-8")
+            return f"[Successfully updated {path}]"
+        except Exception as e:
+            return f"[Error editing file: {e}]"
+
+    def write_file(self, path: str, content: str) -> str:
+        fp = self.work_dir / path
+        fp.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            fp.write_text(content, encoding="utf-8")
+            return f"[Successfully wrote {len(content)} bytes to {path}]"
+        except Exception as e:
+            return f"[Error writing file: {e}]"
+
+    def get_status(self) -> str:
+        try:
+            res = subprocess.run(
+                ["git", "status", "--short"],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+            )
+            diff_stat = subprocess.run(
+                ["git", "diff", "--stat"],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+            )
+            return f"Git Status:\n{res.stdout}\nDiff Stat:\n{diff_stat.stdout}"
+        except Exception as e:
+            return f"[Error getting status: {e}]"
+
+    def get_diff(self) -> str:
+        try:
+            res = subprocess.run(
+                ["git", "diff", "HEAD"],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+            )
+            return res.stdout
+        except Exception:
+            return ""
+
+    def run_verification(self, timeout_sec: int = 45) -> Tuple[bool, str]:
+        """Applies hidden test_patch and runs pytest against target functions."""
+        test_patch = self.task.get("test_patch", "")
+        test_files, test_functions = extract_target_test_info(test_patch)
+
+        # Apply hidden test patch
+        patch_file = self.work_dir / ".hidden_test.patch"
+        clean_patch = test_patch if test_patch.endswith("\n") else (test_patch + "\n")
+        patch_file.write_text(clean_patch, encoding="utf-8")
+        try:
+            res = subprocess.run(
+                ["git", "apply", "--whitespace=nowarn", "--recount", str(patch_file)],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+            )
+            if res.returncode != 0:
+                res = subprocess.run(
+                    ["git", "apply", "--whitespace=fix", str(patch_file)],
+                    cwd=self.work_dir,
+                    capture_output=True,
+                    text=True,
+                )
+            if res.returncode != 0:
+                return False, f"Hidden test patch failed to apply: {res.stderr}"
+        finally:
+            patch_file.unlink(missing_ok=True)
+
+        # Run targeted pytest
+        pytest_cmd = [sys.executable, "-m", "pytest", "-q", "--tb=short"]
+        if test_files:
+            pytest_cmd.extend(test_files)
+        if test_functions:
+            pytest_cmd.extend(["-k", " or ".join(test_functions)])
+
+        env = os.environ.copy()
+        python_paths = [str(self.work_dir), str(self.work_dir / "src")]
+        if env.get("PYTHONPATH"):
+            python_paths.append(env["PYTHONPATH"])
+        env["PYTHONPATH"] = ":".join(python_paths)
+
+        try:
+            proc = subprocess.run(
+                pytest_cmd,
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+                timeout=timeout_sec,
+                env=env,
+            )
+            out = proc.stdout + "\n" + proc.stderr
+            return (proc.returncode == 0, out)
+        except subprocess.TimeoutExpired:
+            return False, f"Pytest timed out after {timeout_sec}s"
+        except Exception as e:
+            return False, f"Pytest execution error: {e}"
+
+    def cleanup(self):
+        shutil.rmtree(self.work_dir, ignore_errors=True)
+
+
+class AgentSimulator:
+    """Multi-turn Gemma 4 Agent Rollout Simulator."""
+
+    def __init__(self, model, processor, system_prompt: str, device: str = "cuda:0"):
+        self.model = model
+        self.processor = processor
+        self.system_prompt = system_prompt
+        self.device = device
+
+    def parse_tool_call(self, text: str) -> Optional[Tuple[str, Dict[str, Any]]]:
+        """Parses Gemma 4 tool call syntax or json block."""
+        import re
+
+        # Pattern 1: call:default_api:tool_name{args} or call:tool_name{args}
+        m = re.search(r"call:(?:default_api:)?([a-zA-Z0-9_]+)\s*(\{[^}]*\})", text)
+        if m:
+            tool_name = m.group(1)
+            raw_args = m.group(2)
+            try:
+                args = json.loads(raw_args)
+                return tool_name, args
+            except json.JSONDecodeError:
+                # Basic string extractor
+                return tool_name, {"command": raw_args.strip("{} \n\t")}
+
+        # Pattern 2: JSON-style tool call block: {"name": "tool_name", "arguments": {...}}
+        m_json = re.search(r"\{[^{}]*\"name\"\s*:\s*\"([^\"]+)\"[^{}]*\"arguments\"\s*:\s*(\{[^}]*\})[^{}]*\}", text)
+        if m_json:
+            tool_name = m_json.group(1).replace("default_api:", "")
+            try:
+                args = json.loads(m_json.group(2))
+                return tool_name, args
+            except Exception:
+                pass
+
+        # Pattern 3: explicit submit_patch call
+        if "submit_patch" in text:
+            return "submit_patch", {}
+
+        return None
+
+    def execute_tool(self, ws: TaskWorkspace, tool_name: str, args: Dict[str, Any]) -> Tuple[str, bool]:
+        """Executes a tool on the workspace. Returns (output_string, is_terminal_action)."""
+        if tool_name == "run_command":
+            cmd = args.get("command") or args.get("cmd") or ""
+            return ws.run_command(cmd), False
+        elif tool_name == "read_file":
+            path = args.get("path") or args.get("file_path") or ""
+            offset = int(args.get("offset", 0))
+            limit = int(args.get("limit", 80))
+            return ws.read_file(path, offset, limit), False
+        elif tool_name == "edit_file":
+            path = args.get("path") or args.get("file_path") or ""
+            old_str = args.get("old_content") or args.get("old_str") or ""
+            new_str = args.get("new_content") or args.get("new_str") or ""
+            return ws.edit_file(path, old_str, new_str), False
+        elif tool_name == "write_file":
+            path = args.get("path") or args.get("file_path") or ""
+            content = args.get("content") or ""
+            return ws.write_file(path, content), False
+        elif tool_name == "get_status":
+            return ws.get_status(), False
+        elif tool_name == "submit_patch":
+            return "[Patch submitted. Finalizing task evaluation.]", True
+        else:
+            return f"[Unknown tool: {tool_name}]", False
+
+    def solve_task(self, task: Dict[str, Any], data_dir: Path, temp_dir: Path, timeout_sec: int = 360, max_turns: int = 20) -> Dict[str, Any]:
+        """Runs the complete agent loop on a single task."""
+        ws = TaskWorkspace(task, temp_dir, data_dir)
+        ws.setup()
+        start_time = time.time()
+        tool_calls_log = []
+
+        issue_text = task.get("problem_statement") or task.get("issue") or ""
+        messages = [
+            {"role": "user", "content": f"{self.system_prompt}\n\n# PROBLEM STATEMENT\n{issue_text}"}
+        ]
+
+        turns_used = 0
+        terminal_invoked = False
+
+        try:
+            while turns_used < max_turns:
+                elapsed = time.time() - start_time
+                if elapsed > timeout_sec:
+                    return {
+                        "instance_id": task["instance_id"],
+                        "repo": task["repo"],
+                        "status": "TIMEOUT",
+                        "resolved": False,
+                        "duration_sec": round(elapsed, 2),
+                        "turns": turns_used,
+                        "tool_calls": tool_calls_log,
+                        "patch_size": len(ws.get_diff()),
+                    }
+
+                turns_used += 1
+
+                # Generate model turn
+                prompt_str = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                inputs = self.processor.tokenizer(prompt_str, return_tensors="pt").to(self.device)
+
+                gen_kwargs = {
+                    "input_ids": inputs.input_ids,
+                    "attention_mask": inputs.attention_mask,
+                    "max_new_tokens": 512,
+                    "do_sample": False,
+                }
+                with torch.no_grad():
+                    try:
+                        gen_ids = self.model.generate(**gen_kwargs)
+                    except Exception:
+                        gen_kwargs["mm_token_type_ids"] = torch.zeros_like(inputs.input_ids)
+                        gen_ids = self.model.generate(**gen_kwargs)
+
+                response_text = self.processor.tokenizer.decode(
+                    gen_ids[0][inputs.input_ids.shape[1]:],
+                    skip_special_tokens=False,
+                )
+
+                parsed = self.parse_tool_call(response_text)
+                if not parsed:
+                    # Model didn't call a tool; break or prompt to finish
+                    messages.append({"role": "assistant", "content": response_text})
+                    messages.append({"role": "user", "content": "Please inspect files, make an edit, or call submit_patch."})
+                    continue
+
+                tool_name, tool_args = parsed
+                tool_calls_log.append(f"{tool_name}: {tool_args}")
+                print(f"    Turn {turns_used:02d} | Call: {tool_name} -> {tool_args}", flush=True)
+
+                # Execute tool
+                tool_output, is_terminal = self.execute_tool(ws, tool_name, tool_args)
+                messages.append({"role": "assistant", "content": response_text})
+                messages.append({"role": "tool", "name": tool_name, "content": tool_output})
+
+                if is_terminal:
+                    terminal_invoked = True
+                    break
+
+            # Run test verification
+            elapsed = time.time() - start_time
+            passed, test_output = ws.run_verification()
+            patch_text = ws.get_diff()
+
+            status = "RESOLVED" if passed else ("FAILED" if patch_text.strip() else "NO_PATCH")
+
+            return {
+                "instance_id": task["instance_id"],
+                "repo": task["repo"],
+                "status": status,
+                "resolved": passed,
+                "duration_sec": round(elapsed, 2),
+                "turns": turns_used,
+                "tool_calls": tool_calls_log,
+                "patch_size": len(patch_text),
+                "terminal_invoked": terminal_invoked,
+                "output_snippet": test_output[-400:] if test_output else "",
+            }
+
+        finally:
+            ws.cleanup()
+
+
+def update_leaderboard_files(entry: Dict[str, Any], json_path: Path, md_path: Path):
+    """Updates leaderboard.json and LEADERBOARD.md with new benchmark results."""
+    data = {"leaderboard": [], "runs": {}}
+    if json_path.is_file():
+        try:
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+        except Exception:
+            data = {"leaderboard": [], "runs": {}}
+
+    # Update summary table
+    runs = data.setdefault("runs", {})
+    run_key = f"{entry['model_name']}_{entry['suite']}_{entry['timestamp']}"
+    runs[run_key] = entry
+
+    # Upsert in leaderboard list (keep highest resolution rate per model+suite)
+    existing_idx = None
+    for idx, item in enumerate(data["leaderboard"]):
+        if item["model_name"] == entry["model_name"] and item["suite"] == entry["suite"]:
+            existing_idx = idx
+            break
+
+    summary_item = {
+        "model_name": entry["model_name"],
+        "suite": entry["suite"],
+        "resolved": entry["resolved"],
+        "total": entry["total"],
+        "resolution_rate_percent": entry["resolution_rate_percent"],
+        "mean_duration_sec": entry["mean_duration_sec"],
+        "timeouts": entry["timeouts"],
+        "mean_turns": entry["mean_turns"],
+        "timestamp": entry["timestamp"],
+    }
+
+    if existing_idx is not None:
+        data["leaderboard"][existing_idx] = summary_item
+    else:
+        data["leaderboard"].append(summary_item)
+
+    # Sort leaderboard by resolution rate desc, then mean duration asc
+    data["leaderboard"].sort(key=lambda x: (-x["resolution_rate_percent"], x["mean_duration_sec"]))
+    json_path.write_text(json.dumps(data, indent=2))
+
+    # Generate LEADERBOARD.md
+    lines = [
+        "# Gemma 4 Developer Agent — Local Benchmark Leaderboard",
+        "",
+        "> Standardized evaluation of Gemma 4 developer agent candidates on verified SWE-bench tasks under official 360s/task competition constraints.",
+        "",
+        "## Overall Leaderboard",
+        "",
+        "| Rank | Model / Configuration | Suite | Resolution Rate | Resolved | Avg Time / Task | Timeouts (>360s) | Avg Turns | Last Evaluated |",
+        "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
+    ]
+
+    for rank, row in enumerate(data["leaderboard"], 1):
+        rate_str = f"**{row['resolution_rate_percent']:.1f}%**"
+        res_str = f"{row['resolved']}/{row['total']}"
+        time_str = f"{row['mean_duration_sec']:.1f}s"
+        lines.append(
+            f"| #{rank} | **{row['model_name']}** | `{row['suite']}` | {rate_str} | {res_str} | {time_str} | {row['timeouts']} | {row['mean_turns']:.1f} | {row['timestamp']} |"
+        )
+
+    lines.extend([
+        "",
+        "## Benchmark Suites",
+        "- **`smoke_3`**: 3 representative tasks across core repositories (`psf/requests`, `fastapi/fastapi`, `Textualize/rich`) for rapid timeout verification and regression testing.",
+        "- **`core_12`**: 12 balanced tasks (4 Requests, 4 FastAPI, 4 Rich) providing a high-confidence local signal.",
+        "",
+        "## Latest Evaluation Run Details",
+        f"**Run ID**: `{run_key}`  ",
+        f"**Model**: `{entry['model_name']}` | **Suite**: `{entry['suite']}`  ",
+        "",
+        "| Instance ID | Repository | Status | Resolved | Duration (s) | Turns | Tool Calls | Patch Size |",
+        "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
+    ])
+
+    for task_res in entry.get("tasks", []):
+        res_badge = "✅ PASS" if task_res.get("resolved") else "❌ FAIL"
+        lines.append(
+            f"| `{task_res['instance_id']}` | `{task_res['repo']}` | `{task_res['status']}` | {res_badge} | {task_res['duration_sec']}s | {task_res['turns']} | {len(task_res.get('tool_calls', []))} | {task_res['patch_size']} B |"
+        )
+
+    lines.append("")
+    md_path.write_text("\n".join(lines))
+    print(f"\n[Leaderboard] Successfully updated {md_path.resolve()}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Gemma 4 Local Benchmark & Leaderboard Runner")
+    parser.add_argument("--suite", choices=["smoke_3", "core_12", "custom"], default="smoke_3")
+    parser.add_argument("--tasks_file", default="data/tasks.jsonl", help="Path to tasks.jsonl")
+    parser.add_argument("--data_dir", default="data", help="Root data directory containing snapshots/")
+    parser.add_argument("--submission_zip", help="Path to submission.zip to benchmark")
+    parser.add_argument("--base_model", default="google/gemma-4-12B-it")
+    parser.add_argument("--adapter_dir", help="Path to PEFT LoRA adapter directory")
+    parser.add_argument("--system_prompt_path", default="submission/prompts/system.md")
+    parser.add_argument("--model_name", help="Display name for leaderboard")
+    parser.add_argument("--timeout_sec", type=int, default=360, help="Per-task timeout in seconds")
+    parser.add_argument("--max_turns", type=int, default=20, help="Max agent turns per task")
+    args = parser.parse_args()
+
+    data_dir = Path(args.data_dir).resolve()
+    temp_dir = Path("/tmp/gemma4_benchmark_workspaces")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Load Tasks
+    target_ids = BENCHMARK_SUITES.get(args.suite, [])
+    task_map = {}
+    with open(args.tasks_file, "r", encoding="utf-8") as f:
+        for line in f:
+            t = json.loads(line)
+            task_map[t["instance_id"]] = t
+
+    selected_tasks = [task_map[tid] for tid in target_ids if tid in task_map]
+    print(f"[Benchmark] Selected {len(selected_tasks)} tasks for suite '{args.suite}'.")
+
+    # 2. Setup System Prompt & Model Name
+    model_name = args.model_name or Path(args.adapter_dir).name if args.adapter_dir else Path(args.base_model).name
+    system_prompt = Path(args.system_prompt_path).read_text(encoding="utf-8")
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    print(f"[Model] Loading Processor: {args.base_model}...")
+    processor = AutoProcessor.from_pretrained(args.base_model)
+
+    print(f"[Model] Loading Base Model: {args.base_model} on {device}...")
+    model = AutoModelForMultimodalLM.from_pretrained(
+        args.base_model,
+        dtype=torch.bfloat16,
+        device_map="auto",
+    )
+
+    if args.adapter_dir and Path(args.adapter_dir).is_dir():
+        print(f"[Model] Attaching LoRA Adapter from: {args.adapter_dir}...")
+        model = PeftModel.from_pretrained(model, args.adapter_dir)
+
+    model.eval()
+
+    # 3. Execute Suite
+    agent = AgentSimulator(model, processor, system_prompt, device=device)
+    task_results = []
+    print("\n" + "=" * 65)
+    print(f"      STARTING BENCHMARK SUITE: {args.suite} ({model_name})")
+    print("=" * 65)
+
+    for idx, t in enumerate(selected_tasks, 1):
+        print(f"\n[{idx}/{len(selected_tasks)}] Evaluating: {t['instance_id']} ({t['repo']})...")
+        res = agent.solve_task(t, data_dir, temp_dir, timeout_sec=args.timeout_sec, max_turns=args.max_turns)
+        task_results.append(res)
+        print(f"--> Status: {res['status']} | Resolved: {res['resolved']} | Duration: {res['duration_sec']}s | Turns: {res['turns']}")
+
+    # 4. Compute Metrics
+    resolved_count = sum(1 for r in task_results if r["resolved"])
+    total_count = len(task_results)
+    rate = (resolved_count / total_count * 100.0) if total_count > 0 else 0.0
+    mean_dur = sum(r["duration_sec"] for r in task_results) / total_count if total_count > 0 else 0.0
+    timeouts = sum(1 for r in task_results if r["status"] == "TIMEOUT")
+    mean_turns = sum(r["turns"] for r in task_results) / total_count if total_count > 0 else 0.0
+
+    entry = {
+        "model_name": model_name,
+        "suite": args.suite,
+        "resolved": resolved_count,
+        "total": total_count,
+        "resolution_rate_percent": round(rate, 2),
+        "mean_duration_sec": round(mean_dur, 2),
+        "timeouts": timeouts,
+        "mean_turns": round(mean_turns, 2),
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "tasks": task_results,
+    }
+
+    # 5. Update Leaderboard
+    json_path = Path("leaderboard.json")
+    md_path = Path("LEADERBOARD.md")
+    update_leaderboard_files(entry, json_path, md_path)
+
+
+if __name__ == "__main__":
+    main()

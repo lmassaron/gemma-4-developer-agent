@@ -1,0 +1,129 @@
+{
+  "leaderboard": [
+    {
+      "model_name": "gemma-4-12b-sft-v6",
+      "suite": "smoke_3",
+      "resolved": 0,
+      "total": 3,
+      "resolution_rate_percent": 0.0,
+      "mean_duration_sec": 146.3,
+      "timeouts": 0,
+      "mean_turns": 20.0,
+      "timestamp": "2026-10-19 08:47:43"
+    }
+  ],
+  "runs": {
+    "gemma-4-12b-sft-v6_smoke_3_2026-10-19 08:47:43": {
+      "model_name": "gemma-4-12b-sft-v6",
+      "suite": "smoke_3",
+      "resolved": 0,
+      "total": 3,
+      "resolution_rate_percent": 0.0,
+      "mean_duration_sec": 146.3,
+      "timeouts": 0,
+      "mean_turns": 20.0,
+      "timestamp": "2026-10-19 08:47:43",
+      "tasks": [
+        {
+          "instance_id": "requests_7205",
+          "repo": "psf/requests",
+          "status": "NO_PATCH",
+          "resolved": false,
+          "duration_sec": 161.37,
+          "turns": 20,
+          "tool_calls": [
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command"
+          ],
+          "patch_size": 0,
+          "terminal_invoked": false,
+          "output_snippet": "Hidden test patch failed to apply: error: corrupt patch at line 19\n"
+        },
+        {
+          "instance_id": "fastapi_11194",
+          "repo": "fastapi/fastapi",
+          "status": "NO_PATCH",
+          "resolved": false,
+          "duration_sec": 144.16,
+          "turns": 20,
+          "tool_calls": [
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command"
+          ],
+          "patch_size": 0,
+          "terminal_invoked": false,
+          "output_snippet": "Hidden test patch failed to apply: error: corrupt patch at line 93\n"
+        },
+        {
+          "instance_id": "rich_2725",
+          "repo": "Textualize/rich",
+          "status": "NO_PATCH",
+          "resolved": false,
+          "duration_sec": 133.37,
+          "turns": 20,
+          "tool_calls": [
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command",
+            "run_command"
+          ],
+          "patch_size": 0,
+          "terminal_invoked": false,
+          "output_snippet": "Hidden test patch failed to apply: error: corrupt patch at line 145\n"
+        }
+      ]
+    }
+  }
+}
