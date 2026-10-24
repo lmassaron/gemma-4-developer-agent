@@ -1,0 +1,2582 @@
+[
+  {
+    "id": "747519",
+    "title": "Update on \"Kaggle Error\" Submissions & Queue Delays",
+    "author": "Dustin",
+    "votes": 36,
+    "comments": 91,
+    "pinned": true,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747519",
+    "page": 1
+  },
+  {
+    "id": "748287",
+    "title": "New Gemma 4 Models Available: 12B, E4B, and E2B",
+    "author": "Ryan Holbrook",
+    "votes": 35,
+    "comments": 35,
+    "pinned": true,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748287",
+    "page": 1
+  },
+  {
+    "id": "751104",
+    "title": "🌟Bonus Prize: Small Model Development ($10,000)",
+    "author": "Elan Markowitz",
+    "votes": 32,
+    "comments": 4,
+    "pinned": true,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751104",
+    "page": 1
+  },
+  {
+    "id": "743007",
+    "title": "Welcome to the Gemma 4 Developer Agent Competition",
+    "author": "Elan Markowitz",
+    "votes": 10,
+    "comments": 9,
+    "pinned": true,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743007",
+    "page": 1
+  },
+  {
+    "id": "742815",
+    "title": "How to get started + Competition's Official Discord",
+    "author": "Ashley Oldacre",
+    "votes": 7,
+    "comments": 2,
+    "pinned": true,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/742815",
+    "page": 1
+  },
+  {
+    "id": "745998",
+    "title": "Note on Code Graphs for Async Functions",
+    "author": "Elan Markowitz",
+    "votes": 6,
+    "comments": 0,
+    "pinned": true,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745998",
+    "page": 1
+  },
+  {
+    "id": "742807",
+    "title": "Clarification on distillation from external LLMs",
+    "author": "c-number",
+    "votes": 49,
+    "comments": 12,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/742807",
+    "page": 1
+  },
+  {
+    "id": "746250",
+    "title": "Gemma 4 agent experiments: sampling, thinking, time limits, and tool ablations",
+    "author": "Ayush Thakur",
+    "votes": 36,
+    "comments": 11,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746250",
+    "page": 1
+  },
+  {
+    "id": "747915",
+    "title": "Suggestion: Temporarily Pause Gemma 4 for 24 Days to Address the L4x4 Shortage",
+    "author": "Tony Li",
+    "votes": 29,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747915",
+    "page": 1
+  },
+  {
+    "id": "747168",
+    "title": "Stronger models barely beat Gemma 4 31B in this harness — teacher comparison on 124 public tasks",
+    "author": "Ruijie Zhu",
+    "votes": 27,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747168",
+    "page": 1
+  },
+  {
+    "id": "743683",
+    "title": "Rerunning Failed Submissions",
+    "author": "Ryan Holbrook",
+    "votes": 21,
+    "comments": 102,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743683",
+    "page": 1
+  },
+  {
+    "id": "746480",
+    "title": "submission is running for 15h. is this due to evaluation ?",
+    "author": "RISHAV KUMAR",
+    "votes": 21,
+    "comments": 37,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746480",
+    "page": 1
+  },
+  {
+    "id": "744807",
+    "title": "Submission errors after the Sep 30 wheelhouse update",
+    "author": "Asim Ersoy",
+    "votes": 21,
+    "comments": 22,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744807",
+    "page": 1
+  },
+  {
+    "id": "751339",
+    "title": "\"Notebook Threw Exception\" on a non-LoRA submission that validates and compiles locally",
+    "author": "Sultan Fawad",
+    "votes": 18,
+    "comments": 32,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751339",
+    "page": 1
+  },
+  {
+    "id": "750974",
+    "title": "31B vs 12B vs E4B with the same agent files: a local comparison",
+    "author": "Dmitrii Gluzdov",
+    "votes": 17,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750974",
+    "page": 1
+  },
+  {
+    "id": "743506",
+    "title": "The public leaderboard has exactly 58 tasks",
+    "author": "Geremie Yeo",
+    "votes": 17,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743506",
+    "page": 1
+  },
+  {
+    "id": "742882",
+    "title": "Is the swegemma harness available for local evaluation?",
+    "author": "shimonDanziger",
+    "votes": 15,
+    "comments": 12,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/742882",
+    "page": 1
+  },
+  {
+    "id": "747248",
+    "title": "fastapi tasks can't pass even with the gold patch",
+    "author": "Nur",
+    "votes": 14,
+    "comments": 12,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747248",
+    "page": 1
+  },
+  {
+    "id": "743140",
+    "title": "What Results Did You Get with Representative Submissions?",
+    "author": "ISAKA Tsuyoshi",
+    "votes": 13,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743140",
+    "page": 1
+  },
+  {
+    "id": "744319",
+    "title": "How well do your CV and LB correlate?",
+    "author": "ISAKA Tsuyoshi",
+    "votes": 11,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744319",
+    "page": 1
+  },
+  {
+    "id": "743600",
+    "title": "Getting gpu l4*4 queued and system errror",
+    "author": "parthenos",
+    "votes": 11,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743600",
+    "page": 2
+  },
+  {
+    "id": "744354",
+    "title": "Thinking mode drops the model's thoughts between tool calls (vLLM ignores `reasoning_content`). Will the scoring environment be patched?",
+    "author": "KE WU",
+    "votes": 11,
+    "comments": 7,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744354",
+    "page": 2
+  },
+  {
+    "id": "748051",
+    "title": "The top of the leaderboard is dominated by those who trained LoRA's.",
+    "author": "Sahil Das",
+    "votes": 11,
+    "comments": 12,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748051",
+    "page": 2
+  },
+  {
+    "id": "746541",
+    "title": "emoji_people",
+    "author": "Max 1 Submission/day is too low",
+    "votes": 10,
+    "comments": 10,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746541",
+    "page": 2
+  },
+  {
+    "id": "742911",
+    "title": "Two data issues: half the graph/embedding files download empty, and the graphs contain no async functions",
+    "author": "Jason Wold",
+    "votes": 10,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/742911",
+    "page": 2
+  },
+  {
+    "id": "744272",
+    "title": "Tool results reach the model double-JSON-encoded: a line of code with quotes turns into a wall of backslashes",
+    "author": "Whisper Last",
+    "votes": 9,
+    "comments": 7,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744272",
+    "page": 2
+  },
+  {
+    "id": "745855",
+    "title": "The first task in the list (fastapi_15661) seems unsolvable from the prompt alone: hidden tests import names that appear nowhere in the task",
+    "author": "ayoub diri",
+    "votes": 8,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745855",
+    "page": 2
+  },
+  {
+    "id": "744805",
+    "title": "Submission 56740049: Notebook Threw Exception, no score, prompt-text-only change",
+    "author": "Narendar Kumar Ale",
+    "votes": 8,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744805",
+    "page": 2
+  },
+  {
+    "id": "743063",
+    "title": "emoji_people",
+    "author": "Scoring-run questions: task concurrency, eval_config keys, and the 12 h limit",
+    "votes": 7,
+    "comments": 9,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743063",
+    "page": 2
+  },
+  {
+    "id": "743973",
+    "title": "Gold patches fail offline for most FastAPI and requests tasks (missing test dependencies in the grading environment?",
+    "author": "wrath333*",
+    "votes": 7,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743973",
+    "page": 2
+  },
+  {
+    "id": "747740",
+    "title": "Submission stuck in \"Pending/Running\" for 26+ hours, blocking new submissions (pending limit)",
+    "author": "kkm121121",
+    "votes": 7,
+    "comments": 9,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747740",
+    "page": 2
+  },
+  {
+    "id": "747857",
+    "title": "Gemma 4 follow-up: Kaggle runtime calibration, command timeouts, and empty-prompt ablations",
+    "author": "Ayush Thakur",
+    "votes": 7,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747857",
+    "page": 2
+  },
+  {
+    "id": "751487",
+    "title": "Local eval in a scorer-like sandbox: gold patches pass on 127/129 public tasks (was 52)",
+    "author": "Zbigniew Kirchner",
+    "votes": 7,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751487",
+    "page": 2
+  },
+  {
+    "id": "750961",
+    "title": "Has anyone achieved reliable gains from LoRA trajectory SFT on Gemma 4 coding agents?",
+    "author": "TTX",
+    "votes": 7,
+    "comments": 11,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750961",
+    "page": 2
+  },
+  {
+    "id": "745775",
+    "title": "emoji_people",
+    "author": "Missing FastAPI test dependencies in the evaluation sandbox",
+    "votes": 6,
+    "comments": 8,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745775",
+    "page": 2
+  },
+  {
+    "id": "747641",
+    "title": "Submission 56947406 stuck in PENDING for 20+ hours and previous submissions throw kaggle error.",
+    "author": "Anon",
+    "votes": 6,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747641",
+    "page": 2
+  },
+  {
+    "id": "745796",
+    "title": "Expected domain shift between the provided repositories and hidden evaluation",
+    "author": "msd0110",
+    "votes": 6,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745796",
+    "page": 2
+  },
+  {
+    "id": "743901",
+    "title": "L4 x4 sessions stuck in \"Queued\" for 8+ hours",
+    "author": "Ahmed Almarwani",
+    "votes": 6,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743901",
+    "page": 2
+  },
+  {
+    "id": "743508",
+    "title": "LoRA adapters are silently wiped in the patched vLLM 0.19.1 (Gemma4 decoder layers registered twice)",
+    "author": "Whisper Last",
+    "votes": 5,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743508",
+    "page": 2
+  },
+  {
+    "id": "744054",
+    "title": "L4 ×4 session queued for 13 hours—still hasn’t started",
+    "author": "Tiangang Zhang",
+    "votes": 5,
+    "comments": 9,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744054",
+    "page": 2
+  },
+  {
+    "id": "743531",
+    "title": "Local Models (E4B/E2B) possible? Separate LB likely?",
+    "author": "Just A Chonk",
+    "votes": 5,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743531",
+    "page": 3
+  },
+  {
+    "id": "747696",
+    "title": "Time, Budget, and Thinking: Gemma 4 Coding-Agent Experiments",
+    "author": "yiyu0716",
+    "votes": 5,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747696",
+    "page": 3
+  },
+  {
+    "id": "746944",
+    "title": "How are URL-pointer-only tasks (e.g. rich_3471) meant to be solved in the air-gapped sandbox?",
+    "author": "XiweiZhou",
+    "votes": 5,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746944",
+    "page": 3
+  },
+  {
+    "id": "744800",
+    "title": "Submission ended with \"Notebook Threw Exception\": could you check what raised?",
+    "author": "Madhukar Devarasetti",
+    "votes": 5,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744800",
+    "page": 3
+  },
+  {
+    "id": "744844",
+    "title": "Updating the Gemma 4 template to have July 15th fixes",
+    "author": "Amanie El-Hajj",
+    "votes": 5,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744844",
+    "page": 3
+  },
+  {
+    "id": "748323",
+    "title": "Same 314 code-graph queries, four wheelhouse builds: results 82 → 11 → 270 → 270 (a CPU replay)",
+    "author": "kimdonggyu1255",
+    "votes": 5,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748323",
+    "page": 3
+  },
+  {
+    "id": "750713",
+    "title": "Fine-tuning Gemma 4 31B on 1,500 agent trajectories: LoRA scaling, budgets, and why my adapter lost to the base model",
+    "author": "icfoer",
+    "votes": 5,
+    "comments": 10,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750713",
+    "page": 3
+  },
+  {
+    "id": "750496",
+    "title": "Architectural Questions for 0.22 - 0.24+ Single-Agent Configurations",
+    "author": "Souvik_D_Biswas",
+    "votes": 5,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750496",
+    "page": 3
+  },
+  {
+    "id": "750521",
+    "title": "Different public scores from an identical submission ZIP - reproducibility question",
+    "author": "ELhamdaoui AM",
+    "votes": 5,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750521",
+    "page": 3
+  },
+  {
+    "id": "751760",
+    "title": "Difficult part in this competition is dealing with wheels, agree or not?",
+    "author": "Dennis",
+    "votes": 4,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751760",
+    "page": 3
+  },
+  {
+    "id": "748756",
+    "title": "How are you generating high-quality training data",
+    "author": "Shoto",
+    "votes": 4,
+    "comments": 7,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748756",
+    "page": 3
+  },
+  {
+    "id": "749259",
+    "title": "Notebook threw Exception with 12B model varient?",
+    "author": "Kaushik1216",
+    "votes": 4,
+    "comments": 7,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749259",
+    "page": 3
+  },
+  {
+    "id": "748168",
+    "title": "Some settings and Scores",
+    "author": "Murugesan Narayanaswamy",
+    "votes": 4,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748168",
+    "page": 3
+  },
+  {
+    "id": "745699",
+    "title": "emoji_people",
+    "author": "vLLM Startup Fails with Python 3.13 Binary Incompatibility",
+    "votes": 4,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745699",
+    "page": 3
+  },
+  {
+    "id": "744802",
+    "title": "Submission 56739788: Notebook Threw Exception after successful official-harness smoke",
+    "author": "Chih-Kai Wang",
+    "votes": 4,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744802",
+    "page": 3
+  },
+  {
+    "id": "745059",
+    "title": "include_thoughts currently disables reasoning instead of only hiding it [adk_submission 0.2.12]",
+    "author": "Anthony Chiu",
+    "votes": 4,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745059",
+    "page": 3
+  },
+  {
+    "id": "744331",
+    "title": "With LoRA enabled, the 4xL4 KV cache shrinks to ~7.6k tokens; requests longer than that hang",
+    "author": "Adithya Giridharan",
+    "votes": 4,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744331",
+    "page": 3
+  },
+  {
+    "id": "743213",
+    "title": "Official sample_submission scores FAILED — are submitted adapters meant to be registered as named LoRA modules?",
+    "author": "Violet Notes",
+    "votes": 4,
+    "comments": 14,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743213",
+    "page": 3
+  },
+  {
+    "id": "743186",
+    "title": "Suggestions on infra for post training, SFT, and RL?",
+    "author": "TheFusionCube",
+    "votes": 4,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743186",
+    "page": 3
+  },
+  {
+    "id": "743275",
+    "title": "Past Competition Reference ? (Anyone)",
+    "author": "phe",
+    "votes": 4,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743275",
+    "page": 3
+  },
+  {
+    "id": "743957",
+    "title": "Onboarding notebook: what the 129 public fixes look like (+ a Kaggle survival kit)",
+    "author": "Osama Abdelaal",
+    "votes": 4,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743957",
+    "page": 4
+  },
+  {
+    "id": "743661",
+    "title": "emoji_people",
+    "author": "Anyone else getting \"Notebook Exceeded Allowed Compute\" ~2 hours into evaluation?",
+    "votes": 3,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743661",
+    "page": 4
+  },
+  {
+    "id": "745625",
+    "title": "emoji_people",
+    "author": "One of my test notebooks with GPU queued for 3+ hours.... is there really so much demand?",
+    "votes": 3,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745625",
+    "page": 4
+  },
+  {
+    "id": "745774",
+    "title": "The baseline agent repeats the same command up to 69 times (local eval, 10 tasks)",
+    "author": "Hitarth Jain",
+    "votes": 3,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745774",
+    "page": 4
+  },
+  {
+    "id": "744813",
+    "title": "Submission 56722466 (2026-10-01 00:00 UTC) also ended with \"Notebook Threw Exception\" and no score.",
+    "author": "prajval_p",
+    "votes": 3,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744813",
+    "page": 4
+  },
+  {
+    "id": "745028",
+    "title": "undeclared tool ends the task and discards the patch",
+    "author": "Oleksii Zhukov",
+    "votes": 3,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745028",
+    "page": 4
+  },
+  {
+    "id": "744794",
+    "title": "Several harness issues make results hard to trust: request for fixes and a status update",
+    "author": "mahmoud al-ghraibeh",
+    "votes": 3,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744794",
+    "page": 4
+  },
+  {
+    "id": "744153",
+    "title": "Get an error trying to submit a zip",
+    "author": "Artem_JDS",
+    "votes": 3,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744153",
+    "page": 4
+  },
+  {
+    "id": "748482",
+    "title": "Some training tasks can't be solved from the task text alone",
+    "author": "Vaibhav Nakrani",
+    "votes": 3,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748482",
+    "page": 4
+  },
+  {
+    "id": "747961",
+    "title": "Submission running for 2 days",
+    "author": "SeaGoat",
+    "votes": 3,
+    "comments": 7,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747961",
+    "page": 4
+  },
+  {
+    "id": "744692",
+    "title": "Compaction can't trigger at token_threshold 32,768, and overflow then discards the patch (follow-up to #743456)",
+    "author": "Avery Wright",
+    "votes": 3,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744692",
+    "page": 4
+  },
+  {
+    "id": "746658",
+    "title": "ERROR OR STILL SCORING ?",
+    "author": "VELVRIN",
+    "votes": 3,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746658",
+    "page": 4
+  },
+  {
+    "id": "747752",
+    "title": "Submission Scoring Going on for 24+ hours",
+    "author": "Aditya Vishwakarma",
+    "votes": 3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747752",
+    "page": 4
+  },
+  {
+    "id": "747708",
+    "title": "Submission stuck in \"Running\" for 30+ hours, blocking new submissions (pending limit)",
+    "author": "Nir Aberman",
+    "votes": 3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747708",
+    "page": 4
+  },
+  {
+    "id": "746169",
+    "title": "emoji_people",
+    "author": "Waiting 12 hours just for notebook timeout -> maybe they should show a bit more logs? Also 60 or 120 Tasks?",
+    "votes": 3,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746169",
+    "page": 4
+  },
+  {
+    "id": "750573",
+    "title": "OOD-45: 45 post-release tasks to check if your agent's local score carries over",
+    "author": "Rodrigo Stachlewski Palma",
+    "votes": 3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750573",
+    "page": 4
+  },
+  {
+    "id": "748801",
+    "title": "How are the embeddings in embeddings/ generated?",
+    "author": "Amanie El-Hajj",
+    "votes": 3,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748801",
+    "page": 4
+  },
+  {
+    "id": "744370",
+    "title": "FastApi tasks fail even with the gold patch, typing_inspection seems to be missing",
+    "author": "Vivek K N",
+    "votes": 3,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744370",
+    "page": 4
+  },
+  {
+    "id": "751596",
+    "title": "emoji_people",
+    "author": "SFT / distillation LoRAs on Gemma 4 31B: loss falls a lot, solve rate doesn’t move. What would you try next?",
+    "votes": 3,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751596",
+    "page": 4
+  },
+  {
+    "id": "751959",
+    "title": "[Open Benchmark Suite - 10.0 Usability] Trap-25 Bug Traps, 300 SWE Loop Pairs & W4A16 <|think|> Budget Sweep for Gemma 4 Agents",
+    "author": "Robina Mirbahar",
+    "votes": 3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751959",
+    "page": 4
+  },
+  {
+    "id": "752282",
+    "title": "The submission with directory entries fails",
+    "author": "Victor Paslay",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/752282",
+    "page": 5
+  },
+  {
+    "id": "750887",
+    "title": "Submission with a skill scored 0.00 with no error",
+    "author": "flagg111",
+    "votes": 2,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750887",
+    "page": 5
+  },
+  {
+    "id": "749597",
+    "title": "Could the 12 h be one budget for the whole run, instead of a per-task cap?",
+    "author": "Vaibhav Nakrani",
+    "votes": 2,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749597",
+    "page": 5
+  },
+  {
+    "id": "749801",
+    "title": "Kaggle Gemma vs Openrouter Gemma",
+    "author": "Murugesan Narayanaswamy",
+    "votes": 2,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749801",
+    "page": 5
+  },
+  {
+    "id": "748584",
+    "title": "emoji_people",
+    "author": "Regarding the Compaction threshold",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748584",
+    "page": 5
+  },
+  {
+    "id": "750597",
+    "title": "If training Gemma4 31b, which checkpoint are people using: unquantized or the competition checkpoint?",
+    "author": "TheFusionCube",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750597",
+    "page": 5
+  },
+  {
+    "id": "751264",
+    "title": "ServerStartupError: Inference server did not become healthy within 1200s.",
+    "author": "Geremie Yeo",
+    "votes": 2,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751264",
+    "page": 5
+  },
+  {
+    "id": "747186",
+    "title": "Request: let submissions set the compaction summary prompt (ADK already supports it)",
+    "author": "Whisper Last",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747186",
+    "page": 5
+  },
+  {
+    "id": "746008",
+    "title": "60 tasks or 120 tasks",
+    "author": "Ayush Thakur",
+    "votes": 2,
+    "comments": 11,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746008",
+    "page": 5
+  },
+  {
+    "id": "745805",
+    "title": "emoji_people",
+    "author": "Aggregated questions from what has generally been asked on the forum : HOSTS ANSWER PLEASE",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745805",
+    "page": 5
+  },
+  {
+    "id": "745882",
+    "title": "emoji_people",
+    "author": "Local evaluation failure report: Gemma 4 baseline",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745882",
+    "page": 5
+  },
+  {
+    "id": "745143",
+    "title": "gemma4-swe-kit: open-source local evaluation tools that behave like the scorer's vLLM",
+    "author": "D A M",
+    "votes": 2,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745143",
+    "page": 5
+  },
+  {
+    "id": "747791",
+    "title": "Can the harness compact and retry on context-window overflow?",
+    "author": "Ruihuan",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747791",
+    "page": 5
+  },
+  {
+    "id": "747635",
+    "title": "Submission PENDING for over 27 hours",
+    "author": "Pham Hoa Anh Nam",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747635",
+    "page": 5
+  },
+  {
+    "id": "747718",
+    "title": "submission stuck since a day",
+    "author": "yashraj2308",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747718",
+    "page": 5
+  },
+  {
+    "id": "747369",
+    "title": "HELP: Infra ERROR Kaggle",
+    "author": "Ulises Rayon",
+    "votes": 2,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747369",
+    "page": 5
+  },
+  {
+    "id": "745942",
+    "title": "Submissions stuck in queue for a long time",
+    "author": "Choko",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745942",
+    "page": 5
+  },
+  {
+    "id": "748227",
+    "title": "[10.0 Gold Resource] Gemma 4 TFD-Agentic Trajectories & SWE-bench Evaluation Suite",
+    "author": "Raja Rajak",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748227",
+    "page": 5
+  },
+  {
+    "id": "748443",
+    "title": "Scoring runs now take 22–46 h with a 6-min agent cap. Does the 12 h limit include queue time?",
+    "author": "dennis palatov",
+    "votes": 2,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748443",
+    "page": 5
+  },
+  {
+    "id": "748428",
+    "title": "A few scoring-setup questions, so we can test offline and lean less on the queue",
+    "author": "John Soliva",
+    "votes": 2,
+    "comments": 8,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748428",
+    "page": 5
+  },
+  {
+    "id": "749198",
+    "title": "Found, not fixed: 38% of default-prompt tasks never edit a source file; an edit deadline turns most into wrong edits",
+    "author": "kimdonggyu1255",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749198",
+    "page": 6
+  },
+  {
+    "id": "744861",
+    "title": "Same submission failed twice with \"Notebook Threw Exception\" within minutes (Sep 30 and Oct 1), no adapters",
+    "author": "Darío Ávalos",
+    "votes": 2,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744861",
+    "page": 6
+  },
+  {
+    "id": "744678",
+    "title": "\"'>' not supported between instances of 'int' and 'str'\". Is this same for everyone?",
+    "author": "RISHAV KUMAR",
+    "votes": 2,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744678",
+    "page": 6
+  },
+  {
+    "id": "744611",
+    "title": "emoji_people",
+    "author": "How are you running local evaluations?",
+    "votes": 2,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744611",
+    "page": 6
+  },
+  {
+    "id": "744965",
+    "title": "gpu outage causing submission failure",
+    "author": "hawktalk",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744965",
+    "page": 6
+  },
+  {
+    "id": "744924",
+    "title": "Test on a Small Public Sample and Share Full Logs",
+    "author": "Hamed Seyed-allaei",
+    "votes": 2,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744924",
+    "page": 6
+  },
+  {
+    "id": "744825",
+    "title": "Test-file reset before test_patch is a no-op (git checkout aborts on missing pathspecs)",
+    "author": "ISAKA Tsuyoshi",
+    "votes": 2,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744825",
+    "page": 6
+  },
+  {
+    "id": "744259",
+    "title": "Reference patches fail for most FastAPI tasks in the public sandbox: are hidden tasks filtered?",
+    "author": "Hitesh Kumar",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744259",
+    "page": 6
+  },
+  {
+    "id": "743663",
+    "title": "How much of the submission runtime is excluded as patch validation?",
+    "author": "Łukasz Wodniakowski",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743663",
+    "page": 6
+  },
+  {
+    "id": "744040",
+    "title": "Embeddings for search_similar_code appear near-collapsed",
+    "author": "Tarun Singhal",
+    "votes": 2,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744040",
+    "page": 6
+  },
+  {
+    "id": "744256",
+    "title": "Request to Organizers to provide GPU access to fine-tune model",
+    "author": "Dhruv Pai Dukle",
+    "votes": 2,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744256",
+    "page": 6
+  },
+  {
+    "id": "744355",
+    "title": "Official images per task?",
+    "author": "Ayush Thakur",
+    "votes": 2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744355",
+    "page": 6
+  },
+  {
+    "id": "744566",
+    "title": "thinking_budget and seed are missing from HTTP requests in my wheelhouse test",
+    "author": "Veronika Yaitskikh",
+    "votes": 1,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744566",
+    "page": 6
+  },
+  {
+    "id": "744577",
+    "title": "ONLY ONE search_similar_code call can blow your context up",
+    "author": "Whisper Last",
+    "votes": 1,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744577",
+    "page": 6
+  },
+  {
+    "id": "744589",
+    "title": "is the harness compatible with TPU build ?",
+    "author": "Yashashwani Dixit",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744589",
+    "page": 6
+  },
+  {
+    "id": "744099",
+    "title": "Does the time between submitting and the scoring include queue time?",
+    "author": "Oleksii Zhukov",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744099",
+    "page": 6
+  },
+  {
+    "id": "743964",
+    "title": "Clarifications on 12h overrun, ParallelAgent concurrency, LoRA loading, and self-generated training data",
+    "author": "Tarun Singhal",
+    "votes": 1,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743964",
+    "page": 6
+  },
+  {
+    "id": "744070",
+    "title": "Can the scoring server load Gemma 4 LoRA adapters?",
+    "author": "clustifier",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744070",
+    "page": 6
+  },
+  {
+    "id": "744020",
+    "title": "Is this a python only competition for bug fixes and feature requests?",
+    "author": "Aman Arora",
+    "votes": 1,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744020",
+    "page": 6
+  },
+  {
+    "id": "743383",
+    "title": "Rules: Only LORA allowed?",
+    "author": "Vladrad_",
+    "votes": 1,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743383",
+    "page": 6
+  },
+  {
+    "id": "743297",
+    "title": "Prize payout eligibility for participants residing in Russia",
+    "author": "Mr.Vsevolod",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743297",
+    "page": 7
+  },
+  {
+    "id": "743752",
+    "title": "emoji_people",
+    "author": "Query regarding scorer config",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743752",
+    "page": 7
+  },
+  {
+    "id": "743751",
+    "title": "Needs clarifications on Agent Architecture + Graph/Embeddings",
+    "author": "Rahul Rathnavel K",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743751",
+    "page": 7
+  },
+  {
+    "id": "743817",
+    "title": "Task Verification Question",
+    "author": "Jean-Claude Paquin",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743817",
+    "page": 7
+  },
+  {
+    "id": "743308",
+    "title": "VRAM to run Gemma locally",
+    "author": "Slawek Biel",
+    "votes": 1,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743308",
+    "page": 7
+  },
+  {
+    "id": "743566",
+    "title": "Local eval with docker sandbox, Error Module not found",
+    "author": "Bharat",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743566",
+    "page": 7
+  },
+  {
+    "id": "743456",
+    "title": "Does events compaction ever trigger before the context limit?",
+    "author": "Narendar Kumar Ale",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743456",
+    "page": 7
+  },
+  {
+    "id": "743800",
+    "title": "Which google-adk versions and YAML features does the official evaluator support?",
+    "author": "ansheng jhang",
+    "votes": 1,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743800",
+    "page": 7
+  },
+  {
+    "id": "746336",
+    "title": "Possible server hang in vLLM 0.19.1’s Gemma 4 tool parser",
+    "author": "Simranjeet Singh",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746336",
+    "page": 7
+  },
+  {
+    "id": "745766",
+    "title": "Six immediate \"Kaggle Error\" submissions in Gemma 4 Developer Agent",
+    "author": "Vishnu N S",
+    "votes": 1,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745766",
+    "page": 7
+  },
+  {
+    "id": "743353",
+    "title": "Not able to download data",
+    "author": "Ayush Thakur",
+    "votes": 1,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743353",
+    "page": 7
+  },
+  {
+    "id": "746503",
+    "title": "lora adapter oom in vllm warmup with scorer settings?",
+    "author": "Manojhmshetty",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746503",
+    "page": 7
+  },
+  {
+    "id": "745780",
+    "title": "Repeated “Kaggle Error” on agent submissions — where can I find evaluation diagnostics?",
+    "author": "Araceli Fradejas Muñoz",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745780",
+    "page": 7
+  },
+  {
+    "id": "745320",
+    "title": "Why official starter notebook fails in second with no specific error msg",
+    "author": "Shoto",
+    "votes": 1,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745320",
+    "page": 7
+  },
+  {
+    "id": "745792",
+    "title": "Expose ADK `exit_loop` as an allowed tool for LoopAgent submissions",
+    "author": "chengrong huang",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745792",
+    "page": 7
+  },
+  {
+    "id": "745800",
+    "title": "Validating locally: how representative are the public tasks, and can we see per-task outcomes?",
+    "author": "CypherNova1337",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745800",
+    "page": 7
+  },
+  {
+    "id": "745748",
+    "title": "[Resource & Benchmark] 50 Multi-Turn Gemma 4 SWE-bench Trajectories + Closed-Loop TFD-Agent Framework",
+    "author": "Raja Rajak",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745748",
+    "page": 7
+  },
+  {
+    "id": "744951",
+    "title": "Hidden test set",
+    "author": "Wilmer E. Henao",
+    "votes": 1,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744951",
+    "page": 7
+  },
+  {
+    "id": "745027",
+    "title": "[Paper Track] Making a Legacy PHP Monolith Verifiable for a Gemma 4 Bug-Fixing Agent",
+    "author": "Rémi Soubeyrand",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745027",
+    "page": 7
+  },
+  {
+    "id": "749528",
+    "title": "LoRA adapter loads and is served, but has no effect on outputs (current wheelhouse, 4×L4) – repro inside",
+    "author": "Anant Sharma",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749528",
+    "page": 7
+  },
+  {
+    "id": "749505",
+    "title": "Getting Started notebook fails: wheelhouse is cp312 but environment is Python 3.13 / torch 2.11",
+    "author": "Iswar Patra",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749505",
+    "page": 8
+  },
+  {
+    "id": "749439",
+    "title": "Reference patches failing in the starter notebook — is this expected?",
+    "author": "baharak Al",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749439",
+    "page": 8
+  },
+  {
+    "id": "749200",
+    "title": "Constantly facing \"Notebook threw Exception\"",
+    "author": "Muhammad Ayan",
+    "votes": 1,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749200",
+    "page": 8
+  },
+  {
+    "id": "748500",
+    "title": "Contest standstill",
+    "author": "Nir Aberman",
+    "votes": 1,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748500",
+    "page": 8
+  },
+  {
+    "id": "749114",
+    "title": "Question on the public Docker grading path: wheel selection for older base commits",
+    "author": "Sylvite",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749114",
+    "page": 8
+  },
+  {
+    "id": "747914",
+    "title": "Wheelhouse v29/v30: include_thoughts: false no longer disables thinking (thinking_budget: 0 does)",
+    "author": "Andrew McAdoo",
+    "votes": 1,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747914",
+    "page": 8
+  },
+  {
+    "id": "747980",
+    "title": "How often does the first grep hit find the file the fix touches? (all 129 public tasks)",
+    "author": "Hitarth Jain",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747980",
+    "page": 8
+  },
+  {
+    "id": "747928",
+    "title": "When the wheel will be stable and the reference patches of the train data will be corrected ?",
+    "author": "RISHAV KUMAR",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747928",
+    "page": 8
+  },
+  {
+    "id": "747923",
+    "title": "robust-edit: a drop-in skill that makes file edits reliable on Gemma 4 31B (and keeps edited tests out of your patch)",
+    "author": "MagicSword",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747923",
+    "page": 8
+  },
+  {
+    "id": "747906",
+    "title": "Do we have to lose a day because of Kaggle problems?",
+    "author": "MY",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747906",
+    "page": 8
+  },
+  {
+    "id": "747750",
+    "title": "Time questionTime problem😅",
+    "author": "DeepPanda™",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747750",
+    "page": 8
+  },
+  {
+    "id": "743573",
+    "title": "How to package and resolve custom Python tools in submission.zip given adk-submission's closed ToolRegistry?",
+    "author": "M.A.P.L.E MAGI Labs",
+    "votes": 1,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743573",
+    "page": 8
+  },
+  {
+    "id": "747714",
+    "title": "stuck submission",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747714",
+    "page": 8
+  },
+  {
+    "id": "747704",
+    "title": "Questions on sandbox/competition setup",
+    "author": "Jake Leahy",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747704",
+    "page": 8
+  },
+  {
+    "id": "750350",
+    "title": "Submission with a skill scored 0.00 with no error: do skills still work on the scorer?",
+    "author": "Oleksii Zhukov",
+    "votes": 1,
+    "comments": 6,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750350",
+    "page": 8
+  },
+  {
+    "id": "752017",
+    "title": "Current scorer contract: charged time limit, compaction settings, and repository split",
+    "author": "Arya Arun",
+    "votes": 1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/752017",
+    "page": 8
+  },
+  {
+    "id": "751986",
+    "title": "Ay update on the search_similar_code tool ?",
+    "author": "Vaibhav Nakrani",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751986",
+    "page": 8
+  },
+  {
+    "id": "751944",
+    "title": "training datasets for SWE agents",
+    "author": "yashraj2308",
+    "votes": 1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751944",
+    "page": 8
+  },
+  {
+    "id": "751973",
+    "title": "Our whole entry is public: configs, local runs, hidden scores (Apache-2.0)",
+    "author": "Carson Rodrigues",
+    "votes": 1,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751973",
+    "page": 8
+  },
+  {
+    "id": "752128",
+    "title": "emoji_people",
+    "author": "E4B submission returned \"Submission Scoring Error: incorrect format\"",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/752128",
+    "page": 8
+  },
+  {
+    "id": "752239",
+    "title": "LoRA adapters on smaller variants (12B / E4B / E2B): confirmed on the scorer’s vLLM 0.19.1?",
+    "author": "Dinesh kumar Thiyagarajan",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/752239",
+    "page": 9
+  },
+  {
+    "id": "752220",
+    "title": "Two Final Submissions: is the private score the better of the two?",
+    "author": "Zane Lim",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/752220",
+    "page": 9
+  },
+  {
+    "id": "751872",
+    "title": "Two consecutive \"unhandled error\" submissions with a prompt-only bundle that is byte-identical to a public 0.17–0.24 recipe — could a host share the traceback?",
+    "author": "angu sundaresh",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751872",
+    "page": 9
+  },
+  {
+    "id": "751707",
+    "title": "-p no:anyio and four other scorer conventions make about a quarter of real fixes unpassable",
+    "author": "Hersh Mittelman",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751707",
+    "page": 9
+  },
+  {
+    "id": "751674",
+    "title": "How can we test the same Docker isolation used by the scorer",
+    "author": "Hamam Ahmed",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751674",
+    "page": 9
+  },
+  {
+    "id": "750753",
+    "title": "Bug Report with 5 Issues",
+    "author": "TheFusionCube",
+    "votes": 0,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750753",
+    "page": 9
+  },
+  {
+    "id": "751560",
+    "title": "Request: let skill scripts reach the code-graph data",
+    "author": "Alan Chen",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751560",
+    "page": 9
+  },
+  {
+    "id": "751311",
+    "title": "Request to hosts: inference kernels",
+    "author": "Pranshu Bahadur",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751311",
+    "page": 9
+  },
+  {
+    "id": "749191",
+    "title": "Question about LoRA",
+    "author": "Nir Aberman",
+    "votes": 0,
+    "comments": 7,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749191",
+    "page": 9
+  },
+  {
+    "id": "750509",
+    "title": "Scorer test environment: published image resolves 0/64 fastapi reference patches",
+    "author": "Nir Aberman",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750509",
+    "page": 9
+  },
+  {
+    "id": "750253",
+    "title": "[Observation] Pytest 8 Incompatibility with Legacy `httpbin` Fixture in `psf/requests` Tasks",
+    "author": "Niloy Deb Barma",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750253",
+    "page": 9
+  },
+  {
+    "id": "750175",
+    "title": "Does patch verification include existing regression tests outside test_patch?",
+    "author": "Geremie Yeo",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750175",
+    "page": 9
+  },
+  {
+    "id": "750169",
+    "title": "Notebook Timeout",
+    "author": "Aditya Vishwakarma",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750169",
+    "page": 9
+  },
+  {
+    "id": "750493",
+    "title": "Notebook threw exception errors 😭😔",
+    "author": "salluri shekar",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750493",
+    "page": 9
+  },
+  {
+    "id": "750490",
+    "title": "budget warning from harness - can it be given for all tool responses?",
+    "author": "Murugesan Narayanaswamy",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750490",
+    "page": 9
+  },
+  {
+    "id": "749953",
+    "title": "Request: publish top-agent episode/replay datasets (as in Orbit Wars / Pokémon TCG)",
+    "author": "Astraeus",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749953",
+    "page": 9
+  },
+  {
+    "id": "749955",
+    "title": "Distribution of best public score per team, teams that submitted in the last 7 days (n = 1,860)",
+    "author": "Avery Wright",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749955",
+    "page": 9
+  },
+  {
+    "id": "749585",
+    "title": "Clarification on Using Claude/GPT-Generated Trajectories for Training",
+    "author": "k_tomo",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749585",
+    "page": 9
+  },
+  {
+    "id": "750270",
+    "title": "How to format the training data for SFT ?",
+    "author": "RISHAV KUMAR",
+    "votes": 0,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750270",
+    "page": 9
+  },
+  {
+    "id": "749743",
+    "title": "emoji_people",
+    "author": "Supported isolation backend for Kaggle notebook development",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749743",
+    "page": 9
+  },
+  {
+    "id": "747101",
+    "title": "Kaggle Error — submission ID 56913370",
+    "author": "songhahaha66",
+    "votes": 0,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747101",
+    "page": 10
+  },
+  {
+    "id": "746469",
+    "title": "What timeout per task does not give the notebook timeout issue? 8 min, 6min or 5 min",
+    "author": "RISHAV KUMAR",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746469",
+    "page": 10
+  },
+  {
+    "id": "746502",
+    "title": "How far did you get with prompts and config alone, before fine-tuning?",
+    "author": "Syed Taha",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746502",
+    "page": 10
+  },
+  {
+    "id": "747118",
+    "title": "local agent",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747118",
+    "page": 10
+  },
+  {
+    "id": "747066",
+    "title": "Failed submissions",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747066",
+    "page": 10
+  },
+  {
+    "id": "746523",
+    "title": "How are you guys dealing with infinite agentic loops?",
+    "author": "Pranjal",
+    "votes": 0,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746523",
+    "page": 10
+  },
+  {
+    "id": "747732",
+    "title": "Submission stuck for over a day",
+    "author": "theearthcheng",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747732",
+    "page": 10
+  },
+  {
+    "id": "748400",
+    "title": "Local Environment Evaluation Issue",
+    "author": "Varun Gandhi",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748400",
+    "page": 10
+  },
+  {
+    "id": "748618",
+    "title": "Follow-up on the 12 h limit: what counts, and are the four fields enforced as hard cuts?",
+    "author": "Marco Pereira",
+    "votes": 0,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748618",
+    "page": 10
+  },
+  {
+    "id": "749205",
+    "title": "Hugginface LoRA Adapters or Datasets",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749205",
+    "page": 10
+  },
+  {
+    "id": "746251",
+    "title": "Can we send released task data to DeepSeek's API for training? (Rule 2.4(b))",
+    "author": "Michi Yamamoto",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746251",
+    "page": 10
+  },
+  {
+    "id": "748890",
+    "title": "[Fixed] Unable to download data.",
+    "author": "WinDerek",
+    "votes": 0,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748890",
+    "page": 10
+  },
+  {
+    "id": "748999",
+    "title": "emoji_people",
+    "author": "Looking for a team or team mates",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748999",
+    "page": 10
+  },
+  {
+    "id": "748919",
+    "title": "Problem statements with PR descriptions without issue detail",
+    "author": "Murugesan Narayanaswamy",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748919",
+    "page": 10
+  },
+  {
+    "id": "749224",
+    "title": "Does hosted ZIP scoring use our weekly GPU quota?",
+    "author": "Auric Lee",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749224",
+    "page": 10
+  },
+  {
+    "id": "749510",
+    "title": "It's been 3 days since i started i am still doing the pre prep.",
+    "author": "Vaibhav Nakrani",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749510",
+    "page": 10
+  },
+  {
+    "id": "749501",
+    "title": "emoji_people",
+    "author": "Notebook threw exception error - LoRa",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749501",
+    "page": 10
+  },
+  {
+    "id": "745003",
+    "title": "old_string issue",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745003",
+    "page": 10
+  },
+  {
+    "id": "743162",
+    "title": "What happens when a submission reaches the 12-hour limit?",
+    "author": "Whisper Last",
+    "votes": 0,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743162",
+    "page": 10
+  },
+  {
+    "id": "744941",
+    "title": "emoji_people",
+    "author": "Public code sharing via a Notebook or Dataset linked from a paper-track Writeup",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744941",
+    "page": 10
+  },
+  {
+    "id": "745220",
+    "title": "Task prompt: \"Workspace Layout\" omits the source package in 115/129 tasks, and \"Code Intelligence Tools\" tells the model to search by keyword (which always returns 0 results)",
+    "author": "Tarun Singhal",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745220",
+    "page": 11
+  },
+  {
+    "id": "745154",
+    "title": "Adapters / LoRA",
+    "author": "tammamalasha",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745154",
+    "page": 11
+  },
+  {
+    "id": "745151",
+    "title": "Failed patches and retry behavior",
+    "author": "tammamalasha",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745151",
+    "page": 11
+  },
+  {
+    "id": "745269",
+    "title": "Question: training an adapter on Colab with the Kaggle-hosted checkpoint",
+    "author": "mari",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745269",
+    "page": 11
+  },
+  {
+    "id": "745267",
+    "title": "Supported authorization, skill-startup and patch-recovery hooks",
+    "author": "mike miller",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745267",
+    "page": 11
+  },
+  {
+    "id": "745249",
+    "title": "Missing python-multipart dependency in the FastAPI task environment",
+    "author": "RISHAV KUMAR",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745249",
+    "page": 11
+  },
+  {
+    "id": "745691",
+    "title": "[Multi-Agent SWE Architecture] Separating Bug Investigation from Surgical Patching with Gemma 4",
+    "author": "Aryan Gupta",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745691",
+    "page": 11
+  },
+  {
+    "id": "745731",
+    "title": "Notes on the graph tools from auditing all 127 graphs",
+    "author": "Akhil Chinta",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745731",
+    "page": 11
+  },
+  {
+    "id": "745695",
+    "title": "Hidden filename requirement in `fastapi_15661` (“Automate release preparation”)",
+    "author": "Pankaj Kumar",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745695",
+    "page": 11
+  },
+  {
+    "id": "745601",
+    "title": "fastapi_15661 validation stops at ImportError during test collection",
+    "author": "Pankaj Kumar",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745601",
+    "page": 11
+  },
+  {
+    "id": "745575",
+    "title": "Can TPU be used?",
+    "author": "Anabasis",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745575",
+    "page": 11
+  },
+  {
+    "id": "745543",
+    "title": "Googel Gemma and ARC AGI 2 have same problem of queue",
+    "author": "Kozykorpesh",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745543",
+    "page": 11
+  },
+  {
+    "id": "745364",
+    "title": "Has anyone confirmed a LoRA adapter actually taking effect in a scored run?",
+    "author": "Manoj Gowda BG",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745364",
+    "page": 11
+  },
+  {
+    "id": "745961",
+    "title": "Clarification request: external LLMs as training-data teachers",
+    "author": "Michael O'Flaherty",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745961",
+    "page": 11
+  },
+  {
+    "id": "745850",
+    "title": "inline_snapshot wheel missing for notebook environment but required by tasks",
+    "author": "Dron Adhikari",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745850",
+    "page": 11
+  },
+  {
+    "id": "745274",
+    "title": "emoji_people",
+    "author": "Discussion : Are you guys seeing gains with distillation? What's your setup?",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745274",
+    "page": 11
+  },
+  {
+    "id": "745818",
+    "title": "CuriosIT: Autonomous Bare-Metal Diagnostics with Gemma 4 on Android (100% Offline & Air-Gapped)",
+    "author": "Marian-Emanuel David",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745818",
+    "page": 11
+  },
+  {
+    "id": "746252",
+    "title": "Solutions to the tasks",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": 0,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746252",
+    "page": 11
+  },
+  {
+    "id": "746212",
+    "title": "Clarification on wheelhouse v28 dependency conflicts",
+    "author": "Itan Ruiz",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746212",
+    "page": 11
+  },
+  {
+    "id": "746046",
+    "title": "Allowed training data for LoRA adapters: trajectories from other open models?",
+    "author": "Arush Kumar Vishwakarma",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746046",
+    "page": 11
+  },
+  {
+    "id": "745138",
+    "title": "vLLM's Gemma 4 tool-argument parser can loop forever on some malformed array arguments",
+    "author": "D A M",
+    "votes": 0,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745138",
+    "page": 12
+  },
+  {
+    "id": "746235",
+    "title": "Can I Omit Unused Tools from `agent.yaml`?",
+    "author": "RISHAV KUMAR",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746235",
+    "page": 12
+  },
+  {
+    "id": "746219",
+    "title": "Max sampling/eval configs folks have been able to use",
+    "author": "Ayush Thakur",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746219",
+    "page": 12
+  },
+  {
+    "id": "743056",
+    "title": "Gemma4 allowed variant",
+    "author": "Rising",
+    "votes": 0,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743056",
+    "page": 12
+  },
+  {
+    "id": "743365",
+    "title": "Budgeting the 12-hour run",
+    "author": "Oleksii Zhukov",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743365",
+    "page": 12
+  },
+  {
+    "id": "743106",
+    "title": "GPU Access",
+    "author": "jitik12",
+    "votes": 0,
+    "comments": 2,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743106",
+    "page": 12
+  },
+  {
+    "id": "743263",
+    "title": "Title: 13-year-old participant eligibility with parental consent",
+    "author": "Vighnesh Hariharan",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743263",
+    "page": 12
+  },
+  {
+    "id": "743241",
+    "title": "Accessibility request: direct email contact with competition organizers — Support #261909",
+    "author": "Said Sucu",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743241",
+    "page": 12
+  },
+  {
+    "id": "743457",
+    "title": "First scored run on the board 🎉",
+    "author": "Narendar Kumar Ale",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743457",
+    "page": 12
+  },
+  {
+    "id": "743743",
+    "title": "You can run Gemma 4 31B QAT locally with llama.cpp",
+    "author": "Jacek Poplawski",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743743",
+    "page": 12
+  },
+  {
+    "id": "743715",
+    "title": "computing resources",
+    "author": "Saurabh Dasgupta",
+    "votes": 0,
+    "comments": 10,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743715",
+    "page": 12
+  },
+  {
+    "id": "743316",
+    "title": "The $65k prize is cheaper than the GPUs you need to win it...",
+    "author": "Lord Firlefans",
+    "votes": 0,
+    "comments": 5,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743316",
+    "page": 12
+  },
+  {
+    "id": "744078",
+    "title": "Possible mismatch between published task base commits and snapshots",
+    "author": "Dr ChandraShekar",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744078",
+    "page": 12
+  },
+  {
+    "id": "744029",
+    "title": "swegemma 0.2.7: unpacked-wheel cache ignores the wheel set, so added wheels have no effect locally",
+    "author": "Francesco Simone",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744029",
+    "page": 12
+  },
+  {
+    "id": "744258",
+    "title": "Does one scoring run cover both hidden partitions (~240 tasks) in the 12-hour window?",
+    "author": "Hitesh Kumar",
+    "votes": 0,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744258",
+    "page": 12
+  },
+  {
+    "id": "744133",
+    "title": "We can submit skills correct ?",
+    "author": "RISHAV KUMAR",
+    "votes": 0,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744133",
+    "page": 12
+  },
+  {
+    "id": "744889",
+    "title": "Does patch validation import the edited src/ package for Requests tasks?",
+    "author": "ansheng jhang",
+    "votes": 0,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/744889",
+    "page": 12
+  },
+  {
+    "id": "746220",
+    "title": "notebook exception",
+    "author": "yashraj2308",
+    "votes": -1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/746220",
+    "page": 12
+  },
+  {
+    "id": "745904",
+    "title": "LoRA Adapters",
+    "author": "THEODOROS ISLAMIDIS",
+    "votes": -1,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745904",
+    "page": 12
+  },
+  {
+    "id": "749139",
+    "title": "Again, my second submission is at 17hr.. no result..",
+    "author": "ghassan chebli",
+    "votes": -1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749139",
+    "page": 12
+  },
+  {
+    "id": "748165",
+    "title": "Title: Submission pending for 37+ hours, is scoring backlogged?",
+    "author": "KevlarZanderChi",
+    "votes": -1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748165",
+    "page": 13
+  },
+  {
+    "id": "748044",
+    "title": "Submission stuck in Pending for 35+ hours, which blocks the next submission",
+    "author": "Nikolce",
+    "votes": -1,
+    "comments": 4,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748044",
+    "page": 13
+  },
+  {
+    "id": "745975",
+    "title": "Is anything kept between tasks in the scorer's sandbox, and may a submission rely on it?",
+    "author": "mugurb",
+    "votes": -1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745975",
+    "page": 13
+  },
+  {
+    "id": "749090",
+    "title": "Can't submit for more than a day",
+    "author": "Nick Knyazev",
+    "votes": -1,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/749090",
+    "page": 13
+  },
+  {
+    "id": "750622",
+    "title": "Submission 57361964 got “Submission Scoring Error” — is it covered by the queue recovery?",
+    "author": "Satish",
+    "votes": -1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750622",
+    "page": 13
+  },
+  {
+    "id": "750670",
+    "title": "Submission 57367196: Notebook Threw Exception - request for failing stage",
+    "author": "Aman",
+    "votes": -1,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750670",
+    "page": 13
+  },
+  {
+    "id": "750905",
+    "title": "emoji_people",
+    "author": "Submission stuck in judging",
+    "votes": -1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750905",
+    "page": 13
+  },
+  {
+    "id": "750345",
+    "title": "Calibrating in a notebook? About a third of the fastapi tasks cannot pass there (missing test dependencies)",
+    "author": "Domenic Federico",
+    "votes": -1,
+    "comments": 1,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750345",
+    "page": 13
+  },
+  {
+    "id": "747763",
+    "title": "Titre : Request for evaluation logs and clarification of low submission score (0.05)",
+    "author": "junior bolamba",
+    "votes": -2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/747763",
+    "page": 13
+  },
+  {
+    "id": "748572",
+    "title": "Looking for a Team / Team Up? (Solo dev looking to join 2-3 member teams)",
+    "author": "salluri shekar",
+    "votes": -2,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748572",
+    "page": 13
+  },
+  {
+    "id": "750933",
+    "title": "Day 1 of doing this competition on 4090",
+    "author": "Egor Tkachenko",
+    "votes": -3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750933",
+    "page": 13
+  },
+  {
+    "id": "751614",
+    "title": "Beyond the Verification Mirage: Source-Bound Execution Provenance and Dynamic KV-Cache Precision Management for Autonomous Gemma 4 Coding Agents",
+    "author": "Manimaran-tech",
+    "votes": -3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/751614",
+    "page": 13
+  },
+  {
+    "id": "745980",
+    "title": "Can the agent sandbox run the repository's own tests?",
+    "author": "mugurb",
+    "votes": -3,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745980",
+    "page": 13
+  },
+  {
+    "id": "745977",
+    "title": "Context overflow can discard an already-correct patch",
+    "author": "mugurb",
+    "votes": -4,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/745977",
+    "page": 13
+  },
+  {
+    "id": "752312",
+    "title": "Upvote if you have no success with LoRA so far, downvote otherwise",
+    "author": "Zotar",
+    "votes": -4,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/752312",
+    "page": 13
+  },
+  {
+    "id": "750907",
+    "title": "emoji_people",
+    "author": "Looking for 1–2 teammates — TPU eval engine that matches the scorer + LoRA pipeline (0.17)",
+    "votes": -4,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/750907",
+    "page": 13
+  },
+  {
+    "id": "748266",
+    "title": "Submission \"Scoring\" for 2 days, haven't been able to submit anything else due to \"pending submission\"",
+    "author": "Sahil Das",
+    "votes": -4,
+    "comments": 3,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/748266",
+    "page": 13
+  },
+  {
+    "id": "743687",
+    "title": "Clima e vida cotidiana",
+    "author": "Magnon Rodrigues Sabará",
+    "votes": -5,
+    "comments": 0,
+    "pinned": false,
+    "url": "https://www.kaggle.com/competitions/gemma-4-developer-agent/discussion/743687",
+    "page": 13
+  }
+]
