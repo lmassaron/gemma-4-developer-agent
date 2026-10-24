@@ -145,6 +145,12 @@ def main():
     print(f"  - Adapter Size: {stats['adapter_size_mb']:.2f} MB")
     print(f"  - SHA-256: {sha256}")
 
+    # Also copy to submissions_archive
+    archive_dest = ROOT_DIR / "submissions_archive" / "submission_v6_gemma4_12b_sft.zip"
+    archive_dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(zip_path, archive_dest)
+    print(f"  - Copied to archive: {archive_dest}")
+
     # Clean up staging dir
     shutil.rmtree(STAGING_DIR, ignore_errors=True)
 
