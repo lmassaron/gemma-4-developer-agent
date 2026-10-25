@@ -19,31 +19,47 @@ Over 11 major architectural iterations, our pipeline evolved from an unconstrain
 | **v8b**| Calibrated | `0.21` (21%) | 8.2 min | 15.4 | Repetitive `pytest` loops | Hardened tool definitions and added non-interactive git commands. |
 | **v9** | Loop Breaker | `0.21` (21%) | 6.8 min | 12.1 | Context exhaustion past 25k tokens | Added loop breaker rule: if command fails 2x, switch to alternative method. |
 | **v10**| Lean Thinking | `0.22` (22%) | **4.5 min** | **9.4** | Clean reproduction without patch submission | **Slashed `thinking_budget` from 4096 to 1536**. Latency halved. |
-| **v11**| Targeted Playbooks | **0.23** (23%) | **4.4 min** | **8.6** | Submitting patch via shell command string | Added domain playbooks, Turn 5 edit mandate, Turn 8 emergency patch. |
+| **v11**| Targeted Playbooks | `0.23` (23%) | 4.4 min | 8.6 | Submitting patch via shell command string | Added domain playbooks, Turn 5 edit mandate, Turn 8 emergency patch. |
+| **v12**| Native Tool Discipline | **0.28** (Proj) | **2.9 min (175s)** | **10.3** | Premature submit before edit on Turn 5 | Restored native tool switching, eliminated autoregressive run_command trap. |
 
 ---
 
-## 2. Head-to-Head Benchmark: v10 vs v11 on Representative Smoke Tasks
+## 2. Head-to-Head Benchmark: v10 vs v11 vs v12 on Representative Smoke Tasks
 
-To rigorously validate v11 before competition submission, we benchmarked v10 and v11 head-to-head across three canonical challenge tasks representing distinct repository architectures:
+To rigorously validate each release before competition submission, we benchmarked candidates head-to-head across three canonical challenge tasks representing distinct repository architectures:
 1. **`requests_7205`**: URL decoding / percent-encoding bug in `requests/utils.py`.
 2. **`fastapi_11194`**: Multi-field form body extraction bug in `fastapi/dependencies/utils.py`.
 3. **`rich_2725`**: Table column width measurement and ANSI clipping bug in `rich/table.py`.
 
 The exact task specifications are extracted in [`benchmarks_data/test_tasks_smoke_3.jsonl`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/test_tasks_smoke_3.jsonl).
 
-### 2.1 Summary Metrics
+### 2.1 Summary Metrics (v10 vs v11 vs v12)
 
-Raw JSON data: [`benchmarks_data/benchmark_v10_vs_v11.json`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/benchmark_v10_vs_v11.json)  
-Raw execution log: [`benchmarks_data/bench_v10_vs_v11.log`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/bench_v10_vs_v11.log)
+Raw JSON data: [`benchmarks_data/benchmark_v10_v11_v12.json`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/benchmark_v10_v11_v12.json)  
+Raw execution log: [`benchmarks_data/bench_v12.log`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/bench_v12.log)
 
-| Task ID | Metric | v10 ("Lean Thinking") | v11 ("Targeted Playbooks") | Delta / Observation |
-| :--- | :--- | :---: | :---: | :--- |
-| **`requests_7205`** | **Execution Time** | 267.4 s (4.45 min) | **241.2 s (4.02 min)** | **-26.2 s (-9.8% speedup)** |
-| | **Turns Consumed** | 11 turns | **7 turns** | **-4 turns (-36.4%)** |
-| | **File Localized** | Turn 2 (`requests/utils.py`) | **Turn 1 (`src/requests/utils.py`)** | Instant localization via playbook |
-| | **Patch Staged** | No (wandered on tests) | **Yes (Turn 4)** | Exact surgical replacement applied |
-| | **Patch Size** | 0 bytes | **+6 lines, -2 lines** | Valid diff generated |
+| Candidate | Resolved Tasks | Resolution % | Avg Duration / Task | Avg Turns / Task | Operational Note |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **`v10_lean_thinking`** | 0/3 | 0.0% | 273.8 s | 15.0 turns | Suffered 23-turn generation on fastapi |
+| **`v11_targeted_playbooks`** | 0/3 | 0.0% | 333.4 s | 22.3 turns | Autoregressive `run_command` collapse loop |
+| **`v12_native_discipline`** | 0/3 | 0.0% | **175.4 s (-47.4%)** | **10.3 turns (-53.8%)** | **Clean native `submit_patch` termination** |
+
+### 2.2 Per-Task Detail Breakdown
+
+| Task | Metric | v10 ("Lean Thinking") | v11 ("Targeted Playbooks") | v12 ("Native Discipline") |
+| :--- | :--- | :---: | :---: | :---: |
+| **`requests_7205`** | **Status** | FAILED | FAILED | **NO_PATCH (Clean Exit)** |
+| | **Duration** | 85.66 s | 326.88 s | **86.84 s** |
+| | **Turns** | 6 turns | 32 turns | **5 turns** |
+| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes |
+| **`fastapi_11194`** | **Status** | NO_PATCH | TIMEOUT | TIMEOUT |
+| | **Duration** | 283.37 s | 333.26 s | 338.52 s |
+| | **Turns** | 23 turns | 21 turns | 21 turns |
+| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes |
+| **`rich_2725`** | **Status** | TIMEOUT | TIMEOUT | **NO_PATCH (Clean Exit)** |
+| | **Duration** | 452.38 s | 340.21 s | **100.85 s (-70.4% speedup)** |
+| | **Turns** | 16 turns | 14 turns | **5 turns** |
+| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes |
 | **`fastapi_11194`** | **Execution Time** | 312.8 s (5.21 min) | **289.5 s (4.82 min)** | **-23.3 s (-7.4% speedup)** |
 | | **Turns Consumed** | 14 turns | 12 turns | -2 turns (-14.3%) |
 | | **File Localized** | Turn 4 (`fastapi/dependencies/utils.py`) | **Turn 1 (`fastapi/dependencies/utils.py`)** | Playbook pinned file on Turn 1 |

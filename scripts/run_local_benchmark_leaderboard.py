@@ -263,21 +263,32 @@ class AgentSimulator:
     def parse_tool_call(self, text: str) -> Optional[Tuple[str, Dict[str, Any]]]:
         """Parses Gemma 4 tool call syntax or json block."""
         import re
+        import yaml
 
         # Pattern 1: call:default_api:tool_name{args} or call:tool_name{args}
-        m = re.search(r"call:(?:default_api:)?([a-zA-Z0-9_]+)\s*(\{[^}]*\})", text)
+        m = re.search(r"call:(?:default_api:)?([a-zA-Z0-9_]+)\s*(\{[\s\S]*?\})", text)
         if m:
             tool_name = m.group(1)
             raw_args = m.group(2)
             try:
                 args = json.loads(raw_args)
-                return tool_name, args
-            except json.JSONDecodeError:
-                # Basic string extractor
-                return tool_name, {"command": raw_args.strip("{} \n\t")}
+                if isinstance(args, dict):
+                    return tool_name, args
+            except Exception:
+                pass
+            try:
+                args = yaml.safe_load(raw_args)
+                if isinstance(args, dict):
+                    return tool_name, args
+            except Exception:
+                pass
+            m_cmd = re.search(r'command\s*:\s*["\']([\s\S]+?)["\']\s*\}?$', raw_args)
+            if m_cmd:
+                return tool_name, {"command": m_cmd.group(1)}
+            return tool_name, {"command": raw_args.strip("{} \n\t")}
 
         # Pattern 2: JSON-style tool call block: {"name": "tool_name", "arguments": {...}}
-        m_json = re.search(r"\{[^{}]*\"name\"\s*:\s*\"([^\"]+)\"[^{}]*\"arguments\"\s*:\s*(\{[^}]*\})[^{}]*\}", text)
+        m_json = re.search(r"\{[^{}]*\"name\"\s*:\s*\"([^\"]+)\"[^{}]*\"arguments\"\s*:\s*(\{[\s\S]*?\})[^{}]*\}", text)
         if m_json:
             tool_name = m_json.group(1).replace("default_api:", "")
             try:
@@ -296,19 +307,23 @@ class AgentSimulator:
         """Executes a tool on the workspace. Returns (output_string, is_terminal_action)."""
         if tool_name == "run_command":
             cmd = args.get("command") or args.get("cmd") or ""
+            if cmd.startswith("command:"):
+                cmd = cmd[len("command:"):].strip().strip('"\'')
+            if cmd.strip().strip('"\'') in ("submit_patch", "submit_patch()", "command: submit_patch"):
+                return "[Patch submitted. Finalizing task evaluation.]", True
             return ws.run_command(cmd), False
         elif tool_name == "read_file":
-            path = args.get("path") or args.get("file_path") or ""
+            path = args.get("path") or args.get("file_path") or args.get("file") or ""
             offset = int(args.get("offset", 0))
             limit = int(args.get("limit", 80))
             return ws.read_file(path, offset, limit), False
         elif tool_name == "edit_file":
-            path = args.get("path") or args.get("file_path") or ""
-            old_str = args.get("old_content") or args.get("old_str") or ""
-            new_str = args.get("new_content") or args.get("new_str") or ""
+            path = args.get("path") or args.get("file_path") or args.get("file") or ""
+            old_str = args.get("old_str") or args.get("old_content") or args.get("old_string") or ""
+            new_str = args.get("new_str") or args.get("new_content") or args.get("new_string") or ""
             return ws.edit_file(path, old_str, new_str), False
         elif tool_name == "write_file":
-            path = args.get("path") or args.get("file_path") or ""
+            path = args.get("path") or args.get("file_path") or args.get("file") or ""
             content = args.get("content") or ""
             return ws.write_file(path, content), False
         elif tool_name == "get_status":
@@ -357,7 +372,7 @@ class AgentSimulator:
                 gen_kwargs = {
                     "input_ids": inputs.input_ids,
                     "attention_mask": inputs.attention_mask,
-                    "max_new_tokens": 512,
+                    "max_new_tokens": 2048,
                     "do_sample": False,
                 }
                 with torch.no_grad():
@@ -394,8 +409,9 @@ class AgentSimulator:
 
             # Run test verification
             elapsed = time.time() - start_time
+            source_patch = ws.get_diff()
             passed, test_output = ws.run_verification()
-            patch_text = ws.get_diff()
+            patch_text = source_patch
 
             status = "RESOLVED" if passed else ("FAILED" if patch_text.strip() else "NO_PATCH")
 
