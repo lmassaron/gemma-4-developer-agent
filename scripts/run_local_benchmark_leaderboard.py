@@ -509,7 +509,7 @@ def main():
     parser.add_argument("--tasks_file", default="data/tasks.jsonl", help="Path to tasks.jsonl")
     parser.add_argument("--data_dir", default="data", help="Root data directory containing snapshots/")
     parser.add_argument("--submission_zip", help="Path to submission.zip to benchmark")
-    parser.add_argument("--base_model", default="google/gemma-4-12B-it")
+    parser.add_argument("--base_model", default="google/gemma-4-31B-it", help="Base model identifier or path")
     parser.add_argument("--adapter_dir", help="Path to PEFT LoRA adapter directory")
     parser.add_argument("--system_prompt_path", default="submission/prompts/system.md")
     parser.add_argument("--model_name", help="Display name for leaderboard")
@@ -521,7 +521,37 @@ def main():
     temp_dir = Path("/tmp/gemma4_benchmark_workspaces")
     temp_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Load Tasks
+    # 1. Unpack submission_zip if provided
+    system_prompt = ""
+    sampling_config = {}
+    if args.submission_zip and Path(args.submission_zip).is_file():
+        zip_p = Path(args.submission_zip).resolve()
+        print(f"[Submission] Reading submission package: {zip_p.name}...")
+        with zipfile.ZipFile(zip_p) as z:
+            namelist = z.namelist()
+            if "prompts/system.md" in namelist:
+                system_prompt = z.read("prompts/system.md").decode("utf-8")
+                print("  - Loaded system prompt from prompts/system.md")
+            if "eval_config.yaml" in namelist:
+                import yaml
+                ev_data = yaml.safe_load(z.read("eval_config.yaml").decode("utf-8")) or {}
+                ev = ev_data.get("evaluation", {})
+                if "max_tool_calls" in ev:
+                    args.max_turns = int(ev["max_tool_calls"])
+                if "max_time_minutes" in ev:
+                    args.timeout_sec = int(float(ev["max_time_minutes"]) * 60)
+                print(f"  - Configured evaluation limits: max_turns={args.max_turns}, timeout_sec={args.timeout_sec}")
+            if "configs/sampling.yaml" in namelist:
+                import yaml
+                sampling_config = yaml.safe_load(z.read("configs/sampling.yaml").decode("utf-8")) or {}
+                print(f"  - Loaded sampling config: {sampling_config}")
+        if not args.model_name:
+            args.model_name = zip_p.stem
+
+    if not system_prompt:
+        system_prompt = Path(args.system_prompt_path).read_text(encoding="utf-8")
+
+    # 2. Load Tasks
     target_ids = BENCHMARK_SUITES.get(args.suite, [])
     task_map = {}
     with open(args.tasks_file, "r", encoding="utf-8") as f:
@@ -532,10 +562,8 @@ def main():
     selected_tasks = [task_map[tid] for tid in target_ids if tid in task_map]
     print(f"[Benchmark] Selected {len(selected_tasks)} tasks for suite '{args.suite}'.")
 
-    # 2. Setup System Prompt & Model Name
-    model_name = args.model_name or Path(args.adapter_dir).name if args.adapter_dir else Path(args.base_model).name
-    system_prompt = Path(args.system_prompt_path).read_text(encoding="utf-8")
-
+    # 3. Setup Model & Processor
+    model_name = args.model_name or (Path(args.adapter_dir).name if args.adapter_dir else Path(args.base_model).name)
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"[Model] Loading Processor: {args.base_model}...")
     processor = AutoProcessor.from_pretrained(args.base_model)
@@ -553,7 +581,7 @@ def main():
 
     model.eval()
 
-    # 3. Execute Suite
+    # 4. Execute Suite
     agent = AgentSimulator(model, processor, system_prompt, device=device)
     task_results = []
     print("\n" + "=" * 65)
