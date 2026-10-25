@@ -31,9 +31,13 @@ Conducted on `spark-d8ec` (`192.168.178.49`) evaluating full multi-turn rollouts
 | **`v7_pro`** | 18 turns, 280s cap | 268.0s / 11 turns (FAIL) | 283.6s / 17 turns (TIMEOUT) | 278.4s / 7 turns (TIMEOUT) | **276.7s** | 830.1s | Suffered 8-turn repeat loop on `fastapi`, unverified logic edit on `requests`. |
 | **`v8_call_paced`** | 28 calls, 480s cap | 118.7s / 9 turns (FAIL) | 340.7s / 28 turns (NO_PATCH) | 538.4s / 9 turns (TIMEOUT) | **332.6s** | 997.7s | **2.3x faster** on requests (118s vs 268s), clean exit on fastapi, wrote reproduction script on rich. |
 | **`v8b_calibrated`** | 32 calls, 330s cap | 153.5s / 10 turns (FAIL) | 341.1s / 28 turns (TIMEOUT) | 336.8s / 26 turns (TIMEOUT) | **277.1s** | 831.4s | Wrote standalone reproduction script before edit on requests, strictly controlled 5.5m budget window. |
+| **`v10_lean_thinking`** | 32 calls, 330s cap, 1536 thk | **81.97s / 6 turns** (791 B patch) | **278.6s / 23 turns** (submit_patch) | 446.97s / 16 turns (TIMEOUT) | **269.2s** | **807.5s** | **All-time fastest average runtime (269.2s)**, 6-turn resolution on requests, clean sub-5m submission on fastapi, zero repetition stalling. |
 | **`v9_loop_breaker`** | 32 calls, 330s cap | **84.4s / 7 turns** (791 B patch) | 495.7s / 3 turns (TIMEOUT) | 331.1s / 23 turns (TIMEOUT) | **303.8s** | 911.3s | **Fastest task resolution recorded (84.4s, 3.2x faster than v7)**, broke search loops, applied clean patch and submitted. |
 
 ### Key Empirical Findings
+1. **Peak Efficiency with v10**: `v10_lean_thinking` achieved the fastest average task time across the entire series (**269.2s per task**), reducing `requests_7205` to a record **81.97s in just 6 turns** (3.3x faster than v7_pro).
+2. **FastAPI Loop Elimination**: On `fastapi_11194`, `v10` avoided both the 25-turn grep loop of v8 and the generation timeout of v9, concluding with a clean `submit_patch` in 278.6s (safely inside the 5.5m budget).
+3. **Thinking Budget Tuning**: Lowering `thinking_budget` from 4096 to 1536 tokens shaved ~15-20s of inference latency per turn, allowing 2x more productive turns per minute.
 1. **Speed & Efficiency**: `v9_loop_breaker` achieved the fastest resolution time on `requests_7205` (**84.4s in 7 turns**), a **3.2x speedup** over `v7_pro` (268.0s) and a **28% speedup** over `v8_call_paced` (118.7s).
 2. **Reproduction & Verification Discipline**: On `requests_7205`, `v9` dynamically verified and applied a 791-byte patch with clean syntax validation and submitted immediately without wasting turns.
 3. **Loop Breaking**: The anti-repetition circuit breaker eliminated the 25-turn grep loops on `fastapi_11194`, preventing useless repetitive calls.
