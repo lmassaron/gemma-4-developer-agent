@@ -34,3 +34,7 @@ data/
 *.safetensors
 .test_unpack/
 .scratch/
+*.log
+!state_of_the_art/benchmarks_data/*.log
+checkpoint-*/
+adapters/**/checkpoint-*/

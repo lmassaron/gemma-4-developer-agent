@@ -10,6 +10,17 @@
       "timeouts": 0,
       "mean_turns": 20.0,
       "timestamp": "2026-10-19 08:47:43"
+    },
+    {
+      "model_name": "v10_lean_thinking",
+      "suite": "smoke_3",
+      "resolved": 0,
+      "total": 3,
+      "resolution_rate_percent": 0.0,
+      "mean_duration_sec": 269.18,
+      "timeouts": 1,
+      "mean_turns": 15.0,
+      "timestamp": "2026-10-25 11:08:51"
     }
   ],
   "runs": {
@@ -122,6 +133,57 @@
           "patch_size": 0,
           "terminal_invoked": false,
           "output_snippet": "Hidden test patch failed to apply: error: corrupt patch at line 145\n"
+        }
+      ]
+    },
+    "v10_lean_thinking_smoke_3_2026-10-25 11:08:51": {
+      "model_name": "v10_lean_thinking",
+      "suite": "smoke_3",
+      "resolved": 0,
+      "total": 3,
+      "resolution_rate_percent": 0.0,
+      "mean_duration_sec": 269.18,
+      "timeouts": 1,
+      "mean_turns": 15.0,
+      "timestamp": "2026-10-25 11:08:51",
+      "tasks": [
+        {
+          "instance_id": "requests_7205",
+          "repo": "psf/requests",
+          "status": "FAILED",
+          "resolved": false,
+          "duration_sec": 81.97,
+          "turns": 6,
+          "tool_calls": [
+            "submit_patch: {}"
+          ],
+          "patch_size": 791,
+          "terminal_invoked": true,
+          "output_snippet": "\nImportError while loading conftest '/tmp/gemma4_benchmark_workspaces/requests_7205/tests/conftest.py'.\ntests/conftest.py:12: in <module>\n    from requests.compat import urljoin\nsrc/requests/__init__.py:43: in <module>\n    import urllib3\nE   ModuleNotFoundError: No module named 'urllib3'\n"
+        },
+        {
+          "instance_id": "fastapi_11194",
+          "repo": "fastapi/fastapi",
+          "status": "NO_PATCH",
+          "resolved": false,
+          "duration_sec": 278.59,
+          "turns": 23,
+          "tool_calls": [
+            "submit_patch: {}"
+          ],
+          "patch_size": 0,
+          "terminal_invoked": true,
+          "output_snippet": "om fastapi import FastAPI, File, Form\nfastapi/__init__.py:5: in <module>\n    from starlette import status as status\nE   ModuleNotFoundError: No module named 'starlette'\n=========================== short test summary info ============================\nERROR tests/test_file_and_form_order_issue_9116.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.05s\n\n"
+        },
+        {
+          "instance_id": "rich_2725",
+          "repo": "Textualize/rich",
+          "status": "TIMEOUT",
+          "resolved": false,
+          "duration_sec": 446.97,
+          "turns": 16,
+          "tool_calls": [],
+          "patch_size": 0
         }
       ]
     }

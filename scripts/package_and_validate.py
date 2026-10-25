@@ -120,9 +120,42 @@ def create_deterministic_zip(bundle_dir: Path, output_zip: Path) -> Path:
     return output_zip
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Package and validate Gemma 4 submission bundle.")
+    parser.add_argument("--bundle-dir", type=Path, default=None, help="Directory containing submission files")
+    parser.add_argument("--output-zip", type=Path, default=None, help="Output ZIP path")
+    parser.add_argument("--verify-only", type=Path, default=None, help="ZIP file to verify without building")
+    args = parser.parse_args()
+
     root = Path(__file__).resolve().parent.parent
-    bundle_dir = root / "submission"
-    output_zip = root / "submission.zip"
+
+    if args.verify_only:
+        zip_path = args.verify_only.resolve()
+        assert zip_path.is_file(), f"ZIP file {zip_path} does not exist"
+        print(f"Verifying existing ZIP: {zip_path}")
+        test_unpack = root / ".test_unpack_verify"
+        shutil.rmtree(test_unpack, ignore_errors=True)
+        try:
+            with zipfile.ZipFile(zip_path) as z:
+                assert z.testzip() is None, "ZIP file failed integrity test"
+                names = z.namelist()
+                assert "agent.yaml" in names or "root_agent.yaml" in names, "Missing root agent.yaml"
+                assert not any(n.endswith("/") for n in names), "ZIP contains directory entries!"
+                z.extractall(test_unpack)
+            stats = validate_bundle(test_unpack)
+            print("Validation passed successfully:")
+            for k, v in stats.items():
+                print(f"  - {k}: {v}")
+            sha256 = hashlib.sha256(zip_path.read_bytes()).hexdigest()
+            print(f"  - Size: {zip_path.stat().st_size:,} bytes")
+            print(f"  - SHA-256: {sha256}")
+            print("\nSUCCESS: ZIP is 100% compliant with competition specifications!")
+        finally:
+            shutil.rmtree(test_unpack, ignore_errors=True)
+        return
+
+    bundle_dir = (args.bundle_dir or (root / "submission")).resolve()
+    output_zip = (args.output_zip or (root / "submission.zip")).resolve()
 
     print(f"Validating bundle at: {bundle_dir}")
     stats = validate_bundle(bundle_dir)

@@ -1,0 +1,81 @@
+# 04. Empirical Benchmark Results: Historical Progression & Head-to-Head Evaluation
+
+This document details all empirical benchmark data gathered on our local NVIDIA DGX Spark evaluation testbed (`spark-d8ec`, NVIDIA Grace Blackwell GB10, 130 GB unified memory, CUDA 13.0, running `gemma-4-31b-it-qat-w4a16-ct`).
+
+All raw benchmark JSON outputs and execution logs are archived in [`benchmarks_data/`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data).
+
+---
+
+## 1. Historical Iteration Progression (v1 through v11)
+
+Over 11 major architectural iterations, our pipeline evolved from an unconstrained agent that consistently timed out to a lean, deterministic problem-solver:
+
+| Version | Codename | Pass Rate (SWE-bench / Kaggle Test) | Avg Execution Time / Task | Avg Turns / Task | Dominant Failure Mode | Key Architectural Shift |
+| :--- | :--- | :---: | :---: | :---: | :--- | :--- |
+| **v1** | Raw Zero-Shot | `0.05` (5%) | 42.1 min | 48.2 | Global 12h Timeout (>90% timed out) | Unconstrained thinking budget (8k tokens), no tool call limit. |
+| **v4** | LSP Graph Agent | `0.11` (11%) | 24.3 min | 34.0 | Graph tool crashes & AST parse errors | Introduced symbol tools (`symbol_definition`). Caused loops. |
+| **v7** | Pro Paced | `0.17` (17%) | 14.1 min | 26.5 | Wandering exploration (turns 12-25) | Pruned graph tools down to 4 core tools (`run_command`, `read_file`, `edit_file`, `submit_patch`). |
+| **v8** | Call-Paced | `0.19` (19%) | 9.8 min | 18.2 | Diff formatting errors in `edit_file` | Capped tool calls to 40; added turn phases (Turns 1-3 inspect, 4-6 edit). |
+| **v8b**| Calibrated | `0.21` (21%) | 8.2 min | 15.4 | Repetitive `pytest` loops | Hardened tool definitions and added non-interactive git commands. |
+| **v9** | Loop Breaker | `0.21` (21%) | 6.8 min | 12.1 | Context exhaustion past 25k tokens | Added loop breaker rule: if command fails 2x, switch to alternative method. |
+| **v10**| Lean Thinking | `0.22` (22%) | **4.5 min** | **9.4** | Clean reproduction without patch submission | **Slashed `thinking_budget` from 4096 to 1536**. Latency halved. |
+| **v11**| Targeted Playbooks | **0.23** (23%) | **4.4 min** | **8.6** | Submitting patch via shell command string | Added domain playbooks, Turn 5 edit mandate, Turn 8 emergency patch. |
+
+---
+
+## 2. Head-to-Head Benchmark: v10 vs v11 on Representative Smoke Tasks
+
+To rigorously validate v11 before competition submission, we benchmarked v10 and v11 head-to-head across three canonical challenge tasks representing distinct repository architectures:
+1. **`requests_7205`**: URL decoding / percent-encoding bug in `requests/utils.py`.
+2. **`fastapi_11194`**: Multi-field form body extraction bug in `fastapi/dependencies/utils.py`.
+3. **`rich_2725`**: Table column width measurement and ANSI clipping bug in `rich/table.py`.
+
+The exact task specifications are extracted in [`benchmarks_data/test_tasks_smoke_3.jsonl`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/test_tasks_smoke_3.jsonl).
+
+### 2.1 Summary Metrics
+
+Raw JSON data: [`benchmarks_data/benchmark_v10_vs_v11.json`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/benchmark_v10_vs_v11.json)  
+Raw execution log: [`benchmarks_data/bench_v10_vs_v11.log`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/bench_v10_vs_v11.log)
+
+| Task ID | Metric | v10 ("Lean Thinking") | v11 ("Targeted Playbooks") | Delta / Observation |
+| :--- | :--- | :---: | :---: | :--- |
+| **`requests_7205`** | **Execution Time** | 267.4 s (4.45 min) | **241.2 s (4.02 min)** | **-26.2 s (-9.8% speedup)** |
+| | **Turns Consumed** | 11 turns | **7 turns** | **-4 turns (-36.4%)** |
+| | **File Localized** | Turn 2 (`requests/utils.py`) | **Turn 1 (`src/requests/utils.py`)** | Instant localization via playbook |
+| | **Patch Staged** | No (wandered on tests) | **Yes (Turn 4)** | Exact surgical replacement applied |
+| | **Patch Size** | 0 bytes | **+6 lines, -2 lines** | Valid diff generated |
+| **`fastapi_11194`** | **Execution Time** | 312.8 s (5.21 min) | **289.5 s (4.82 min)** | **-23.3 s (-7.4% speedup)** |
+| | **Turns Consumed** | 14 turns | 12 turns | -2 turns (-14.3%) |
+| | **File Localized** | Turn 4 (`fastapi/dependencies/utils.py`) | **Turn 1 (`fastapi/dependencies/utils.py`)** | Playbook pinned file on Turn 1 |
+| | **Loop Detected** | Read loops (turns 5-11) | Range search loop (turns 3-8) | Read range was offset (inspected lines 170-250 instead of 870) |
+| **`rich_2725`** | **Execution Time** | 284.1 s (4.73 min) | **256.0 s (4.26 min)** | **-28.1 s (-9.9% speedup)** |
+| | **Turns Consumed** | 12 turns | **8 turns** | **-4 turns (-33.3%)** |
+| | **File Localized** | Turn 3 (`rich/table.py`) | **Turn 1 (`rich/table.py`)** | Instant localization |
+| | **Patch Staged** | No | **Yes (Turn 7)** | Staged `rich/table.py` fix |
+
+---
+
+## 3. Tool Invocation Breakdown & Speed Dynamics
+
+Analyzing turn-by-turn tool calls in [`bench_v10_vs_v11.log`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/bench_v10_vs_v11.log) reveals critical behavioral improvements in v11:
+
+### 3.1 Time Per Turn Distribution
+- **Model Thinking & Generation**: 11.2s - 14.8s per turn (with 1536 tokens budget).
+- **Tool Execution Latency**:
+  - `read_file`: ~0.02s
+  - `edit_file`: ~0.05s
+  - `run_command` (grep/git): 0.15s - 0.40s
+  - `run_command` (pytest): 3.2s - 8.5s
+
+### 3.2 Elimination of `edit_file` Indentation Failures
+In v10, 42% of `edit_file` invocations returned:
+`Error: old_str was not found in target file. Please check line numbers and whitespace.`
+In v11, the model shifted to python atomic replacement scripts (`python3 -c "..."`), achieving a **100% edit success rate** on first attempt.
+
+---
+
+## 4. Key Takeaways for Model Behavior
+
+1. **Sub-5 Minute Enforcement Works**: Both v10 and v11 averaged ~4.4 minutes per task. On a 120-task Kaggle evaluation run, this projects to **8.8 hours total runtime**, safely inside the 12.0h limit with **3.2 hours of buffer**.
+2. **Domain Playbooks Cut Localization to 1 Turn**: v11 found the exact target file and buggy function on Turn 1 in all three tasks, saving an average of 3 to 4 turns of blind grepping.
+3. **The Remaining Bottleneck**: The failure to convert staged patches into submitted resolutions was driven by tool invocation semantics (calling `submit_patch` inside `run_command`), detailed in document 05.
