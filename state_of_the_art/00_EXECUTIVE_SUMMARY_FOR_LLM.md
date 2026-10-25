@@ -37,7 +37,9 @@
 | **v4 (SFT 31B)** | LoRA adapter ($r=16, \alpha=32$) | **0.15** | Evaluated | Fine-tuned adapter lost to base model due to conversational drift and vLLM KV cache collapse. |
 | **v9 (Loop-Breaker)** | Anti-repetition circuit breaker | Local Benchmark | Evaluated | Cut `requests_7205` time by 3.2x (84s); eliminated repeated grep loops. |
 | **v10 (Lean Thinking)** | Thinking budget 1536 tokens | Local Benchmark | Evaluated | **Fastest average runtime recorded (269s/task)**; halved per-turn inference latency. |
-| **v11 (Targeted Playbooks)** | Domain playbooks & inline edit | Local Benchmark | Current | **Turn-1 localization** on FastAPI and Rich; verified fix applied by Turn 7 on Rich. |
+| **v11 (Targeted Playbooks)** | Domain playbooks & inline edit | Local Benchmark | Archived | **Turn-1 localization** on FastAPI and Rich; verified fix applied by Turn 7 on Rich. |
+| **v12 (Native Discipline)** | Native tool switching & prefix fix | Local Benchmark | Evaluated | **All-time fastest (175s/task)**; broke `run_command` collapse, but exited on Turn 5 before edit. |
+| **v13 (Non-Empty Patch)** | Strict non-empty patch prerequisite | Active Target | **Active Flagship** | Enforces `patch_size > 0` before `submit_patch`; mandates Calls 3–6 edit phase. |
 
 ---
 
