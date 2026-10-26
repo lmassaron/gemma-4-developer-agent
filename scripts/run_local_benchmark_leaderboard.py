@@ -235,6 +235,7 @@ class TaskWorkspace:
         test_files, test_functions = extract_target_test_info(test_patch)
 
         # Apply hidden test patch
+        self.work_dir.mkdir(parents=True, exist_ok=True)
         patch_file = self.work_dir / ".hidden_test.patch"
         clean_patch = test_patch if test_patch.endswith("\n") else (test_patch + "\n")
         patch_file.write_text(clean_patch, encoding="utf-8")

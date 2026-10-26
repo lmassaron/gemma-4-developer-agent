@@ -87,8 +87,6 @@ def main():
     data_dir = root / args.data_dir
     tasks_path = root / args.tasks_file
     temp_base = Path("/tmp/benchmark_workspaces_60")
-    if temp_base.exists():
-        shutil.rmtree(temp_base, ignore_errors=True)
     temp_base.mkdir(parents=True, exist_ok=True)
 
     # 1. Load Tasks
