@@ -39,7 +39,8 @@
 | **v10 (Lean Thinking)** | Thinking budget 1536 tokens | Local Benchmark | Evaluated | **Fastest average runtime recorded (269s/task)**; halved per-turn inference latency. |
 | **v11 (Targeted Playbooks)** | Domain playbooks & inline edit | Local Benchmark | Archived | **Turn-1 localization** on FastAPI and Rich; verified fix applied by Turn 7 on Rich. |
 | **v12 (Native Discipline)** | Native tool switching & prefix fix | Local Benchmark | Evaluated | **All-time fastest (175s/task)**; broke `run_command` collapse, but exited on Turn 5 before edit. |
-| **v13 (Non-Empty Patch)** | Strict non-empty patch prerequisite | Active Target | **Active Flagship** | Enforces `patch_size > 0` before `submit_patch`; mandates Calls 3–6 edit phase. |
+| **v13 (Non-Empty Patch)** | Strict non-empty patch prerequisite | Active Target | Evaluated | Enforces `patch_size > 0` before `submit_patch`; mandates Calls 3–6 edit phase. |
+| **v13_rev (Heredoc Clean)**| Quoted heredoc, git diff --stat, 5m | Active Target | **Claude Flagship** | Quoted heredoc (`<<'PY'`) prevents escaping bugs; observable diff check; 5.0m cap. |
 
 ---
 

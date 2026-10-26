@@ -261,12 +261,18 @@ class AgentSimulator:
         self.device = device
 
     def parse_tool_call(self, text: str) -> Optional[Tuple[str, Dict[str, Any]]]:
-        """Parses Gemma 4 tool call syntax or json block."""
+        """Parses Gemma 4 tool call syntax, python function call, or json block."""
+        import ast
         import re
         import yaml
 
+        # Strip internal thought channel if present (<|channel>thought ... <channel>)
+        # so mentions of tools inside reasoning don't trigger false positives
+        cleaned_text = re.sub(r"<\|channel\>thought[\s\S]*?(?:<channel>|<\|channel\|>|$)", "", text).strip()
+        search_text = cleaned_text if cleaned_text else text
+
         # Pattern 1: call:default_api:tool_name{args} or call:tool_name{args}
-        m = re.search(r"call:(?:default_api:)?([a-zA-Z0-9_]+)\s*(\{[\s\S]*?\})", text)
+        m = re.search(r"call:(?:default_api:)?([a-zA-Z0-9_]+)\s*(\{[\s\S]*?\})", search_text)
         if m:
             tool_name = m.group(1)
             raw_args = m.group(2)
@@ -287,8 +293,25 @@ class AgentSimulator:
                 return tool_name, {"command": m_cmd.group(1)}
             return tool_name, {"command": raw_args.strip("{} \n\t")}
 
+        # Pattern 1b: Python function call syntax: tool_name(key="val", key2=123)
+        m_py = re.search(r"\b(read_file|edit_file|write_file|run_command|get_status|submit_patch)\s*\(([\s\S]*?)\)", search_text)
+        if m_py:
+            t_name = m_py.group(1)
+            raw_py_args = m_py.group(2).strip()
+            if not raw_py_args:
+                return t_name, {}
+            try:
+                tree = ast.parse(f"f({raw_py_args})")
+                call = tree.body[0].value
+                py_args = {}
+                for kw in call.keywords:
+                    py_args[kw.arg] = ast.literal_eval(kw.value)
+                return t_name, py_args
+            except Exception:
+                pass
+
         # Pattern 2: JSON-style tool call block: {"name": "tool_name", "arguments": {...}}
-        m_json = re.search(r"\{[^{}]*\"name\"\s*:\s*\"([^\"]+)\"[^{}]*\"arguments\"\s*:\s*(\{[\s\S]*?\})[^{}]*\}", text)
+        m_json = re.search(r"\{[^{}]*\"name\"\s*:\s*\"([^\"]+)\"[^{}]*\"arguments\"\s*:\s*(\{[\s\S]*?\})[^{}]*\}", search_text)
         if m_json:
             tool_name = m_json.group(1).replace("default_api:", "")
             try:
@@ -297,8 +320,8 @@ class AgentSimulator:
             except Exception:
                 pass
 
-        # Pattern 3: explicit submit_patch call
-        if "submit_patch" in text:
+        # Pattern 3: explicit submit_patch invocation only (call:submit_patch, submit_patch(), or submit_patch{})
+        if re.search(r"\b(?:call:(?:default_api:)?)?submit_patch\s*(?:\(\s*\)|\{\s*\})", search_text):
             return "submit_patch", {}
 
         return None
@@ -389,9 +412,11 @@ class AgentSimulator:
 
                 parsed = self.parse_tool_call(response_text)
                 if not parsed:
-                    # Model didn't call a tool; break or prompt to finish
+                    preview = response_text.replace("\n", " ").strip()[:140]
+                    print(f"    Turn {turns_used:02d} | [NO TOOL PARSED] Preview: {preview}", flush=True)
+                    tool_calls_log.append(f"[NO_TOOL]: {preview}")
                     messages.append({"role": "assistant", "content": response_text})
-                    messages.append({"role": "user", "content": "Please inspect files, make an edit, or call submit_patch."})
+                    messages.append({"role": "user", "content": "Please invoke a tool: call:tool_name{arguments}."})
                     continue
 
                 tool_name, tool_args = parsed
