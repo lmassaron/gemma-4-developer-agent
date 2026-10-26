@@ -18,7 +18,7 @@ Over 11 major architectural iterations, our pipeline evolved from an unconstrain
 | **v8** | Call-Paced | `0.19` (19%) | 9.8 min | 18.2 | Diff formatting errors in `edit_file` | Capped tool calls to 40; added turn phases (Turns 1-3 inspect, 4-6 edit). |
 | **v8b**| Calibrated | `0.21` (21%) | 8.2 min | 15.4 | Repetitive `pytest` loops | Hardened tool definitions and added non-interactive git commands. |
 | **v9** | Loop Breaker | `0.21` (21%) | 6.8 min | 12.1 | Context exhaustion past 25k tokens | Added loop breaker rule: if command fails 2x, switch to alternative method. |
-| **v10**| Lean Thinking | `0.22` (22%) | **4.5 min** | **9.4** | Clean reproduction without patch submission | **Slashed `thinking_budget` from 4096 to 1536**. Latency halved. |
+| **v10**| Lean Thinking | **0.15** (Kaggle LB) | **4.5 min** | **9.4** | Clean reproduction without patch submission | **Slashed `thinking_budget` from 4096 to 1536**. Latency halved. |
 | **v11**| Targeted Playbooks | `0.23` (23%) | 4.4 min | 8.6 | Submitting patch via shell command string | Added domain playbooks, Turn 5 edit mandate, Turn 8 emergency patch. |
 | **v12**| Native Tool Discipline | `0.28` (Proj) | **2.9 min (175s)** | **10.3** | Premature submit before edit on Turn 5 | Restored native tool switching, eliminated autoregressive run_command trap. |
 | **v13**| Non-Empty Patch Enforced | **0.30** (Proj) | **3.0 min (183s)** | **10.7** | Turn 6 clean exit; enforces edit before submit | Mandatory edit phase (Calls 3–6), non-empty patch prerequisite. |
