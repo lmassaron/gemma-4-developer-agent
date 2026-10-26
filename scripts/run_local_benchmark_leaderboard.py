@@ -305,9 +305,9 @@ class AgentSimulator:
         import re
         import yaml
 
-        # Strip internal thought channel if present (<|channel>thought ... <channel>)
+        # Strip internal thought channel if present (<|channel>thought ... <channel|>)
         # so mentions of tools inside reasoning don't trigger false positives
-        cleaned_text = re.sub(r"<\|channel\>thought[\s\S]*?(?:<channel>|<\|channel\|>|$)", "", text).strip()
+        cleaned_text = re.sub(r"<\|channel\>thought[\s\S]*?(?:<channel>|<channel\|>|<\|channel\|>|$)", "", text).strip()
         search_text = cleaned_text if cleaned_text else text
 
         # Pattern 1: call:default_api:tool_name{args} or call:tool_name{args}
@@ -348,6 +348,13 @@ class AgentSimulator:
                 return t_name, py_args
             except Exception:
                 pass
+
+        # Pattern 1c: Direct shell command call: call:<shell_cmd> (standard Kaggle shell evaluation)
+        m_raw = re.search(r"(?:<\|tool_call\>)?call:(?!submit_patch\b)([^<{\n\r][^<\n]*?)(?:<tool_call\|>|$)", search_text)
+        if m_raw:
+            raw_cmd = m_raw.group(1).strip()
+            if raw_cmd and not raw_cmd.startswith("{") and not raw_cmd.startswith("("):
+                return "run_command", {"command": raw_cmd}
 
         # Pattern 2: JSON-style tool call block: {"name": "tool_name", "arguments": {...}}
         m_json = re.search(r"\{[^{}]*\"name\"\s*:\s*\"([^\"]+)\"[^{}]*\"arguments\"\s*:\s*(\{[\s\S]*?\})[^{}]*\}", search_text)
