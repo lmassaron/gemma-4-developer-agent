@@ -85,3 +85,22 @@ git diff --stat
 1. **Rename Artifact**: Formally rename `submissions_archive/submission_v13_rev.zip` to **[`submissions_archive/submission_v13_heredoc_diffcheck_clean.zip`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/submissions_archive/submission_v13_heredoc_diffcheck_clean.zip)**.
 2. **Update Tracking**: Document the revised bundle in [`submissions_archive/SUBMISSIONS_LOG.md`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/submissions_archive/SUBMISSIONS_LOG.md).
 3. **Leaderboard Submission Recommendation**: Because local benchmarks across 3 public tasks have saturated in opacity, submit `submission_v13_heredoc_diffcheck_clean.zip` directly to the Kaggle Leaderboard to get definitive ground-truth feedback across the 120-task evaluation matrix.
+
+---
+
+## 5. Empirical DGX Spark Benchmark Results for `v13_claude_clean`
+
+Evaluating `submission_v13_heredoc_diffcheck_clean.zip` with the updated, fixed harness across the `smoke_3` suite yielded critical empirical insights:
+
+### 5.1 Results Table
+| Task | Status | Duration | Turns Consumed | Dominant Operational Behavior |
+| :--- | :---: | :---: | :---: | :--- |
+| **`requests_7205`** | TIMEOUT | 305.7 s | 28 turns | **27 consecutive identical calls**: `git grep -n "netrc" src/requests/` |
+| **`fastapi_11194`** | TIMEOUT | 310.2 s | 28 turns | **21 consecutive identical calls**: `git grep -n "Form" fastapi/params.py` |
+| **`rich_2725`** | TIMEOUT | 304.6 s | 22 turns | **9 consecutive identical calls**: `read_file(offset=1100, limit=300)` followed by 7 identical greps |
+| **Suite Total / Avg**| **0/3 (0.0%)** | **306.9 s** | **26.0 turns** | **100% Timeout due to Autoregressive Repetition Collapse** |
+
+### 5.2 Key Takeaways
+1. **The Tool Execution Works**: With the harness bug resolved, native `read_file` calls (e.g. `fastapi/params.py`, `rich/table.py`) executed smoothly.
+2. **The Soft-Rule Trap**: Claude softened the anti-repetition rules to *"Do not repeat a tool call with identical arguments... Call 8 with an empty diff: stop exploring"*. In practice, zero-shot Gemma 4 completely ignores soft suggestions and degenerates into infinite search loops.
+3. **The Winning Formula**: The optimal agent prompt must unite **Claude's Heredoc Pattern (`<<'PY'`) and observable `git diff --stat`** with the **hard imperative Loop Breaker and Strict Turn 4–6 Edit Mandate** from our previous iterations.

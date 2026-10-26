@@ -1,0 +1,14 @@
+[project]
+name = "gemma-4-developer-agent-competition"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.15.0",
+    "peft>=0.21.2",
+    "pillow>=13.0.0",
+    "pytest>=9.1.1",
+    "pyyaml>=6.0.3",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+    "transformers>=5.20.2",
+]

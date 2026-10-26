@@ -36,8 +36,8 @@ The exact task specifications are extracted in [`benchmarks_data/test_tasks_smok
 
 ### 2.1 Summary Metrics (v10 vs v11 vs v12 vs v13)
 
-Raw JSON data: [`benchmarks_data/benchmark_v10_v11_v12_v13.json`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/benchmark_v10_v11_v12_v13.json)  
-Raw execution log: [`benchmarks_data/bench_v13.log`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/bench_v13.log)
+Raw JSON data: [`benchmarks_data/benchmark_5way_v10_to_v13_claude.json`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/benchmark_5way_v10_to_v13_claude.json)  
+Raw execution log: [`benchmarks_data/bench_v13_claude.log`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/bench_v13_claude.log)
 
 | Candidate | Resolved Tasks | Resolution % | Avg Duration / Task | Avg Turns / Task | Operational Note |
 | :--- | :---: | :---: | :---: | :---: | :--- |
@@ -45,23 +45,24 @@ Raw execution log: [`benchmarks_data/bench_v13.log`](file:///home/lmassaron/code
 | **`v11_targeted_playbooks`** | 0/3 | 0.0% | 333.4 s | 22.3 turns | Autoregressive `run_command` collapse loop |
 | **`v12_native_discipline`** | 0/3 | 0.0% | **175.4 s (-47.4%)** | **10.3 turns (-53.8%)** | Clean native `submit_patch` on Turn 5 |
 | **`v13_non_empty_patch`** | 0/3 | 0.0% | **183.3 s (-45.0%)** | **10.7 turns (-52.0%)** | Shifted exit window to Turn 6; enforces edit phase |
+| **`v13_claude_clean`** | 0/3 | 0.0% | 306.9 s | 26.0 turns | Quoted heredoc works, but soft rules caused 27x repeated `git grep` loops to timeout |
 
 ### 2.2 Per-Task Detail Breakdown
 
-| Task | Metric | v10 ("Lean") | v11 ("Targeted") | v12 ("Discipline") | v13 ("Non-Empty") |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **`requests_7205`** | **Status** | FAILED | FAILED | NO_PATCH | **NO_PATCH** |
-| | **Duration** | 85.66 s | 326.88 s | 86.84 s | **90.96 s** |
-| | **Turns** | 6 turns | 32 turns | 5 turns | **6 turns** |
-| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes | **0 bytes** |
-| **`fastapi_11194`** | **Status** | NO_PATCH | TIMEOUT | TIMEOUT | **TIMEOUT** |
-| | **Duration** | 283.37 s | 333.26 s | 338.52 s | **335.63 s** |
-| | **Turns** | 23 turns | 21 turns | 21 turns | **20 turns** |
-| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes | **0 bytes** |
-| **`rich_2725`** | **Status** | TIMEOUT | TIMEOUT | NO_PATCH | **NO_PATCH** |
-| | **Duration** | 452.38 s | 340.21 s | 100.85 s | **123.31 s** |
-| | **Turns** | 16 turns | 14 turns | 5 turns | **6 turns** |
-| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes | **0 bytes** |
+| Task | Metric | v10 ("Lean") | v11 ("Targeted") | v12 ("Discipline") | v13 ("Non-Empty") | v13_claude ("Clean") |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **`requests_7205`** | **Status** | FAILED | FAILED | NO_PATCH | NO_PATCH | **TIMEOUT** |
+| | **Duration** | 85.66 s | 326.88 s | 86.84 s | 90.96 s | **305.73 s** |
+| | **Turns** | 6 turns | 32 turns | 5 turns | 6 turns | **28 turns** (27x repeat loop) |
+| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes | 0 bytes | **0 bytes** |
+| **`fastapi_11194`** | **Status** | NO_PATCH | TIMEOUT | TIMEOUT | TIMEOUT | **TIMEOUT** |
+| | **Duration** | 283.37 s | 333.26 s | 338.52 s | 335.63 s | **310.20 s** |
+| | **Turns** | 23 turns | 21 turns | 21 turns | 20 turns | **28 turns** (21x repeat loop) |
+| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes | 0 bytes | **0 bytes** |
+| **`rich_2725`** | **Status** | TIMEOUT | TIMEOUT | NO_PATCH | NO_PATCH | **TIMEOUT** |
+| | **Duration** | 452.38 s | 340.21 s | 100.85 s | 123.31 s | **304.63 s** |
+| | **Turns** | 16 turns | 14 turns | 5 turns | 6 turns | **22 turns** (9x read loop) |
+| | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes | 0 bytes | **0 bytes** |
 | | **Turns** | 16 turns | 14 turns | **5 turns** |
 | | **True Source Patch** | 0 bytes | 0 bytes | 0 bytes |
 | **`fastapi_11194`** | **Execution Time** | 312.8 s (5.21 min) | **289.5 s (4.82 min)** | **-23.3 s (-7.4% speedup)** |

@@ -90,19 +90,58 @@ class TaskWorkspace:
         shutil.rmtree(self.work_dir, ignore_errors=True)
         self.work_dir.mkdir(parents=True, exist_ok=True)
 
-        if not self.snapshot_tar.is_file():
-            raise FileNotFoundError(f"Snapshot not found: {self.snapshot_tar}")
+        if self.snapshot_tar.is_file():
+            with tarfile.open(self.snapshot_tar, "r:gz") as tar:
+                tar.extractall(self.work_dir)
+        else:
+            repo_name = self.task.get("repo", "")
+            base_commit = self.task.get("base_commit", "")
+            if not repo_name or not base_commit:
+                raise FileNotFoundError(f"Snapshot not found and task lacks repo/base_commit: {self.instance_id}")
 
-        with tarfile.open(self.snapshot_tar, "r:gz") as tar:
-            tar.extractall(self.work_dir)
+            repo_cache_dir = self.data_dir / "repo_cache" / repo_name.replace("/", "_")
+            if not repo_cache_dir.is_dir() or not ((repo_cache_dir / "config").is_file() or (repo_cache_dir / ".git").is_dir()):
+                repo_cache_dir.parent.mkdir(parents=True, exist_ok=True)
+                github_url = f"https://github.com/{repo_name}.git"
+                print(f"[RepoCache] Cloning bare {github_url}...", flush=True)
+                res = subprocess.run(
+                    ["git", "clone", "--bare", github_url, str(repo_cache_dir)],
+                    capture_output=True,
+                    text=True,
+                )
+                if res.returncode != 0:
+                    raise RuntimeError(f"Failed to clone {github_url}: {res.stderr}")
 
-        # Initialize git repository
-        if not (self.work_dir / ".git").is_dir():
-            subprocess.run(["git", "init", "-q"], cwd=self.work_dir, check=True)
-            subprocess.run(["git", "config", "user.name", "evaluator"], cwd=self.work_dir, check=True)
-            subprocess.run(["git", "config", "user.email", "eval@kaggle.local"], cwd=self.work_dir, check=True)
-            subprocess.run(["git", "add", "-A"], cwd=self.work_dir, check=True)
-            subprocess.run(["git", "commit", "-q", "-m", "base snapshot", "--allow-empty"], cwd=self.work_dir, check=True)
+            # Clone locally with --shared into work_dir and checkout base_commit
+            res = subprocess.run(
+                ["git", "clone", "--shared", str(repo_cache_dir), str(self.work_dir)],
+                capture_output=True,
+                text=True,
+            )
+            if res.returncode != 0:
+                raise RuntimeError(f"Failed to clone shared workspace for {self.instance_id}: {res.stderr}")
+
+            res = subprocess.run(
+                ["git", "checkout", "-q", "-f", base_commit],
+                cwd=self.work_dir,
+                capture_output=True,
+                text=True,
+            )
+            if res.returncode != 0:
+                # Fetch commit if not in default bare clone
+                subprocess.run(["git", "fetch", "origin", base_commit], cwd=repo_cache_dir, capture_output=True)
+                res = subprocess.run(
+                    ["git", "checkout", "-q", "-f", base_commit],
+                    cwd=self.work_dir,
+                    capture_output=True,
+                    text=True,
+                )
+                if res.returncode != 0:
+                    raise RuntimeError(f"Failed to checkout {base_commit} for {self.instance_id}: {res.stderr}")
+
+        # Ensure git configuration
+        subprocess.run(["git", "config", "user.name", "evaluator"], cwd=self.work_dir, check=True)
+        subprocess.run(["git", "config", "user.email", "eval@kaggle.local"], cwd=self.work_dir, check=True)
 
     def run_command(self, cmd: str, timeout_sec: int = 30) -> str:
         try:
