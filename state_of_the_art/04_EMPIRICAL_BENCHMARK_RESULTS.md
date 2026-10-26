@@ -95,8 +95,11 @@ In v11, the model shifted to python atomic replacement scripts (`python3 -c "...
 
 ---
 
-## 4. Key Takeaways for Model Behavior
+## 4. Key Takeaways & Error Analysis References
 
 1. **Sub-5 Minute Enforcement Works**: Both v10 and v11 averaged ~4.4 minutes per task. On a 120-task Kaggle evaluation run, this projects to **8.8 hours total runtime**, safely inside the 12.0h limit with **3.2 hours of buffer**.
 2. **Domain Playbooks Cut Localization to 1 Turn**: v11 found the exact target file and buggy function on Turn 1 in all three tasks, saving an average of 3 to 4 turns of blind grepping.
-3. **The Remaining Bottleneck**: The failure to convert staged patches into submitted resolutions was driven by tool invocation semantics (calling `submit_patch` inside `run_command`), detailed in document 05.
+3. **The 5 Concrete Failure Modes**: The root causes of benchmark task failures across candidates (Grep repetition loops, Python quote escaping failures, path concatenation explosions, empty thought tag locks, and premature zero-byte surrenders) are fully diagnosed with code traces in:
+   - [`08_60_TASK_BENCHMARK_ERROR_ANALYSIS_AND_FAILURE_MODES.md`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/08_60_TASK_BENCHMARK_ERROR_ANALYSIS_AND_FAILURE_MODES.md) (Live 60-task large suite evaluation)
+   - [`09_DETAILED_ERROR_ANALYSIS_OF_EACH_MODEL_ON_TASKS.md`](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/09_DETAILED_ERROR_ANALYSIS_OF_EACH_MODEL_ON_TASKS.md) (Turn-by-turn forensic analysis of each model: v7, v8, v10, v11, v12, v13, and v13_claude)
+
