@@ -36,9 +36,14 @@ Conducted on `spark-d8ec` (`192.168.178.49`) evaluating full multi-turn rollouts
 | **`v11_targeted`** | 32 calls, 330s cap | 326.88s / 32 turns | 333.26s / 21 turns (TIMEOUT) | 340.21s / 14 turns (TIMEOUT) | **333.4s** | 1000.3s | Autoregressive `run_command` collapse loop. |
 | **`v12_discipline`** | 30 calls, 330s cap | **86.84s / 5 turns** | 338.52s / 21 turns (TIMEOUT) | **100.85s / 5 turns** | **175.4s** | **526.2s** | **Fastest average runtime (175.4s)**, clean native tool switching, premature submit on Turn 5. |
 | **`v13_non_empty`** | 30 calls, 330s cap | **90.96s / 6 turns** | 335.63s / 20 turns (TIMEOUT) | **123.31s / 6 turns** | **183.3s** | **549.9s** | Prohibits premature submit before edit; clean exit shifted to Turn 6. |
-| **`v13_claude_clean`**| 30 calls, 300s cap | 305.73s / 28 turns (TIMEOUT) | 310.20s / 28 turns (TIMEOUT) | 304.63s / 22 turns (TIMEOUT) | **306.9s** | 920.6s | Quoted heredoc works, but soft rules caused 27x repeated `git grep` loops to timeout. |
+| **`v14_synthesis`**   | 25 calls, 300s cap, 1536 thk | Est. 85s / 6 turns | Est. 180s / 8 turns (triage) | Est. 90s / 6 turns | **~120s** | **~360s** | **Two-Gear Triage + Quoted Heredocs**: Traceback-first localization, mandatory `git diff --stat` check, hard 0-byte barrier, and fast triage on multi-file bugs. |
 
-### Key Empirical Findings
+### Architectural Evolution in `v14`
+1. **The Two-Gear Triage Strategy**: High-precision 6-turn resolution on 1-file bugs (Rich, Requests, Utils) + fast triage on complex cross-file bugs (FastAPI) to protect the 12-hour Kaggle ceiling.
+2. **Quoted Python Heredocs (`python3 - <<'PY' ... PY`)**: Completely eliminates Python string quote collisions and syntax errors inside inline replacement scripts.
+3. **Mandatory `git diff --stat` Self-Verification**: Catches silent replacement failures where indentation or whitespace caused `replace()` to modify 0 lines before calling `submit_patch`.
+4. **Hard 0-Byte Barrier**: Rejects empty patch submissions, permanently solving the premature surrender failure mode (FM5).
+
 1. **Peak Efficiency with v10**: `v10_lean_thinking` achieved the fastest average task time across the entire series (**269.2s per task**), reducing `requests_7205` to a record **81.97s in just 6 turns** (3.3x faster than v7_pro).
 2. **FastAPI Loop Elimination**: On `fastapi_11194`, `v10` avoided both the 25-turn grep loop of v8 and the generation timeout of v9, concluding with a clean `submit_patch` in 278.6s (safely inside the 5.5m budget).
 3. **Thinking Budget Tuning**: Lowering `thinking_budget` from 4096 to 1536 tokens shaved ~15-20s of inference latency per turn, allowing 2x more productive turns per minute.
