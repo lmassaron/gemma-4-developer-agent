@@ -311,8 +311,8 @@ class AgentSimulator:
         cleaned_text = re.sub(r"<\|channel\>thought[\s\S]*?(?:<channel>|<channel\|>|<\|channel\|>|$)", "", text).strip()
         search_text = cleaned_text if cleaned_text else text
 
-        # Pattern 1: call:default_api:tool_name{args} or call:tool_name{args}
-        m = re.search(r"call:(?:default_api:)?([a-zA-Z0-9_]+)\s*(\{[\s\S]*?\})", search_text)
+        # Pattern 1: call:default_api:tool_name{args}, call:tool_name{args}, or bare tool_name{args}
+        m = re.search(r"(?:call:(?:default_api:)?)?\b(run_command|read_file|edit_file|write_file|get_status|submit_patch)\s*(\{[\s\S]*?\})", search_text)
         if m:
             tool_name = m.group(1)
             raw_args = m.group(2)
@@ -377,8 +377,12 @@ class AgentSimulator:
         """Executes a tool on the workspace. Returns (output_string, is_terminal_action)."""
         if tool_name == "run_command":
             cmd = args.get("command") or args.get("cmd") or ""
-            if cmd.startswith("command:"):
-                cmd = cmd[len("command:"):].strip().strip('"\'')
+            cmd = cmd.strip()
+            # Clean up accidental 'command:' or '"command":' wrapper
+            if cmd.startswith('"command":') or cmd.startswith("'command':"):
+                cmd = cmd[10:].strip().strip('"\'')
+            elif cmd.startswith("command:"):
+                cmd = cmd[8:].strip().strip('"\'')
             if cmd.strip().strip('"\'') in ("submit_patch", "submit_patch()", "command: submit_patch"):
                 return "[Patch submitted. Finalizing task evaluation.]", True
             return ws.run_command(cmd), False
