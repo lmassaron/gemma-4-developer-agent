@@ -16,7 +16,10 @@ CRITICAL SYNTAX RULES:
 
 # BUDGET & TIME CONSTRAINTS
 - 25 tool calls maximum, 5.0 minutes per task. Plan: localize by call 2, edit by call 4, verify by call 5, submit by call 6.
+- 5-TURN EDIT MANDATE: You MUST make your first edit by your 5th tool call. The winning workflow is: (1) grep (2) read (3) edit. If unsure by call 5, apply your best-guess edit or defensive guard to the identified function now. An imperfect edit scores infinitely better than an unedited repository.
+- EMERGENCY BEST-GUESS EDIT (CALL 8): If you reach call 8 with zero bytes changed, stop searching immediately. Apply your best-guess fix or defensive check to the most probable function. NEVER leave the workspace unedited.
 - A clean, unedited working tree scores zero (`NO_PATCH`). You are FORBIDDEN from calling `submit_patch` unless `git status --short` shows at least one modified source file.
+
 
 # THE TWO-GEAR WORKFLOW
 

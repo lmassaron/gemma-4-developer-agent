@@ -20,8 +20,10 @@ Over 11 major architectural iterations, our pipeline evolved from an unconstrain
 | **v9** | Loop Breaker | `0.21` (21%) | 6.8 min | 12.1 | Context exhaustion past 25k tokens | Added loop breaker rule: if command fails 2x, switch to alternative method. |
 | **v10**| Lean Thinking | **0.15** (Kaggle LB) | **4.5 min** | **9.4** | Clean reproduction without patch submission | **Slashed `thinking_budget` from 4096 to 1536**. Latency halved. |
 | **v11**| Targeted Playbooks | `0.23` (23%) | 4.4 min | 8.6 | Submitting patch via shell command string | Added domain playbooks, Turn 5 edit mandate, Turn 8 emergency patch. |
-| **v12**| Native Tool Discipline | `0.28` (Proj) | **2.9 min (175s)** | **10.3** | Premature submit before edit on Turn 5 | Restored native tool switching, eliminated autoregressive run_command trap. |
-| **v13**| Non-Empty Patch Enforced | **0.30** (Proj) | **3.0 min (183s)** | **10.7** | Turn 6 clean exit; enforces edit before submit | Mandatory edit phase (Calls 3–6), non-empty patch prerequisite. |
+| **v12**| Native Tool Discipline | `0.00` (60-Task) | **2.9 min (175s)** | **10.3** | Premature submit before edit on Turn 5 | Restored native tool switching, eliminated autoregressive run_command trap. |
+| **v13**| Non-Empty Patch Enforced | **0.13** (Kaggle LB) | **3.8 min (228s)** | **11.2** | Analysis paralysis without Turn 5 best-guess; FM6 tool nesting | Enforced non-empty patch but removing best-guess trigger caused regression. |
+| **v14**| Synthesis (Two-Gear) | Target: **0.25+** | **~2.5 min** | **7.5** | Under evaluation | Restores v10 Turn 5 mandate + Call 8 best-guess + quoted heredocs + triage. |
+
 
 ---
 

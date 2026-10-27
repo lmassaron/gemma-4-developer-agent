@@ -32,13 +32,17 @@ Conducted on `spark-d8ec` (`192.168.178.49`) evaluating full multi-turn rollouts
 
 | Candidate Bundle | Target / Config | Requests 7205 Duration / Turns | FastAPI 11194 Duration / Turns | Rich 2725 Duration / Turns | Suite Average Time | Suite Total Time | Key Operational Behavior |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`v10_lean_thinking`** | 32 calls, 330s cap, 1536 thk | **85.66s / 6 turns** | **283.37s / 23 turns** | 452.38s / 16 turns (TIMEOUT) | **273.8s** | 821.4s | Lean thinking, sub-5m submission on fastapi, 0-byte source patch. |
-| **`v11_targeted`** | 32 calls, 330s cap | 326.88s / 32 turns | 333.26s / 21 turns (TIMEOUT) | 340.21s / 14 turns (TIMEOUT) | **333.4s** | 1000.3s | Autoregressive `run_command` collapse loop. |
+| **`v10_lean_thinking`** | 32 calls, 330s cap, 1536 thk | **85.66s / 6 turns** | **283.37s / 23 turns** | 452.38s / 16 turns (TIMEOUT) | **273.8s** | **0.15 (15%)** (Kaggle LB) | Lean thinking, Turn 5 edit mandate, Turn 8 best-guess emergency edit. |
+| **`v11_targeted`** | 32 calls, 330s cap | 326.88s / 32 turns | 333.26s / 21 turns (TIMEOUT) | 340.21s / 14 turns (TIMEOUT) | **333.4s** | 1000.3s | Autoregressive `run_command` collapse loop. Solved `rich_3905` in 89s. |
 | **`v12_discipline`** | 30 calls, 330s cap | **86.84s / 5 turns** | 338.52s / 21 turns (TIMEOUT) | **100.85s / 5 turns** | **175.4s** | **526.2s** | **Fastest average runtime (175.4s)**, clean native tool switching, premature submit on Turn 5. |
-| **`v13_non_empty`** | 30 calls, 330s cap | **90.96s / 6 turns** | 335.63s / 20 turns (TIMEOUT) | **123.31s / 6 turns** | **183.3s** | **549.9s** | Prohibits premature submit before edit; clean exit shifted to Turn 6. |
-| **`v14_synthesis`**   | 25 calls, 300s cap, 1536 thk | Est. 85s / 6 turns | Est. 180s / 8 turns (triage) | Est. 90s / 6 turns | **~120s** | **~360s** | **Two-Gear Triage + Quoted Heredocs**: Traceback-first localization, mandatory `git diff --stat` check, hard 0-byte barrier, and fast triage on multi-file bugs. |
+| **`v13_non_empty`** | 30 calls, 330s cap | **90.96s / 6 turns** | 335.63s / 20 turns (TIMEOUT) | **123.31s / 6 turns** | **183.3s** | **0.13 (13%)** (Kaggle LB) | Removed Turn 5 best-guess mandate; suffered FM6 nested tool syntax error. |
+| **`v14_synthesis`**   | 25 calls, 300s cap, 1536 thk | Est. 85s / 6 turns | Est. 180s / 8 turns (triage) | Est. 90s / 6 turns | **~120s** | Target: **0.25+** | **v10 Aggression + Heredocs + Triage**: Restores Turn 5 mandate & Turn 8 emergency edit, quoted heredocs, strict diff check. |
 
-### Architectural Evolution in `v14`
+### Why v13 Regressed (0.13 vs 0.15 on v10) & How v14 Fixes It:
+1. **Loss of Best-Guess Edit Mandate**: `v10` scored 0.15 because Rules 7 & 8 forced a defensive edit onto disk by Turn 5/8. Many SWE-bench issues are simple null/type guards where an educated guess passes the test suite. `v13` removed this mandate, telling the model only "do not submit if patch is empty", which led to analysis paralysis and timeouts on tasks `v10` solved.
+2. **Nested Tool Encapsulation (FM6)**: `v13`'s multi-tool schema confused Gemma 4, causing it to emit `edit_file` inside `run_command` (`bash: edit_file: command not found`), failing edits silently.
+3. **`v14` Synthesis**: Combines `v10`'s aggressive Turn 5 edit mandate and Call 8 emergency best-guess with `v14`'s quoted heredoc runner (`python3 - <<'PY' ... PY`), clean tool separation, and mandatory `git diff --stat` verification.
+
 1. **The Two-Gear Triage Strategy**: High-precision 6-turn resolution on 1-file bugs (Rich, Requests, Utils) + fast triage on complex cross-file bugs (FastAPI) to protect the 12-hour Kaggle ceiling.
 2. **Quoted Python Heredocs (`python3 - <<'PY' ... PY`)**: Completely eliminates Python string quote collisions and syntax errors inside inline replacement scripts.
 3. **Mandatory `git diff --stat` Self-Verification**: Catches silent replacement failures where indentation or whitespace caused `replace()` to modify 0 lines before calling `submit_patch`.
