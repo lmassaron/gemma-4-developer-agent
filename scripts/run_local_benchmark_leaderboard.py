@@ -476,6 +476,10 @@ class AgentSimulator:
 
                 # Execute tool
                 tool_output, is_terminal = self.execute_tool(ws, tool_name, tool_args)
+                if "[Error" in tool_output:
+                    err_snip = tool_output.strip().splitlines()[0][:140]
+                    print(f"         └── Tool Error: {err_snip}", flush=True)
+
                 messages.append({"role": "assistant", "content": response_text})
                 messages.append({"role": "tool", "name": tool_name, "content": tool_output})
 
@@ -488,6 +492,9 @@ class AgentSimulator:
             source_patch = ws.get_diff()
             passed, test_output = ws.run_verification()
             patch_text = source_patch
+            if not passed and patch_text.strip():
+                fail_snip = test_output.strip().splitlines()[-1][:140] if test_output else ""
+                print(f"         └── Test Verification Failed: {fail_snip}", flush=True)
 
             status = "RESOLVED" if passed else ("FAILED" if patch_text.strip() else "NO_PATCH")
 
