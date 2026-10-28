@@ -85,6 +85,7 @@ class TaskWorkspace:
         self.data_dir = data_dir
         self.work_dir = base_dir / self.instance_id
         self.snapshot_tar = data_dir / "snapshots" / f"{self.instance_id}.tgz"
+        self.last_read_path = ""
 
     def setup(self):
         shutil.rmtree(self.work_dir, ignore_errors=True)
@@ -163,6 +164,7 @@ class TaskWorkspace:
         fp = self.work_dir / path
         if not fp.is_file():
             return f"[Error: File not found: {path}]"
+        self.last_read_path = path
         try:
             lines = fp.read_text(encoding="utf-8", errors="replace").splitlines()
             total = len(lines)
@@ -393,6 +395,8 @@ class AgentSimulator:
             return ws.read_file(path, offset, limit), False
         elif tool_name == "edit_file":
             path = args.get("path") or args.get("file_path") or args.get("file") or ""
+            if not path and getattr(ws, "last_read_path", ""):
+                path = ws.last_read_path
             old_str = args.get("old_str") or args.get("old_content") or args.get("old_string") or ""
             new_str = args.get("new_str") or args.get("new_content") or args.get("new_string") or ""
             return ws.edit_file(path, old_str, new_str), False
