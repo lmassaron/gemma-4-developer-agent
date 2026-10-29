@@ -146,21 +146,35 @@ class TaskWorkspace:
 
     def run_command(self, cmd: str, timeout_sec: int = 30) -> str:
         try:
+            env = os.environ.copy()
+            venv_bin = str(Path(sys.executable).parent)
+            env["PATH"] = f"{venv_bin}:{env.get('PATH', '')}"
+            python_paths = [str(self.work_dir), str(self.work_dir / "src")]
+            if env.get("PYTHONPATH"):
+                python_paths.append(env["PYTHONPATH"])
+            env["PYTHONPATH"] = ":".join(python_paths)
+
             res = subprocess.run(
                 ["bash", "-c", cmd],
                 cwd=self.work_dir,
                 capture_output=True,
                 text=True,
                 timeout=timeout_sec,
+                env=env,
             )
             out = res.stdout + res.stderr
-            return out if out.strip() else "[Command executed successfully with no output]"
+            if not out.strip():
+                return "[Command executed successfully with no output]"
+            if len(out) > 6000:
+                out = out[:2500] + f"\n\n... [TRUNCATED {len(out) - 5000} CHARS] ...\n\n" + out[-2500:]
+            return out
         except subprocess.TimeoutExpired:
             return f"[Error: Command timed out after {timeout_sec}s]"
         except Exception as e:
             return f"[Error: {e}]"
 
     def read_file(self, path: str, offset: int = 0, limit: int = 80) -> str:
+        limit = min(int(limit), 100)
         fp = self.work_dir / path
         if not fp.is_file():
             return f"[Error: File not found: {path}]"
@@ -181,14 +195,88 @@ class TaskWorkspace:
             return f"[Error: File not found: {path}]"
         try:
             text = fp.read_text(encoding="utf-8")
-            if old_content not in text:
-                return f"[Error: old_content not found in {path}. Make sure whitespace and indentation match exactly.]"
-            occurrences = text.count(old_content)
-            if occurrences > 1:
-                return f"[Error: old_content occurs {occurrences} times in {path}. Please provide a larger unique snippet.]"
-            updated = text.replace(old_content, new_content, 1)
-            fp.write_text(updated, encoding="utf-8")
-            return f"[Successfully updated {path}]"
+            if not old_content:
+                return f"[Error: old_content is empty]"
+
+            # Tier 1: Exact literal match
+            if old_content in text:
+                occurrences = text.count(old_content)
+                if occurrences > 1:
+                    return f"[Error: old_content occurs {occurrences} times in {path}. Please provide a larger unique snippet.]"
+                updated = text.replace(old_content, new_content, 1)
+                fp.write_text(updated, encoding="utf-8")
+                return f"[Successfully updated {path}]"
+
+            # Tier 1b: Strip line numbers if copied from read_file output (e.g., '  42 | def foo')
+            import re
+            cleaned_old = re.sub(r"^\s*\d+\s*\|\s?", "", old_content, flags=re.MULTILINE)
+            cleaned_new = re.sub(r"^\s*\d+\s*\|\s?", "", new_content, flags=re.MULTILINE)
+            if (cleaned_old != old_content) and (cleaned_old in text):
+                occurrences = text.count(cleaned_old)
+                if occurrences > 1:
+                    return f"[Error: old_content (line-numbers stripped) occurs {occurrences} times in {path}. Provide larger snippet.]"
+                updated = text.replace(cleaned_old, cleaned_new, 1)
+                fp.write_text(updated, encoding="utf-8")
+                return f"[Successfully updated {path}]"
+
+            # Tier 2: Whitespace and Indentation Normalized Line-Matching (Aider style)
+            file_lines = text.splitlines(keepends=True)
+            target_lines = [l.strip() for l in cleaned_old.splitlines() if l.strip()]
+            if not target_lines:
+                return f"[Error: old_content contains only whitespace]"
+
+            matches = []
+            for i in range(len(file_lines) - len(target_lines) + 1):
+                window = [file_lines[i + j].strip() for j in range(len(target_lines))]
+                if window == target_lines:
+                    matches.append(i)
+
+            if len(matches) == 1:
+                start_idx = matches[0]
+                end_idx = start_idx + len(target_lines)
+                first_file_line = file_lines[start_idx]
+                file_indent = first_file_line[:len(first_file_line) - len(first_file_line.lstrip())]
+                first_old_nonempty = next((l for l in cleaned_old.splitlines() if l.strip()), "")
+                old_indent = first_old_nonempty[:len(first_old_nonempty) - len(first_old_nonempty.lstrip())]
+
+                new_lines = cleaned_new.splitlines(keepends=True)
+                adjusted_new_lines = []
+                for nl in new_lines:
+                    if not nl.strip():
+                        adjusted_new_lines.append(nl if nl.endswith("\n") else nl + "\n")
+                    else:
+                        if nl.startswith(old_indent):
+                            adjusted_new_lines.append(file_indent + nl[len(old_indent):])
+                        else:
+                            adjusted_new_lines.append(file_indent + nl.lstrip())
+                if adjusted_new_lines and not adjusted_new_lines[-1].endswith("\n"):
+                    adjusted_new_lines[-1] += "\n"
+
+                updated = "".join(file_lines[:start_idx] + adjusted_new_lines + file_lines[end_idx:])
+                fp.write_text(updated, encoding="utf-8")
+                return f"[Successfully updated {path} (via normalized line match)]"
+            elif len(matches) > 1:
+                return f"[Error: old_content matches {len(matches)} locations in {path}. Please provide a larger unique snippet.]"
+
+            # Check if old_content exists in another python file in workspace
+            first_line = target_lines[0] if target_lines else ""
+            if first_line and len(first_line) > 8:
+                try:
+                    grep_res = subprocess.run(
+                        ["git", "grep", "-l", "-F", first_line, "--", "*.py", ":!tests/*"],
+                        cwd=self.work_dir,
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                    )
+                    other_matches = [f.strip() for f in grep_res.stdout.splitlines() if f.strip() and f.strip() != path]
+                    if len(other_matches) == 1:
+                        target_other = other_matches[0]
+                        return f"[Error: old_content not found in {path}, but exact matching code was found in {target_other}! Please call edit_file with path='{target_other}'.]"
+                except Exception:
+                    pass
+
+            return f"[Error: old_content not found in {path}. Make sure whitespace and indentation match exactly.]"
         except Exception as e:
             return f"[Error editing file: {e}]"
 
@@ -261,7 +349,7 @@ class TaskWorkspace:
             patch_file.unlink(missing_ok=True)
 
         # Run targeted pytest
-        pytest_cmd = [sys.executable, "-m", "pytest", "-q", "--tb=short"]
+        pytest_cmd = [sys.executable, "-m", "pytest", "-q", "--tb=short", "-W", "ignore"]
         if test_files:
             pytest_cmd.extend(test_files)
         if test_functions:
@@ -296,10 +384,11 @@ class TaskWorkspace:
 class AgentSimulator:
     """Multi-turn Gemma 4 Agent Rollout Simulator."""
 
-    def __init__(self, model, processor, system_prompt: str, device: str = "cuda:0"):
+    def __init__(self, model, processor, system_prompt: str, sampling_config: Optional[Dict[str, Any]] = None, device: str = "cuda:0"):
         self.model = model
         self.processor = processor
         self.system_prompt = system_prompt
+        self.sampling_config = sampling_config or {}
         self.device = device
 
     def parse_tool_call(self, text: str) -> Optional[Tuple[str, Dict[str, Any]]]:
@@ -314,22 +403,28 @@ class AgentSimulator:
         search_text = cleaned_text if cleaned_text else text
 
         # Pattern 1: call:default_api:tool_name{args}, call:tool_name{args}, or bare tool_name{args}
-        m = re.search(r"(?:call:(?:default_api:)?)?\b(run_command|read_file|edit_file|write_file|get_status|submit_patch)\s*(\{[\s\S]*?\})", search_text)
+        m = re.search(r"(?:call:(?:default_api:)?)?\b(run_command|read_file|edit_file|write_file|get_status|submit_patch)\s*(\{[\s\S]*\})", search_text)
         if m:
             tool_name = m.group(1)
             raw_args = m.group(2)
-            try:
-                args = json.loads(raw_args)
-                if isinstance(args, dict):
-                    return tool_name, args
-            except Exception:
-                pass
-            try:
-                args = yaml.safe_load(raw_args)
-                if isinstance(args, dict):
-                    return tool_name, args
-            except Exception:
-                pass
+            # Also try non-greedy first if greedy fails, or vice versa
+            m_non_greedy = re.search(r"(?:call:(?:default_api:)?)?\b(run_command|read_file|edit_file|write_file|get_status|submit_patch)\s*(\{[\s\S]*?\})", search_text)
+            candidates_raw = [raw_args]
+            if m_non_greedy and m_non_greedy.group(2) != raw_args:
+                candidates_raw.insert(0, m_non_greedy.group(2))
+            for cand_raw in candidates_raw:
+                try:
+                    args = json.loads(cand_raw)
+                    if isinstance(args, dict):
+                        return tool_name, args
+                except Exception:
+                    pass
+                try:
+                    args = yaml.safe_load(cand_raw)
+                    if isinstance(args, dict):
+                        return tool_name, args
+                except Exception:
+                    pass
             m_cmd = re.search(r'command\s*:\s*["\']([\s\S]+?)["\']\s*\}?$', raw_args)
             if m_cmd:
                 return tool_name, {"command": m_cmd.group(1)}
@@ -386,7 +481,12 @@ class AgentSimulator:
             elif cmd.startswith("command:"):
                 cmd = cmd[8:].strip().strip('"\'')
             if cmd.strip().strip('"\'') in ("submit_patch", "submit_patch()", "command: submit_patch"):
+                diff = ws.get_diff()
+                if not diff.strip():
+                    return "[Error: Cannot submit an empty patch! git diff shows 0 bytes changed. Your edit did not apply. You MUST edit source files before submitting.]", False
                 return "[Patch submitted. Finalizing task evaluation.]", True
+            if cmd.strip() in ("pytest", "python3 -m pytest", "python -m pytest", "pytest tests/", "python3 -m pytest tests/"):
+                return "[Error: Running the entire pytest suite without a specific test file or `-k <keyword>` filter is forbidden because it times out and exhausts memory. Pass a specific test file or `-k '<keyword>'`.]", False
             return ws.run_command(cmd), False
         elif tool_name == "read_file":
             path = args.get("path") or args.get("file_path") or args.get("file") or ""
@@ -407,6 +507,9 @@ class AgentSimulator:
         elif tool_name == "get_status":
             return ws.get_status(), False
         elif tool_name == "submit_patch":
+            diff = ws.get_diff()
+            if not diff.strip():
+                return "[Error: Cannot submit an empty patch! git diff shows 0 bytes changed. Your edit did not apply. You MUST edit source files before submitting.]", False
             return "[Patch submitted. Finalizing task evaluation.]", True
         else:
             return f"[Unknown tool: {tool_name}]", False
@@ -447,14 +550,28 @@ class AgentSimulator:
                 prompt_str = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
                 inputs = self.processor.tokenizer(prompt_str, return_tensors="pt").to(self.device)
 
+                temp = float(self.sampling_config.get("temperature", 0.12))
+                top_p = float(self.sampling_config.get("top_p", 0.95))
+                do_sample = temp > 0.0
+
                 gen_kwargs = {
                     "input_ids": inputs.input_ids,
                     "attention_mask": inputs.attention_mask,
-                    "max_new_tokens": 2048,
-                    "do_sample": False,
+                    "max_new_tokens": int(self.sampling_config.get("max_new_tokens", 1024)),
+                    "do_sample": do_sample,
+                    "repetition_penalty": float(self.sampling_config.get("repetition_penalty", 1.05)),
                 }
+                if do_sample:
+                    gen_kwargs["temperature"] = temp
+                    gen_kwargs["top_p"] = top_p
                 with torch.no_grad():
                     try:
+                        gen_ids = self.model.generate(**gen_kwargs)
+                    except torch.OutOfMemoryError:
+                        import gc
+                        gc.collect()
+                        torch.cuda.empty_cache()
+                        gen_kwargs["max_new_tokens"] = 512
                         gen_ids = self.model.generate(**gen_kwargs)
                     except Exception:
                         gen_kwargs["mm_token_type_ids"] = torch.zeros_like(inputs.input_ids)
@@ -464,13 +581,15 @@ class AgentSimulator:
                     gen_ids[0][inputs.input_ids.shape[1]:],
                     skip_special_tokens=False,
                 )
+                del inputs, gen_ids
+                torch.cuda.empty_cache()
 
                 parsed = self.parse_tool_call(response_text)
                 if not parsed:
                     preview = response_text.replace("\n", " ").strip()[:140]
                     print(f"    Turn {turns_used:02d} | [NO TOOL PARSED] Preview: {preview}", flush=True)
                     tool_calls_log.append(f"[NO_TOOL]: {preview}")
-                    messages.append({"role": "assistant", "content": response_text})
+                    messages.append({"role": "model", "content": response_text})
                     messages.append({"role": "user", "content": "Please invoke a tool: call:tool_name{arguments}."})
                     continue
 
@@ -480,12 +599,33 @@ class AgentSimulator:
 
                 # Execute tool
                 tool_output, is_terminal = self.execute_tool(ws, tool_name, tool_args)
-                if "[Error" in tool_output:
+
+                # Anti-repetition loop breaker: prevent repeating ANY identical action consecutively or repeating failed searches
+                current_sig = f"{tool_name}: {tool_args}"
+                is_repeated_consecutive = (len(tool_calls_log) >= 2 and tool_calls_log[-2] == current_sig)
+                is_empty_repeated_cmd = False
+                if tool_name == "run_command" and (not tool_output.strip() or tool_output.strip() == "[Command executed successfully with no output]"):
+                    cmd_str = tool_args.get("command", "")
+                    count_same_cmd = sum(1 for call in tool_calls_log if f"'command': '{cmd_str}'" in call or f'"command": "{cmd_str}"' in call)
+                    if count_same_cmd >= 2:
+                        is_empty_repeated_cmd = True
+
+                if is_repeated_consecutive or is_empty_repeated_cmd:
+                    if tool_name == "submit_patch":
+                        tool_output = "[CIRCUIT BREAKER]: submit_patch was repeatedly rejected because git diff is 0 bytes! Calling submit_patch again will NEVER work. You MUST invoke edit_file now to apply your source fix."
+                    elif tool_name == "read_file":
+                        tool_output = f"[CIRCUIT BREAKER]: You already read '{tool_args.get('path')}'. DO NOT read it again. You MUST apply an edit via edit_file now."
+                    elif tool_name == "run_command":
+                        tool_output = f"[CIRCUIT BREAKER]: Search returned 0 results and was repeated. Do NOT repeat searches with 0 results. Search for literal words from the issue ('Form', 'File') or run pytest tests/ -k '<keyword>' to get a traceback."
+                    else:
+                        tool_output = f"[CIRCUIT BREAKER]: Repeated identical tool call '{tool_name}' detected. You MUST change your tool action."
+
+                if "[Error" in tool_output or "[CIRCUIT BREAKER]" in tool_output:
                     err_snip = tool_output.strip().splitlines()[0][:140]
                     print(f"         └── Tool Error: {err_snip}", flush=True)
 
-                messages.append({"role": "assistant", "content": response_text})
-                messages.append({"role": "tool", "name": tool_name, "content": tool_output})
+                messages.append({"role": "model", "content": response_text})
+                messages.append({"role": "user", "content": f"[Tool Output for {tool_name}]:\n{tool_output}"})
 
                 if is_terminal:
                     terminal_invoked = True
@@ -500,13 +640,15 @@ class AgentSimulator:
                 fail_snip = test_output.strip().splitlines()[-1][:140] if test_output else ""
                 print(f"         └── Test Verification Failed: {fail_snip}", flush=True)
 
-            status = "RESOLVED" if passed else ("FAILED" if patch_text.strip() else "NO_PATCH")
+            has_patch = bool(patch_text.strip())
+            resolved = passed and has_patch
+            status = "RESOLVED" if resolved else ("FAILED" if has_patch else "NO_PATCH")
 
             return {
                 "instance_id": task["instance_id"],
                 "repo": task["repo"],
                 "status": status,
-                "resolved": passed,
+                "resolved": resolved,
                 "duration_sec": round(elapsed, 2),
                 "turns": turns_used,
                 "tool_calls": tool_calls_log,
@@ -517,6 +659,10 @@ class AgentSimulator:
 
         finally:
             ws.cleanup()
+            import gc
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
 
 def update_leaderboard_files(entry: Dict[str, Any], json_path: Path, md_path: Path):
@@ -618,6 +764,7 @@ def main():
     parser.add_argument("--model_name", help="Display name for leaderboard")
     parser.add_argument("--timeout_sec", type=int, default=360, help="Per-task timeout in seconds")
     parser.add_argument("--max_turns", type=int, default=20, help="Max agent turns per task")
+    parser.add_argument("--output_file", help="Path to save detailed benchmark JSON results")
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir).resolve()
@@ -662,7 +809,10 @@ def main():
             t = json.loads(line)
             task_map[t["instance_id"]] = t
 
-    selected_tasks = [task_map[tid] for tid in target_ids if tid in task_map]
+    if target_ids:
+        selected_tasks = [task_map[tid] for tid in target_ids if tid in task_map]
+    else:
+        selected_tasks = list(task_map.values())
     print(f"[Benchmark] Selected {len(selected_tasks)} tasks for suite '{args.suite}'.")
 
     # 3. Setup Model & Processor
@@ -685,7 +835,7 @@ def main():
     model.eval()
 
     # 4. Execute Suite
-    agent = AgentSimulator(model, processor, system_prompt, device=device)
+    agent = AgentSimulator(model, processor, system_prompt, sampling_config=sampling_config, device=device)
     task_results = []
     print("\n" + "=" * 65)
     print(f"      STARTING BENCHMARK SUITE: {args.suite} ({model_name})")
@@ -719,6 +869,13 @@ def main():
     }
 
     # 5. Update Leaderboard
+    if args.output_file:
+        out_p = Path(args.output_file)
+        out_p.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_p, "w", encoding="utf-8") as f:
+            json.dump(entry, f, indent=2)
+        print(f"[Benchmark] Saved detailed results to {out_p.resolve()}")
+
     json_path = Path("leaderboard.json")
     md_path = Path("LEADERBOARD.md")
     update_leaderboard_files(entry, json_path, md_path)

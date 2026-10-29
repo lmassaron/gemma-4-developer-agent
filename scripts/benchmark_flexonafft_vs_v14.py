@@ -35,6 +35,7 @@ CANDIDATES = {
     "flexonafft_v2": "submissions_archive/submission_flexonafft_v2.zip",
     "v14_heredoc_synthesis": "submissions_archive/submission_v14_heredoc_triage_synthesis.zip",
     "v15_surgical_triage": "submissions_archive/submission_v15.zip",
+    "v16_phased_edit_enforcement": "submissions_archive/submission_v16_phased_edit_enforcement.zip",
 }
 
 def load_submission(zip_path: Path):
@@ -42,12 +43,15 @@ def load_submission(zip_path: Path):
         prompt = z.read("prompts/system.md").decode("utf-8")
         max_turns = 28
         timeout_sec = 480
+        sampling_cfg = {}
         if "eval_config.yaml" in z.namelist():
             ev = yaml.safe_load(z.read("eval_config.yaml").decode("utf-8")) or {}
             cfg = ev.get("evaluation") if isinstance(ev.get("evaluation"), dict) else ev
             max_turns = int(cfg.get("max_tool_calls") or cfg.get("max_turns") or max_turns)
             timeout_sec = int(float(cfg.get("max_time_minutes", 8.0)) * 60)
-        return prompt, max_turns, timeout_sec
+        if "configs/sampling.yaml" in z.namelist():
+            sampling_cfg = yaml.safe_load(z.read("configs/sampling.yaml").decode("utf-8")) or {}
+        return prompt, max_turns, timeout_sec, sampling_cfg
 
 def select_tasks(tasks_file: Path, num_tasks: int = 60, suite_file: Path = None):
     if suite_file and suite_file.is_file():
@@ -89,6 +93,7 @@ def main():
     parser.add_argument("--tasks_file", default="data/tasks.jsonl")
     parser.add_argument("--data_dir", default="data")
     parser.add_argument("--output_file", default="benchmark_flexonafft_vs_v14_results.json")
+    parser.add_argument("--resume", action="store_true", help="Resume from existing output_file checkpoint")
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent.parent
@@ -130,22 +135,42 @@ def main():
         zip_path = root / CANDIDATES[cand_name]
         assert zip_path.is_file(), f"Package not found: {zip_path}"
 
-        prompt, max_turns, timeout_sec = load_submission(zip_path)
+        prompt, max_turns, timeout_sec, sampling_cfg = load_submission(zip_path)
 
         print("\n" + "=" * 90, flush=True)
         print(f" BENCHMARKING CANDIDATE: {cand_name} ({zip_path.name})", flush=True)
         print(f" Tasks: {len(tasks)} | Max Turns: {max_turns} | Timeout/task: {timeout_sec}s", flush=True)
         print("=" * 90, flush=True)
 
-        agent = AgentSimulator(model, processor, prompt, device=device)
+        agent = AgentSimulator(model, processor, prompt, sampling_config=sampling_cfg, device=device)
         cand_results = []
         resolved_count = 0
+        completed_ids = set()
+        out_path = root / "state_of_the_art" / "benchmarks_data" / args.output_file
+
+        if args.resume and out_path.is_file():
+            try:
+                existing_data = json.loads(out_path.read_text(encoding="utf-8"))
+                all_results.update(existing_data)
+                if cand_name in existing_data:
+                    cand_results = existing_data[cand_name].get("tasks", [])
+                    resolved_count = sum(1 for r in cand_results if r.get("resolved"))
+                    completed_ids = {r.get("instance_id") for r in cand_results if r.get("instance_id")}
+                    print(
+                        f"[Resume] Loaded {len(cand_results)} completed tasks ({resolved_count} resolved) from {out_path.name}",
+                        flush=True,
+                    )
+            except Exception as e:
+                print(f"[Resume Warning] Could not load checkpoint {out_path}: {e}", flush=True)
 
         for idx, t in enumerate(tasks, 1):
             tid = t["instance_id"]
+            if tid in completed_ids:
+                continue
             repo = t.get("repo", "")
-            cur_prompt, cur_max_turns, cur_timeout = load_submission(zip_path)
+            cur_prompt, cur_max_turns, cur_timeout, cur_sampling = load_submission(zip_path)
             agent.system_prompt = cur_prompt
+            agent.sampling_config = cur_sampling
             print(f"\n--- [{idx}/{len(tasks)}] Candidate: {cand_name} | Task: {tid} ({repo}) ---", flush=True)
             res = agent.solve_task(t, data_dir, temp_base, timeout_sec=cur_timeout, max_turns=cur_max_turns)
             cand_results.append(res)
@@ -153,17 +178,18 @@ def main():
                 resolved_count += 1
             print(f"Result -> Status: {res['status']} | Resolved: {res['resolved']} | Duration: {res['duration_sec']}s | Turns: {res['turns']} | Patch: {res['patch_size']} bytes | Running Total: {resolved_count}/{idx}", flush=True)
 
-        pass_rate = resolved_count / len(tasks) if tasks else 0.0
-        all_results[cand_name] = {
-            "resolved": resolved_count,
-            "total": len(tasks),
-            "pass_rate": round(pass_rate, 4),
-            "tasks": cand_results,
-        }
+            # Save intermediate results after each task
+            pass_rate = resolved_count / idx if idx else 0.0
+            all_results[cand_name] = {
+                "resolved": resolved_count,
+                "completed": idx,
+                "total": len(tasks),
+                "pass_rate": round(pass_rate, 4),
+                "tasks": cand_results,
+            }
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(all_results, f, indent=2)
 
-    out_path = root / "state_of_the_art" / "benchmarks_data" / args.output_file
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(all_results, f, indent=2)
     print(f"\nBenchmark completed! Results saved to {out_path}", flush=True)
 
 if __name__ == "__main__":
