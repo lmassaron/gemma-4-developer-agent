@@ -1,0 +1,243 @@
+{
+  "label": "v20_lora_scottweeden",
+  "resolved": 1,
+  "total": 12,
+  "pass_rate": 8.33,
+  "total_duration": 2981.24,
+  "tasks": [
+    {
+      "instance_id": "requests_7505",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 252.92,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"isinstance(\" -- \"*.py\" | grep \"SupportsRead\" | head -20'}",
+        "read_file: {'limit': 20, 'offset': 150, 'path': 'src/requests/models.py'}",
+        "read_file: {'limit': 20, 'offset': 230, 'path': 'src/requests/models.py'}",
+        "read_file: {'limit': 20, 'offset': 630, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead =\" src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead\" src/requests/__init__.py src/requests/models.py src/requests/utils.py src/requests/sessions.py | head -20'}",
+        "read_file: {'limit': 100, 'offset': 0, 'path': 'src/requests/_types.py'}",
+        "run_command: {'command': 'git grep -n \"isinstance(\" -- \"*.py\" | grep \"SupportsRead\"'}",
+        "read_file: {'limit': 20, 'offset': 27, 'path': 'src/requests/_types.py'}",
+        "edit_file: {'new_str': '@runtime_checkable\\nclass SupportsRead(Protocol[_T_co]):\\n    def read(self, length: int = ..., /) -> _T_co: ...\\n\\n    def __instancecheck__(self, instance) -> bool:\\n        return isinstance(instance, SupportsRead) or hasattr(instance, \"read\")\\n', 'old_str': '@runtime_checkable\\nclass SupportsRead(Protocol[_T_co]):\\n    def read(self, length: int = ..., /) -> _T_co: ...\\n', 'path': 'src/requests/_types.py'}",
+        "run_command: {'command': 'git grep -n \"isinstance(\" -- \"*.py\" | grep \"SupportsRead\"'}"
+      ],
+      "patch_size": 512
+    },
+    {
+      "instance_id": "requests_7502",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 260.75,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"_encode_files\" -- \"*.py\"'}",
+        "read_file: {'limit': 100, 'offset': 184, 'path': 'src/requests/models.py'}",
+        "read_file: {'limit': 100, 'offset': 0, 'path': 'src/requests/models.py'}",
+        "read_file: {'path': 'src/requests/_types.py'}",
+        "write_file: {'content': '\\nimport requests\\nfrom io import BytesIO\\n\\nclass FileWrapper:\\n    def __init__(self, data):\\n        self._data = data\\n    def __getattr__(self, name):\\n        if name == \\'read\\':\\n            return lambda length=-1: self._data.read(length)\\n        raise AttributeError(name)\\n\\ndef test_getattr_file_wrapper():\\n    data = BytesIO(b\"hello world\")\\n    wrapper = FileWrapper(data)\\n    # This should work if _encode_files correctly detects the wrapper as something that supports read()\\n    files = {\\'file\\': (\\'test.txt\\', wrapper)}\\n    response = requests.post(\\'http://httpbin.org/post\\', files=files)\\n    print(f\"Status: {response.status_code}\")\\n    # We don\\'t actually need to check the response since we are testing if it crashes during encoding\\n    # But let\\'s see if it works.\\n\\nif __name__ == \"__main__\":\\n    try:\\n        test_getattr_file_wrapper()\\n        print(\"Success\")\\n    except Exception as e:\\n        print(f\"Failure: {e}\")\\n        import traceback\\n        traceback.print_exc()\\n', 'path': '/tmp/repro.py'}",
+        "run_command: {'command': 'python3 /tmp/repro.py'}",
+        "read_file: {'limit': 20, 'offset': 235, 'path': 'src/requests/models.py'}",
+        "read_file: {'limit': 20, 'offset': 25, 'path': 'src/requests/_types.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "requests_7433",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 95.57,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"prepare_body\" -- \"*.py\"'}",
+        "read_file: {'offset': 574, 'limit': 100, 'path': 'src/requests/models.py'}",
+        "edit_file: {'new_str': '        if (\\n            isinstance(data, Iterable) or hasattr(data, \"__iter__\")\\n        ) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'old_str': '        if isinstance(data, Iterable) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'path': 'src/requests/models.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 584,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 338 deselected in 0.80s\n\n[2026-10-30 23:49:18,666] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "requests_7205",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 257.61,
+      "turns": 7,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"netrc\" -- \"*.py\" | head -40'}",
+        "read_file: {'end_line': 245, 'offset': 205, 'path': 'src/requests/utils.py'}",
+        "write_file: {'content': 'import os\\nfrom requests.utils import get_netrc_auth\\nfrom urllib.parse import urlparse\\n\\ndef test_empty_netrc_entry():\\n    netrc_path = \"test_netrc_empty\"\\n    # Create a netrc file with an entry that has no username, account, or password\\n    # In .netrc format, a machine line without credentials looks like:\\n    # machine hostname\\n    with open(netrc_path, \"w\") as f:\\n        f.write(\"machine localhost\\\\n\")\\n    \\n    os.environ[\"NETRC\"] = netrc_path\\n    try:\\n        auth = get_netrc_auth(\"http://localhost\")\\n        print(f\"Auth result: {auth!r}\")\\n    finally:\\n        del os.environ[\"NETRC\"]\\n        os.remove(netrc_path)\\n\\nif __name__ == \"__main__\":\\n    test_empty_netrc_entry()\\n', 'path': '/tmp/repro_netrc.py'}",
+        "run_command: {'command': 'python3 /tmp/repro_netrc.py'}",
+        "edit_file: {'new_str': '            if _netrc:\\n                # Return with login / password\\n                # If all are empty, ignore this profile.\\n                if not any(_netrc):\\n                    return None\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])', 'old_str': '            if _netrc:\\n                # Return with login / password\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])', 'path': 'src/requests/utils.py'}",
+        "run_command: {'command': 'python3 /tmp/repro_netrc.py'}",
+        "run_command: {'command': 'timeout 150 python -m pytest tests/test_utils.py -k get_netrc_auth 2>&1 | tail -40'}"
+      ],
+      "patch_size": 619
+    },
+    {
+      "instance_id": "fastapi_12942",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 326.6,
+      "turns": 4,
+      "tool_calls": [
+        "run_command: {'command': 'python -c \\'from typing import Literal, Annotated, Any; from pydantic import BaseModel; from fastapi import FastAPI, Body; from fastapi.params import Tag, Discriminator; class Pie(BaseModel): time_to_cook: int; num_ingredients: int; class ApplePie(Pie): fruit: Literal[\"apple\"] = \"apple\"; class PumpkinPie(Pie): filling: Literal[\"pumpkin\"] = \"pumpkin\"; def get_discriminator_value(v: Any) -> str: if isinstance(v, dict): return v.get(\"fruit\", v.get(\"filling\")); return getattr(v, \"fruit\", getattr(v, \"filling\", None)); Dessert = Annotated[Annotated[ApplePie, Tag(\"apple\")] | Annotated[PumpkinPie, Tag(\"pumpkin\")], Discriminator(get_discriminator_value)]; app = FastAPI(); @app.post(\"/dessert\") async def dinner(dessert: Dessert) -> dict[str, Any]: return dessert.model_dump(); from fastapi.dependencies.utils import solve_dependencies; print(solve_dependencies(dinner, {}, {}))\\''}",
+        "run_command: {'command': 'python -c \\'\\nfrom typing import Literal, Annotated, Any\\nfrom pydantic import BaseModel\\nfrom fastapi import FastAPI, Body\\ntry:\\n    from fastapi.params import Tag, Discriminator\\nexcept ImportError:\\n    # In some versions it might be elsewhere, but let\\n    # us check where they are defined.\\n    import fastapi.params\\n    print(dir(fastapi.params))\\n    raise ImportError(\"Could not find Tag or Discriminator in fastapi.params\")\\n\\nclass Pie(BaseModel):\\n    time_to_cook: int\\n    num_ingredients: int\\n\\nclass ApplePie(Pie):\\n    fruit: Literal[\"apple\"] = \"apple\"\\n\\nclass PumpkinPie(Pie):\\n    filling: Literal[\"pumpkin\"] = \"pumpkin\"\\n\\ndef get_discriminator_value(v: Any) -> str:\\n    if isinstance(v, dict):\\n        return v.get(\"fruit\", v.get(\"filling\"))\\n    return getattr(v, \"fruit\", getattr(v, \"filling\", None))\\n\\nDessert = Annotated[\\n    Annotated[ApplePie, Tag(\"apple\")] | Annotated[PumpkinPie, Tag(\"pumpkin\")],\\n    Discriminator(get_discriminator_value),\\n]\\n\\napp = FastAPI()\\n@app.post(\"/dessert\")\\nasync def dinner(dessert: Dessert) -> dict[str, Any]:\\n    return dessert.model_dump()\\n\\nfrom fastapi.dependencies.utils import solve_dependencies\\nprint(solve_dependencies(dinner, {}, {}))\\n\\''}",
+        "run_command: {'command': 'grep -rnE \"class (Tag|Discriminator)\" fastapi/'}",
+        "run_command: {'command': 'python -c \\'\\nfrom typing import Literal, Annotated, Any\\nfrom pydantic import BaseModel\\nfrom fastapi import FastAPI, Body\\nfrom fastapi.openapi.models import Tag, Discriminator\\n\\nclass Pie(BaseModel):\\n    time_to_cook: int\\n    num_ingredients: int\\n\\nclass ApplePie(Pie):\\n    fruit: Literal[\"apple\"] = \"apple\"\\n\\nclass PumpkinPie(Pie):\\n    filling: Literal[\"pumpkin\"] = \"pumpkin\"\\n\\ndef get_discriminator_value(v: Any) -> str:\\n    if isinstance(v, dict):\\n        return v.get(\"fruit\", v.get(\"filling\"))\\n    return getattr(v, \"fruit\", getattr(v, \"filling\", None))\\n\\nDessert = Annotated[\\n    Annotated[ApplePie, Tag(name=\"apple\")] | Annotated[PumpkinPie, Tag(name=\"pumpkin\")],\\n    Discriminator(discriminator=get_discriminator_value),\\n]\\n\\napp = FastAPI()\\n@app.post(\"/dessert\")\\nasync def dinner(dessert: Dessert) -> dict[str, Any]:\\n    return dessert.model_dump()\\n\\nfrom fastapi.dependencies.utils import solve_dependencies\\nprint(solve_dependencies(dinner, {}, {}))\\n\\''}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_11355",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 258.28,
+      "turns": 13,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"eval\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': 'git grep -n -F \"evaluate_forwardref\" -- \"*.py\" | head -40'}",
+        "read_file: {'path': 'fastapi/_compat/v2.py'}",
+        "run_command: {'command': 'python3 -c \"import typing; print(typing.get_type_hints(\\'foo\\', eval_str=\\'\\'))\"'}",
+        "run_command: {'command': 'python3 -c \"import sys; print(sys.version)\"'}",
+        "run_command: {'command': 'git grep -n \"evaluate_forwardref\" fastapi/dependencies/utils.py'}",
+        "read_file: {'limit': 20, 'offset': 200, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'git grep -n \"ForwardRef\" fastapi/dependencies/utils.py'}",
+        "read_file: {'limit': 20, 'offset': 0, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'python3 -c \"import typing; print(typing.ForwardRef(\\'int\\'))\"'}",
+        "run_command: {'command': 'python3 -c \"import typing; print(typing.get_type_hints(\\'foo\\', eval_str=True)\"'}",
+        "run_command: {'command': 'python3 -c \"import typing; print(typing.get_type_hints(\\'foo\\', eval_str=True))\"'}",
+        "run_command: {'command': 'python3 -c \"import typing; help(typing.get_type_hints)\"'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_13537",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 260.68,
+      "turns": 6,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"_extract_form_body\" -- \"*.py\"'}",
+        "read_file: {'limit': 100, 'offset': 869, 'path': 'fastapi/dependencies/utils.py'}",
+        "read_file: {'limit': 100, 'offset': 800, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'python -c \"\\nfrom fastapi import FastAPI, Form\\nfrom pydantic import BaseModel\\nfrom fastapi.testclient import TestClient\\n\\napp = FastAPI()\\n\\n@app.post(\\'/test\\')\\nasync def test_endpoint(name: str = Form(None)):\\n    return {\\'name\\': name}\\n\\nclient = TestClient(app)\\n# Case 1: name is missing. Should be None.\\nprint(f\\'Missing: {client.post(\\\\\\'/test\\\\\\').json()}\\')\\n# Case 2: name is empty string. Should be None (interpreted as missing for optional params with None default).\\n# Wait, the issue says \\'a form field set to the empty string (\\\\\"\\\\\") is interpreted as the absence of that field\\'.\\n# And \\'Later, validation would choke on that empty string.\\'\\n# Let\\'s see what happens now.\\nprint(f\\'Empty: {client.post(\\\\\\'/test\\\\\\', data={\\\\\\'name\\': \\\\\"\\\\\"}).json()}\\')\\n\"'}",
+        "run_command: {'command': 'python -c \"\\nfrom fastapi import FastAPI, Form\\nfrom fastapi.testclient import TestClient\\n\\napp = FastAPI()\\n\\n@app.post(\\'/test\\')\\nasync def test_endpoint(name: str = Form(None)):\\n    return {\\'name\\': name}\\n\\nclient = TestClient(app)\\nprint(\\'Missing:\\', client.post(\\'/test\\').json())\\nprint(\\'Empty:\\', client.post(\\'/test\\', data={\\'name\\': \\'\\'}).json())\\n\"'}",
+        "run_command: {'command': 'python -c \"\\nfrom fastapi import FastAPI, Form\\nfrom fastapi.testclient import TestClient\\nfrom pydantic import Field\\n\\napp = FastAPI()\\n\\n@app.post(\\'/test\\')\\nasync def test_endpoint(name: int = Form(None)):\\n    return {\\'name\\': name}\\n\\nclient = TestClient(app)\\nprint(\\'Missing:\\', client.post(\\'/test\\').json())\\ntry:\\n    print(\\'Empty:\\', client.post(\\'/test\\', data={\\'name\\': \\'\\'}).json())\\nexcept Exception as e:\\n    print(\\'Error:\\', e)\\n\"'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_11194",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 243.28,
+      "turns": 7,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"File\" -- \"*.py\" | head -20'}",
+        "run_command: {'command': 'git grep -n -F \"Form\" -- \"*.py\" | head -20'}",
+        "run_command: {'command': 'git grep -n -F \"File\" fastapi/params.py'}",
+        "read_file: {'offset': 670, 'path': 'fastapi/params.py'}",
+        "run_command: {'command': 'git grep -n \"dependant\" fastapi/routing.py'}",
+        "run_command: {'command': 'python -c \"from fastapi import FastAPI, File, Form, UploadFile; from fastapi.testclient import TestClient; app = FastAPI(); @app.post(\\'/test\\')\\nasync def test_endpoint(form_val: str = Form(...), file_val: UploadFile = File(...)): return {\\'form_val\\': form_val, \\'file_val\\': file_val.filename}; client = TestClient(app); \\nprint(client.post(\\'/test\\', data={\\'form_val\\': \\'foo\\'}, files={\\'file_val\\': (\\'test.txt\\', b\\'content\\')}).json())\"'}",
+        "write_file: {'content': 'from fastapi import FastAPI, File, Form, UploadFile\\nfrom fastapi.testclient import TestClient\\n\\napp = FastAPI()\\n\\n@app.post(\"/test\")\\nasync def test_endpoint(form_val: str = Form(...), file_val: UploadFile = File(...)):\\n    return {\"form_val\": form_val, \"file_val\": file_val.filename}\\n\\nclient = TestClient(app)\\n\\ndef test_form_then_file():\\n    response = client.post(\\n        \"/test\", \\n        data={\"form_val\": \"foo\"}, \\n        files={\"file_val\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"Status: {response.status_code}\")\\n    print(f\"JSON: {response.json()}\")\\n    assert response.status_code == 200\\n\\nif __name__ == \"__main__\":\\n    test_form_then_file()\\n', 'path': '/tmp/repro.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "rich_3052",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 254.67,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'find . -name \"*prompt*\"'}",
+        "read_file: {'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 81, 'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 162, 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '        choices (List[str], optional): A list of valid choices. Defaults to None.\\n        case_sensitive (bool, optional): Whether choices are case sensitive. Defaults to True.\\n        show_default (bool, optional): Show default in prompt. Defaults to True.', 'old_str': '        choices (List[str], optional): A list of valid choices. Defaults to None.\\n        show_default (bool, optional): Show default in prompt. Defaults to True.', 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '        choices: Optional[List[str]] = None\\n        case_sensitive: bool = True', 'old_str': '        choices: Optional[List[str]] = None', 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '    choices: Optional[List[str]] = None\\n    case_sensitive: bool = True', 'old_str': '    choices: Optional[List[str]] = None', 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '    choices: Optional[List[str]] = None\\n    case_sensitive: bool = True', 'old_str': '    choices: Optional[List[str]] = None\\n', 'path': 'rich/prompt.py'}"
+      ],
+      "patch_size": 939
+    },
+    {
+      "instance_id": "rich_2943",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 263.01,
+      "turns": 9,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"clear_meta\" -- \"*.py\"'}",
+        "read_file: {'limit': 80, 'offset': 640, 'path': 'rich/style.py'}",
+        "run_command: {'command': 'grep -n \"_hash =\" rich/style.py'}",
+        "read_file: {'limit': 80, 'offset': 430, 'path': 'rich/style.py'}",
+        "run_command: {'command': 'python -c \"from rich.style import Style; s = Style(meta={\\'a\\': 1}); h1 = hash(s); s2 = s.clear_meta_and_links(); h2 = hash(s2); print(f\\'h1: {h1}, h2: {h2}\\'); s3 = Style(); h3 = hash(s3); print(f\\'h3: {h3}\\')\"'}",
+        "edit_file: {'new_str': '        style._hash = None', 'old_str': '        style._hash = self._hash', 'path': 'rich/style.py'}",
+        "edit_file: {'new_str': '        style._hash = None', 'old_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = self._hash', 'path': 'rich/style.py'}",
+        "run_command: {'command': 'python -c \"from rich.style import Style; s = Style(meta={\\'a\\': 1}); h1 = hash(s); s2 = s.clear_meta_and_links(); h2 = hash(s2); print(f\\'h1: {h1}, h2: {h2}\\'); s3 = Style(); h3 = hash(s3); print(f\\'h3: {h3}\\')\"'}",
+        "read_file: {'limit': 80, 'offset': 640, 'path': 'rich/style.py'}"
+      ],
+      "patch_size": 486
+    },
+    {
+      "instance_id": "rich_2725",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 257.65,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"box\" -- \"*.py\" | grep \"Table\" | head -20'}",
+        "run_command: {'command': 'find rich -name \"*table*\"'}",
+        "read_file: {'path': 'rich/table.py'}",
+        "run_command: {'command': 'grep -n \"def render\" rich/table.py'}",
+        "run_command: {'command': 'grep -n \"class Table\" rich/table.py'}",
+        "read_file: {'limit': 100, 'offset': 151, 'path': 'rich/table.py'}",
+        "run_command: {'command': 'grep -n \"def __rich_console__\" rich/table.py'}",
+        "read_file: {'limit': 100, 'offset': 470, 'path': 'rich/table.py'}",
+        "run_command: {'command': 'grep -n \"def _render\" rich/table.py'}",
+        "read_file: {'limit': 200, 'offset': 741, 'path': 'rich/table.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "rich_3006",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 243.37,
+      "turns": 12,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"Parameters.empty\" -- \"*.py\"'}",
+        "run_command: {'command': 'git grep -n -F \"Parameters\" -- \"*.py\" | head -20'}",
+        "run_command: {'command': 'find . -maxdepth 3 -name \"*params*\"'}",
+        "run_command: {'command': 'git grep -n -F \"__eq__\" -- \"*.py\" | grep \"repr\" | head -20'}",
+        "run_command: {'command': 'grep -rn \"repr\" . | grep \"==\" | head -20'}",
+        "run_command: {'command': 'git grep -n -F \"Parameters\" -- \"*.py\"'}",
+        "run_command: {'command': 'find . -name \"*.py\" | xargs grep -l \"Parameters\"'}",
+        "run_command: {'command': 'ls -R'}",
+        "run_command: {'command': 'grep -rn \"Parameters\" rich/'}",
+        "run_command: {'command': 'grep -rn \"empty\" rich/pretty.py'}",
+        "run_command: {'command': 'grep -rn \"repr\" rich/pretty.py | grep \"==\" | head -20'}",
+        "run_command: {'command': 'grep -rn \"repr\" rich/repr.py'}"
+      ],
+      "patch_size": 0
+    }
+  ]
+}
