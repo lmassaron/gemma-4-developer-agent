@@ -58,3 +58,11 @@ Conducted on `spark-d8ec` (`192.168.178.49`) evaluating full multi-turn rollouts
 
 
 
+
+## v16 → v20 Post-Mortem (2026-10-30)
+
+| Version | Archive File | Features / Notes | LB Score | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **v16 (Phased Edit Enforcement)** | `submission_v16_phased_edit_enforcement.zip` | Prompt contained `{arguments}`; Google ADK resolves `{identifier}` as a session-state placeholder and raises `KeyError: Context variable not found` on every model call, so no task ran. | **0.00** | Evaluated (broken bundle) |
+| **v19 (Hill-Climbed)** | `submission_v19_hill_climbed.zip` | 5.5 min cap, thinking 1536, temp 0.15, edit by call 3-4, no testing, immediate submit, prompt full of task-specific gold-fix hints learned on 12 local tasks. | **0.15** | Evaluated |
+| **v20 (Budget-Fit + Anytime Patch)** | `submission_v20_budget_fit_anytime.zip` | Community Budget-Fit config (8 min / 28 calls / 240 s / 80 turns, temp 0.2, thinking 4096, include_thoughts), graph tools unregistered, task-agnostic contract-first prompt with edit by call 10, small tool outputs, one focused test, no braces. Built and validated by `scripts/build_v20_submission.py`. | *Expected ~0.17 (range 0.13-0.22)* | **Ready** |

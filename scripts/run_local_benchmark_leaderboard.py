@@ -144,8 +144,18 @@ class TaskWorkspace:
         subprocess.run(["git", "config", "user.name", "evaluator"], cwd=self.work_dir, check=True)
         subprocess.run(["git", "config", "user.email", "eval@kaggle.local"], cwd=self.work_dir, check=True)
 
+    def _normalize_workspace_path(self, path: str) -> str:
+        path = (path or "").strip()
+        if path.startswith("/workspace/"):
+            path = path[len("/workspace/"):]
+        elif path == "/workspace":
+            path = "."
+        return path
+
     def run_command(self, cmd: str, timeout_sec: int = 30) -> str:
         try:
+            # Map /workspace to self.work_dir so Kaggle-native commands run identically locally
+            cmd = cmd.replace("/workspace/", f"{self.work_dir}/").replace("/workspace", str(self.work_dir))
             env = os.environ.copy()
             venv_bin = str(Path(sys.executable).parent)
             env["PATH"] = f"{venv_bin}:{env.get('PATH', '')}"
@@ -174,6 +184,7 @@ class TaskWorkspace:
             return f"[Error: {e}]"
 
     def read_file(self, path: str, offset: int = 0, limit: int = 80) -> str:
+        path = self._normalize_workspace_path(path)
         limit = min(int(limit), 100)
         fp = self.work_dir / path
         if not fp.is_file():
@@ -190,6 +201,7 @@ class TaskWorkspace:
             return f"[Error reading file: {e}]"
 
     def edit_file(self, path: str, old_content: str, new_content: str) -> str:
+        path = self._normalize_workspace_path(path)
         fp = self.work_dir / path
         if not fp.is_file():
             return f"[Error: File not found: {path}]"
@@ -381,6 +393,87 @@ class TaskWorkspace:
         shutil.rmtree(self.work_dir, ignore_errors=True)
 
 
+ADK_TOOL_SCHEMAS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "run_command",
+            "description": "Execute a bash shell command in /workspace.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {"type": "string", "description": "Shell command to execute in /workspace"}
+                },
+                "required": ["command"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_file",
+            "description": "Read a slice of lines from a file in /workspace.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "Relative path to the file in /workspace"},
+                    "offset": {"type": "integer", "description": "0-based starting line offset"},
+                    "limit": {"type": "integer", "description": "Maximum number of lines to read"},
+                },
+                "required": ["path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "edit_file",
+            "description": "Replace old_str with new_str in a file in /workspace.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "Relative path to the file in /workspace"},
+                    "old_str": {"type": "string", "description": "Exact existing snippet to replace"},
+                    "new_str": {"type": "string", "description": "Replacement snippet"},
+                },
+                "required": ["path", "old_str", "new_str"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "write_file",
+            "description": "Create or overwrite a file in /workspace.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "Relative path to the file in /workspace"},
+                    "content": {"type": "string", "description": "Full file content"},
+                },
+                "required": ["path", "content"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_status",
+            "description": "Run git status --short and git diff --stat in /workspace.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "submit_patch",
+            "description": "Submit the current git diff patch and finalize the task.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+]
+
+
 class AgentSimulator:
     """Multi-turn Gemma 4 Agent Rollout Simulator."""
 
@@ -392,15 +485,73 @@ class AgentSimulator:
         self.device = device
 
     def parse_tool_call(self, text: str) -> Optional[Tuple[str, Dict[str, Any]]]:
-        """Parses Gemma 4 tool call syntax, python function call, or json block."""
+        """Parses Gemma 4 native <|tool_call>call:name{key:<|"|>val<|"|>}<tool_call|> syntax or JSON/Python fallback."""
         import ast
         import re
         import yaml
 
         # Strip internal thought channel if present (<|channel>thought ... <channel|>)
-        # so mentions of tools inside reasoning don't trigger false positives
-        cleaned_text = re.sub(r"<\|channel\>thought[\s\S]*?(?:<channel>|<channel\|>|<\|channel\|>|$)", "", text).strip()
+        if "<channel|>" in text:
+            cleaned_text = text.split("<channel|>")[-1].strip()
+        else:
+            cleaned_text = re.sub(r"<\|channel\>thought[\s\S]*?(?:<channel>|<channel\|>|<\|channel\|>|$)", "", text).strip()
         search_text = cleaned_text if cleaned_text else text
+
+        # Pattern 0: Canonical Gemma 4 Native Tool Call: <|tool_call>call:tool_name{key:<|"|>val<|"|>}<tool_call|>
+        m_native = re.search(r"(?:<\|tool_call\|?>)?call:(run_command|read_file|edit_file|write_file|get_status|submit_patch)\{([\s\S]*?)\}(?:<tool_call\|?>|<\|tool_call\|?>)", search_text)
+        if not m_native and "<|\"|>" in search_text:
+            m_native = re.search(r"(?:call:)?(run_command|read_file|edit_file|write_file|get_status|submit_patch)\{([\s\S]*?)\}", search_text)
+        if m_native and ("<|\"|>" in m_native.group(2) or not m_native.group(2).strip() or not m_native.group(2).strip().startswith('"')):
+            tool_name = m_native.group(1)
+            body = m_native.group(2).strip()
+            if not body:
+                return tool_name, {}
+            args = {}
+            pos = 0
+            n = len(body)
+            parsed_any = False
+            while pos < n:
+                while pos < n and body[pos] in " ,\n\r\t":
+                    pos += 1
+                if pos >= n:
+                    break
+                km = re.match(r"([a-zA-Z0-9_]+)\s*:\s*", body[pos:])
+                if not km:
+                    break
+                key = km.group(1)
+                pos += km.end()
+                if body[pos:].startswith("<|\"|>"):
+                    pos += 5
+                    end_idx = body.find("<|\"|>", pos)
+                    if end_idx == -1:
+                        val = body[pos:]
+                        pos = n
+                    else:
+                        val = body[pos:end_idx]
+                        pos = end_idx + 5
+                    args[key] = val
+                    parsed_any = True
+                else:
+                    vm = re.match(r"([^,}]+)", body[pos:])
+                    if vm:
+                        raw_val = vm.group(1).strip()
+                        pos += vm.end()
+                        if raw_val.isdigit() or (raw_val.startswith("-") and raw_val[1:].isdigit()):
+                            args[key] = int(raw_val)
+                        elif raw_val.lower() == "true":
+                            args[key] = True
+                        elif raw_val.lower() == "false":
+                            args[key] = False
+                        else:
+                            try:
+                                args[key] = float(raw_val)
+                            except Exception:
+                                args[key] = raw_val.strip("\"'")
+                        parsed_any = True
+                    else:
+                        break
+            if parsed_any:
+                return tool_name, args
 
         # Pattern 1: call:default_api:tool_name{args}, call:tool_name{args}, or bare tool_name{args}
         m = re.search(r"(?:call:(?:default_api:)?)?\b(run_command|read_file|edit_file|write_file|get_status|submit_patch)\s*(\{[\s\S]*\})", search_text)
@@ -523,7 +674,8 @@ class AgentSimulator:
 
         issue_text = task.get("problem_statement") or task.get("issue") or ""
         messages = [
-            {"role": "user", "content": f"{self.system_prompt}\n\n# PROBLEM STATEMENT\n{issue_text}"}
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user", "content": f"# PROBLEM STATEMENT\n{issue_text}"},
         ]
 
         turns_used = 0
@@ -546,20 +698,30 @@ class AgentSimulator:
 
                 turns_used += 1
 
-                # Generate model turn
-                prompt_str = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                # Generate model turn using Kaggle-faithful Gemma 4 native tool declarations
+                prompt_str = self.processor.apply_chat_template(
+                    messages,
+                    tools=ADK_TOOL_SCHEMAS,
+                    enable_thinking=False,
+                    tokenize=False,
+                    add_generation_prompt=True,
+                )
+                if prompt_str.endswith("<tool_response|>"):
+                    prompt_str += "<|channel>thought\n<channel|>"
                 inputs = self.processor.tokenizer(prompt_str, return_tensors="pt").to(self.device)
 
-                temp = float(self.sampling_config.get("temperature", 0.12))
+                temp = float(self.sampling_config.get("temperature", 0.2))
                 top_p = float(self.sampling_config.get("top_p", 0.95))
                 do_sample = temp > 0.0
+                max_toks = int(self.sampling_config.get("max_new_tokens") or self.sampling_config.get("max_output_tokens") or 1024)
 
                 gen_kwargs = {
                     "input_ids": inputs.input_ids,
                     "attention_mask": inputs.attention_mask,
-                    "max_new_tokens": int(self.sampling_config.get("max_new_tokens", 1024)),
+                    "max_new_tokens": min(max_toks, 1024),
                     "do_sample": do_sample,
                     "repetition_penalty": float(self.sampling_config.get("repetition_penalty", 1.05)),
+                    "eos_token_id": [1, 106, 49, 50],
                 }
                 if do_sample:
                     gen_kwargs["temperature"] = temp
@@ -616,7 +778,11 @@ class AgentSimulator:
                     elif tool_name == "read_file":
                         tool_output = f"[CIRCUIT BREAKER]: You already read '{tool_args.get('path')}'. DO NOT read it again. You MUST apply an edit via edit_file now."
                     elif tool_name == "run_command":
-                        tool_output = f"[CIRCUIT BREAKER]: Search returned 0 results and was repeated. Do NOT repeat searches with 0 results. Search for literal words from the issue ('Form', 'File') or run pytest tests/ -k '<keyword>' to get a traceback."
+                        cmd_str = tool_args.get("command", "")
+                        if "python" in cmd_str and "pytest" not in cmd_str and "py_compile" not in cmd_str:
+                            tool_output = "[CIRCUIT BREAKER]: Repeated python3 -c command blocked! Stop running exploratory python3 -c one-liners. Call edit_file NOW to apply your fix, or call submit_patch if you already edited the source file."
+                        else:
+                            tool_output = "[CIRCUIT BREAKER]: Command returned 0 results or was repeated identically. Do NOT repeat the same command. Read the target file with read_file, apply your fix with edit_file, or call submit_patch."
                     else:
                         tool_output = f"[CIRCUIT BREAKER]: Repeated identical tool call '{tool_name}' detected. You MUST change your tool action."
 
@@ -624,8 +790,24 @@ class AgentSimulator:
                     err_snip = tool_output.strip().splitlines()[0][:140]
                     print(f"         └── Tool Error: {err_snip}", flush=True)
 
-                messages.append({"role": "model", "content": response_text})
-                messages.append({"role": "user", "content": f"[Tool Output for {tool_name}]:\n{tool_output}"})
+                tc_id = f"tc_{turns_used}"
+                messages.append({
+                    "role": "assistant",
+                    "content": "",
+                    "tool_calls": [
+                        {
+                            "id": tc_id,
+                            "type": "function",
+                            "function": {"name": tool_name, "arguments": tool_args},
+                        }
+                    ],
+                })
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc_id,
+                    "name": tool_name,
+                    "content": tool_output,
+                })
 
                 if is_terminal:
                     terminal_invoked = True

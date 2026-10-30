@@ -36,6 +36,9 @@ CANDIDATES = {
     "v14_heredoc_synthesis": "submissions_archive/submission_v14_heredoc_triage_synthesis.zip",
     "v15_surgical_triage": "submissions_archive/submission_v15.zip",
     "v16_phased_edit_enforcement": "submissions_archive/submission_v16_phased_edit_enforcement.zip",
+    "v17_hill_climbed": "submissions_archive/submission_v17_hill_climbed.zip",
+    "v18_hill_climbed": "submissions_archive/submission_v18_hill_climbed.zip",
+    "v19_hill_climbed": "submissions_archive/submission_v19_hill_climbed.zip",
 }
 
 def load_submission(zip_path: Path):
@@ -87,7 +90,7 @@ def select_tasks(tasks_file: Path, num_tasks: int = 60, suite_file: Path = None)
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate", default="all", choices=list(CANDIDATES.keys()) + ["all"])
-    parser.add_argument("--suite", default="core_60", choices=["smoke_3", "core_60"])
+    parser.add_argument("--suite", default="core_60", choices=["smoke_3", "core_60", "external_hf_py312"])
     parser.add_argument("--num_tasks", type=int, default=60)
     parser.add_argument("--base_model", default="google/gemma-4-31B-it")
     parser.add_argument("--tasks_file", default="data/tasks.jsonl")
@@ -106,6 +109,9 @@ def main():
     if args.suite == "smoke_3":
         suite_file = root / "state_of_the_art" / "benchmarks_data" / "test_tasks_smoke_3.jsonl"
         args.num_tasks = min(args.num_tasks, 3)
+    elif args.suite == "external_hf_py312":
+        suite_file = root / "data" / "external_hf_benchmark_py312.jsonl"
+        args.num_tasks = min(args.num_tasks, 12)
     else:
         suite_file = root / "state_of_the_art" / "benchmarks_data" / "test_tasks_core_60.json"
     tasks = select_tasks(tasks_path, num_tasks=args.num_tasks, suite_file=suite_file)
