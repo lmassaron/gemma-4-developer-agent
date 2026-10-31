@@ -1,0 +1,266 @@
+{
+  "label": "v21_finetuned_lora",
+  "suite": "full_129",
+  "resolved": 4,
+  "total_evaluated": 12,
+  "suite_total": 129,
+  "pass_rate": 33.33,
+  "elapsed_time_sec": 3129.61,
+  "tasks": [
+    {
+      "instance_id": "requests_7505",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 242.87,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"isinstance.*SupportsRead\" src/ | head -20'}",
+        "run_command: {'command': 'grep -R \"class .*Protocol\" src/ | head -20'}",
+        "read_file: {'path': 'src/requests/_types.py'}",
+        "run_command: {'command': 'grep -n \"isinstance(.*SupportsRead)\" src/requests/models.py'}",
+        "read_file: {'offset': 150, 'path': 'src/requests/models.py'}",
+        "read_file: {'offset': 231, 'path': 'src/requests/models.py'}",
+        "read_file: {'offset': 630, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"isinstance.*SupportsItems\" src/ | head -20'}",
+        "run_command: {'command': 'grep -n \"isinstance.*_SupportsItems\" src/ | head -20'}",
+        "run_command: {'command': 'grep -n \"isinstance.*SupportsItems\" src/ | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "requests_7502",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 243.75,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -nR \"_encode_files\" src | head -20'}",
+        "read_file: {'end_line': 210, 'offset': 180, 'path': 'src/requests/models.py'}",
+        "read_file: {'limit': 50, 'offset': 0, 'path': 'src/requests/models.py'}",
+        "read_file: {'limit': 100, 'offset': 0, 'path': 'src/_types.py'}",
+        "run_command: {'command': 'find src -name \"_types.py\"'}",
+        "read_file: {'limit': 100, 'offset': 0, 'path': 'src/requests/_types.py'}",
+        "run_command: {'command': 'grep -n \"hasattr(val, \\\\\"__iter__\\\\\")\" src/requests/models.py | head -20'}",
+        "read_file: {'end_line': 248, 'offset': 235, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"hasattr(val, \\\\\"__iter__\\\\\")\" src/requests/models.py | head -20'}",
+        "read_file: {'end_line': 248, 'offset': 235, 'path': 'src/requests/models.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "requests_7433",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 111.26,
+      "turns": 6,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -n -F \"prepare_body\" src/**/*.py | head -40'}",
+        "read_file: {'offset': 574, 'path': 'src/requests/models.py'}",
+        "edit_file: {'new_str': '        if (isinstance(data, Iterable) or hasattr(data, \"__iter__\")) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'old_str': '        if isinstance(data, Iterable) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'path': 'src/requests/models.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 560,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 338 deselected in 0.76s\n\n[2026-10-31 21:09:36,199] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "requests_7205",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 178.74,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"netrc\" src | head -40'}",
+        "read_file: {'end': 100, 'offset': 0, 'path': 'src/requests/utils.py'}",
+        "run_command: {'command': 'grep -n \"def get_netrc_auth\" src/requests/utils.py'}",
+        "read_file: {'end': 260, 'offset': 200, 'path': 'src/requests/utils.py'}",
+        "edit_file: {'new_str': '            if _netrc and any(_netrc):\\n                # Return with login / password\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])', 'old_str': '            if _netrc:\\n                # Return with login / password\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])', 'path': 'src/requests/utils.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 503,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 218 deselected in 0.11s\n\n[2026-10-31 21:12:36,290] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_12942",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 269.36,
+      "turns": 12,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"Annotated\" fastapi | head -20'}",
+        "run_command: {'command': 'grep -R \"Annotated\" fastapi | head -20'}",
+        "run_command: {'command': 'find fastapi -name \"*.py\" | xargs grep -l \"Annotated\" | head -20'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/params.py | head -20'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/dependencies/utils.py | head -20'}",
+        "read_file: {'end_line': 453, 'offset': 370, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/dependencies/utils.py | head -20'}",
+        "read_file: {'end_line': 370, 'offset': 370, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/dependencies/utils.py | head -20'}",
+        "read_file: {'end_line': 370, 'offset': 370, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/dependencies/utils.py | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_11355",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 252.37,
+      "turns": 15,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"inspect.get_annotations\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'find fastapi -name \"*.py\" | xargs grep -l \"get_type_hints\" | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"typing.get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" fastapi | head -20'}",
+        "run_command: {'command': 'grep -R \"inspect.get_annotations\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"from typing import get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"import inspect\" . | head -20'}",
+        "read_file: {'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_13537",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 427.98,
+      "turns": 6,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -n -F \"_extract_form_body\" fastapi/**/*.py | head -40'}",
+        "read_file: {'end_line': 1000, 'offset': 860, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n -F \"_get_multidict_value\" fastapi/dependencies/utils.py | head -40'}",
+        "read_file: {'end_line': 760, 'offset': 720, 'path': 'fastapi/dependencies/utils.py'}",
+        "edit_file: {'new_str': 'async def _extract_form_body(\\n    body_fields: List[ModelField],\\n    received_body: FormData,\\n) -> Dict[str, Any]:\\n    values = {}\\n    processed_keys = set()\\n\\n    for field in body_fields:\\n        value = _get_multidict_value(field, received_body)\\n        field_info = field.field_info\\n        if (\\n            isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and value_is_sequence(value)\\n        ):\\n            # For types\\n            assert isinstance(value, sequence_types)  # type: ignore[arg-type]\\n            results: List[Union[bytes, str]] = []\\n\\n            async def process_fn(\\n                fn: Callable[[], Coroutine[Any, Any, Any]],\\n            ) -> None:\\n                result = await fn()\\n                results.append(result)  # noqa: B023\\n\\n            async with anyio.create_task_group() as tg:\\n                for sub_value in value:\\n                    tg.start_soon(process_fn, sub_value.read)\\n            value = serialize_sequence_value(field=field, value=results)\\n        if value is not None:\\n            values[field.alias] = value\\n        processed_keys.add(field.alias)\\n    for key, value in received_body.items():\\n        if key not in processed_keys:\\n            values[key] = value\\n    return values', 'old_str': 'async def _extract_form_body(\\n    body_fields: List[ModelField],\\n    received_body: FormData,\\n) -> Dict[str, Any]:\\n    values = {}\\n\\n    for field in body_fields:\\n        value = _get_multidict_value(field, received_body)\\n        field_info = field.field_info\\n        if (\\n            isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and value_is_sequence(value)\\n        ):\\n            # For types\\n            assert isinstance(value, sequence_types)  # type: ignore[arg-type]\\n            results: List[Union[bytes, str]] = []\\n\\n            async def process_fn(\\n                fn: Callable[[], Coroutine[Any, Any, Any]],\\n            ) -> None:\\n                result = await fn()\\n                results.append(result)  # noqa: B023\\n\\n            async with anyio.create_task_group() as tg:\\n                for sub_value in value:\\n                    tg.start_soon(process_fn, sub_value.read)\\n            value = serialize_sequence_value(field=field, value=results)\\n        if value is not None:\\n            values[field.alias] = value\\n    for key, value in received_body.items():\\n        if key not in values:\\n            values[key] = value\\n    return values', 'path': 'fastapi/dependencies/utils.py'}"
+      ],
+      "patch_size": 828
+    },
+    {
+      "instance_id": "fastapi_11194",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 350.75,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -nR \"File\" fastapi | head -40'}",
+        "run_command: {'command': 'grep -n \"Form\" fastapi/dependencies/utils.py | head -40'}",
+        "read_file: {'end_line': 1050, 'offset': 800, 'path': 'fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 1013, 'offset': 881, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"File\" fastapi/dependencies/utils.py | tail -20'}",
+        "read_file: {'end_line': 1013, 'offset': 970, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"first_field_info\" fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 910, 'offset': 870, 'path': 'fastapi/dependencies/utils.py'}",
+        "edit_file: {'new_str': '        if (\\n            isinstance(field.field_info, params.File)\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field.field_info, params.File)\\n            and value_is_sequence(value)\\n        ):', 'old_str': '        if (\\n            isinstance(first_field_info, params.File)\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(first_field_info, params.File)\\n            and value_is_sequence(value)\\n        ):', 'path': 'fastapi/dependencies/utils.py'}"
+      ],
+      "patch_size": 841
+    },
+    {
+      "instance_id": "rich_3052",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 362.88,
+      "turns": 9,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -n \"class Prompt\" rich/prompt.py || ls -la rich/prompt.py'}",
+        "read_file: {'end_line': 350, 'offset': 286, 'path': 'rich/prompt.py'}",
+        "run_command: {'command': 'grep -n \"def ask\" rich/prompt.py'}",
+        "read_file: {'end_line': 130, 'offset': 70, 'path': 'rich/prompt.py'}",
+        "read_file: {'end_line': 100, 'offset': 0, 'path': 'rich/prompt.py'}",
+        "read_file: {'end_line': 200, 'offset': 143, 'path': 'rich/prompt.py'}",
+        "run_command: {'command': \"sed -n '214,220p' rich/prompt.py\"}",
+        "edit_file: {'new_str': '    def __init__(\\n        self,\\n        prompt: TextType = \"\",\\n        *,\\n        console: Optional[Console] = None,\\n        password: bool = False,\\n        choices: Optional[List[str]] = None,\\n        show_default: bool = True,\\n        show_choices: bool = True,\\n        case_sensitive: bool = True,\\n    ) -> None:\\n        self.console = console or get_console()\\n        self.prompt = (\\n            Text.from_markup(prompt, style=\"prompt\")\\n            if isinstance(prompt, str)\\n            else prompt\\n        )\\n        self.password = password\\n        if choices is not None:\\n            self.choices = choices\\n        self.show_default = show_default\\n        self.show_choices = show_choices\\n        self.case_sensitive = case_sensitive', 'old_str': '    def __init__(\\n        self,\\n        prompt: TextType = \"\",\\n        *,\\n        console: Optional[Console] = None,\\n        password: bool = False,\\n        choices: Optional[List[str]] = None,\\n        show_default: bool = True,\\n        show_choices: bool = True,\\n    ) -> None:\\n        self.console = console or get_console()\\n        self.prompt = (\\n            Text.from_markup(prompt, style=\"prompt\")\\n            if isinstance(prompt, str)\\n            else prompt\\n        )\\n        self.password = password\\n        if choices is not None:\\n            self.choices = choices\\n        self.show_default = show_default\\n        self.show_choices = show_choices', 'path': 'rich/prompt.py'}"
+      ],
+      "patch_size": 680
+    },
+    {
+      "instance_id": "rich_2943",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 186.01,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"clear_meta\" . | head -20'}",
+        "read_file: {'end_line': 100, 'offset': 0, 'path': 'rich/style.py'}",
+        "run_command: {'command': 'grep -n \"def clear_meta_and_links\" rich/style.py'}",
+        "read_file: {'end_line': 660, 'offset': 640, 'path': 'rich/style.py'}",
+        "edit_file: {'new_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = None\\n        style._null = False\\n        style._meta = None', 'old_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = self._hash\\n        style._null = False\\n        style._meta = None', 'path': 'rich/style.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 400,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 26 deselected in 0.09s\n\n[2026-10-31 21:43:29,502] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_2725",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 222.87,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R | grep \":$\" | head -20'}",
+        "run_command: {'command': 'grep -n -F \"box\" rich/table.py | head -20'}",
+        "run_command: {'command': 'grep -n -F \"box\" rich/table.py | tail -20'}",
+        "read_file: {'end_line': 920, 'offset': 770, 'path': 'rich/table.py'}",
+        "read_file: {'end_line': 920, 'offset': 851, 'path': 'rich/table.py'}",
+        "edit_file: {'new_str': '                (\\n                    _Segment(_box.mid_left, border_style),\\n                    _Segment(_box.mid_right, border_style),\\n                    _Segment(_box.mid_vertical, border_style),\\n                ),\\n                (\\n                    _Segment(_box.foot_left, border_style),\\n                    _Segment(_box.foot_right, border_style),\\n                    _Segment(_box.foot_vertical, border_style),\\n                ),', 'old_str': '                (\\n                    _Segment(_box.foot_left, border_style),\\n                    _Segment(_box.foot_right, border_style),\\n                    _Segment(_box.foot_vertical, border_style),\\n                ),\\n                (\\n                    _Segment(_box.mid_left, border_style),\\n                    _Segment(_box.mid_right, border_style),\\n                    _Segment(_box.mid_vertical, border_style),\\n                ),', 'path': 'rich/table.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 1099,
+      "terminal_invoked": true,
+      "output_snippet": "....                                                                     [100%]\n4 passed, 15 deselected in 0.08s\n\n[2026-10-31 21:47:13,181] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_3006",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 273.19,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"Parameters.empty\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"Parameters\" . | head -20'}",
+        "run_command: {'command': 'find . -name \"*.py\" | xargs grep -l \"Parameters.empty\" || true'}",
+        "run_command: {'command': 'ls -la rich'}",
+        "run_command: {'command': 'grep -R \"Parameters\" rich | head -20'}",
+        "run_command: {'command': 'grep -R \"empty\" rich | head -20'}",
+        "read_file: {'path': 'rich/repr.py'}",
+        "read_file: {'offset': 81, 'path': 'rich/repr.py'}",
+        "run_command: {'command': 'python -c \"import inspect; print(inspect.Parameter.empty)\"'}",
+        "edit_file: {'new_str': '                        if param.default is param.empty:', 'old_str': '                        if param.default == param.empty:', 'path': 'rich/repr.py'}"
+      ],
+      "patch_size": 558
+    }
+  ]
+}

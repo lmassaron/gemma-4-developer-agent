@@ -1,0 +1,8 @@
+[Resumption] Found 12 already completed tasks in benchmark_v21_finetuned_lora_full129_results.json.
+Total benchmark tasks: 129 | Completed: 12 | Remaining: 117
+
+Loading processor from /home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct...
+Loading QAT model from /home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct onto cuda:0...
+Applying quantization config:   0%|          | 0/410 [00:00<?, ?it/s]Applying quantization config: 100%|██████████| 410/410 [00:00<00:00, 24041.17it/s]
+Compressing model:   0%|          | 0/410 [00:00<?, ?it/s]Compressing model: 100%|██████████| 410/410 [00:00<00:00, 43132.88it/s]
+Loading weights:   0%|          | 0/2009 [00:00<?, ?it/s]Loading weights:   0%|          | 1/2009 [00:20<11:39:49, 20.91s/it]Loading weights:   0%|          | 3/2009 [00:38<6:42:07, 12.03s/it] Loading weights:   0%|          | 6/2009 [00:39<2:37:42,  4.72s/it]Loading weights:   0%|          | 8/2009 [00:54<3:11:17,  5.74s/it]Loading weights:  14%|█▎        | 274/2009 [00:57<02:42, 10.70it/s]Loading weights:  16%|█▋        | 327/2009 [00:57<02:04, 13.48it/s]Loading weights:  17%|█▋        | 338/2009 [01:04<03:01,  9.21it/s]Loading weights:  23%|██▎       | 462/2009 [01:07<01:43, 14.89it/s]Loading weights:  26%|██▌       | 515/2009 [01:11<01:40, 14.90it/s]Loading weights:  28%|██▊       | 571/2009 [01:13<01:23, 17.23it/s]Loading weights:  30%|███       | 605/2009 [01:13<01:07, 20.84it/s]
