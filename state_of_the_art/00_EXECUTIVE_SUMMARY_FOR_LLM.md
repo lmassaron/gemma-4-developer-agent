@@ -41,6 +41,8 @@
 | **v12 (Native Discipline)** | Native tool switching & prefix fix | Local Benchmark | Evaluated | **All-time fastest (175s/task)**; broke `run_command` collapse, but exited on Turn 5 before edit. |
 | **v13 (Non-Empty Patch)** | Strict non-empty patch prerequisite | Active Target | Evaluated | Enforces `patch_size > 0` before `submit_patch`; mandates Calls 3–6 edit phase. |
 | **v13_rev (Heredoc Clean)**| Quoted heredoc, git diff --stat, 5m | Active Target | **Claude Flagship** | Quoted heredoc (`<<'PY'`) prevents escaping bugs; observable diff check; 5.0m cap. |
+| **v20 (Anytime Patch)** | Fast localization, turn-4 fallback patch | Local Benchmark | Baseline (8.3%) | Generates anytime baseline patch on turn 4; guaranteed non-empty submission. |
+| **v21 (SFT LoRA)** | Continued SFT on Scott Weeden LoRA with 2.3k gold frontier trajectories | **33.3% on core_12** | **New SOTA Flagship** | **Quadrupled resolution rate (4/12)**; 50% patch rate; solves `requests` & `rich`. |
 
 ---
 

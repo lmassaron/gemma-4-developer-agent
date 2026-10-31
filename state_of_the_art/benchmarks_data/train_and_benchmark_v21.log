@@ -1,0 +1,6 @@
+
+============================================================
+ STEP: Fine-Tune Scott Weeden LoRA on Curated SWE Trajectories
+ COMMAND: /home/lmassaron/code/venv_gemma4_12b/bin/python /home/lmassaron/code/gemma-4-developer-agent-competition/scripts/finetune_scottweeden_lora.py
+============================================================
+
