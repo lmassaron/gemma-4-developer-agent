@@ -60,7 +60,7 @@ OUTPUT_LORA_PATH = ROOT / "models" / "lora_v21_scottweeden_finetuned"
 DATA_FILE = ROOT / "data" / "sft_dataset" / "gemma4_swe_trajectories_train.jsonl"
 VAL_FILE = ROOT / "data" / "sft_dataset" / "gemma4_swe_trajectories_val.jsonl"
 
-MAX_SEQ_LEN = 3072
+MAX_SEQ_LEN = 768
 
 class SWETrajectoryDataset(Dataset):
     def __init__(self, jsonl_path: Path, processor: AutoProcessor, max_samples: int = 500):
@@ -179,6 +179,8 @@ def main():
     
     print(f"Loading initial LoRA from {INITIAL_LORA_PATH} (is_trainable=True)...")
     model = PeftModel.from_pretrained(model, INITIAL_LORA_PATH, is_trainable=True)
+    print("Enabling gradient checkpointing (optimized for DGX Spark GB10)...")
+    model.gradient_checkpointing_enable()
     
     trainable_params = [p for p in model.parameters() if p.requires_grad]
     num_trainable = sum(p.numel() for p in trainable_params)
@@ -237,8 +239,12 @@ def main():
                 eta = (total_steps - step) / steps_per_sec if steps_per_sec > 0 else 0
                 
                 if step % 5 == 0 or step == total_steps:
+                    mem_used = torch.cuda.memory_allocated() / (1024**3)
+                    mem_peak = torch.cuda.max_memory_allocated() / (1024**3)
                     print(f"Step [{step}/{total_steps}] | Loss: {avg_loss:.4f} | "
-                          f"Elapsed: {elapsed:.1f}s | Speed: {steps_per_sec:.2f} step/s | ETA: {eta:.0f}s")
+                          f"Elapsed: {elapsed:.1f}s | Speed: {steps_per_sec:.2f} step/s | ETA: {eta:.0f}s | "
+                          f"VRAM: {mem_used:.1f}GB (Peak: {mem_peak:.1f}GB)", flush=True)
+                torch.cuda.empty_cache()
                 running_loss = 0.0
                 
     total_train_time = round(time.time() - start_time, 1)
@@ -256,3 +262,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
