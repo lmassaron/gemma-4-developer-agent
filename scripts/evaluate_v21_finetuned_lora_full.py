@@ -77,7 +77,7 @@ def load_tasks(tasks_file: Path):
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate v21 LoRA on the complete SWE benchmark.")
-    parser.add_argument("--suite", choices=["full_129", "core_60", "core_12"], default="full_129",
+    parser.add_argument("--suite", choices=["full_129", "core_60", "core_12", "calibration_48"], default="full_129",
                         help="Benchmark suite to run (default: full_129)")
     parser.add_argument("--tasks_file", default=str(DATA_DIR / "tasks.jsonl"))
     parser.add_argument("--base_model", default="/home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct")
@@ -107,6 +107,12 @@ def main():
         suite_ids = set(BENCHMARK_SUITES["core_12"])
         tasks = [t for t in all_tasks if t["instance_id"] in suite_ids]
         default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_core12_results.json"
+    elif args.suite == "calibration_48":
+        suite_file = ROOT / "state_of_the_art" / "benchmarks_data" / "test_tasks_v22_calibration_48.json"
+        suite_data = json.loads(suite_file.read_text(encoding="utf-8"))
+        selected_ids = suite_data.get("combined_48", [])
+        tasks = [task_map[tid] for tid in selected_ids if tid in task_map]
+        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_calibration48_results.json"
 
     out_file = Path(args.output_file) if args.output_file else default_out
     out_file.parent.mkdir(parents=True, exist_ok=True)
