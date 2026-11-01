@@ -1,11 +1,11 @@
 {
   "label": "v21_plus_lora",
   "suite": "full_129",
-  "resolved": 7,
-  "total_evaluated": 85,
+  "resolved": 8,
+  "total_evaluated": 88,
   "suite_total": 129,
-  "pass_rate": 8.24,
-  "elapsed_time_sec": 22085.96,
+  "pass_rate": 9.09,
+  "elapsed_time_sec": 22828.9,
   "tasks": [
     {
       "instance_id": "fastapi_15661",
@@ -1858,6 +1858,67 @@
         "run_command: {'command': \"sed -n '1-100p' fastapi/_compat/v1.py\"}"
       ],
       "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_15745",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 241.81,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -n \"class APIRouter\" fastapi/routing.py | head -20'}",
+        "read_file: {'limit': 100, 'offset': 1005, 'path': 'fastapi/routing.py'}",
+        "run_command: {'command': 'grep -n \"def include_router\" fastapi/routing.py | head -20'}",
+        "read_file: {'limit': 100, 'offset': 1578, 'path': 'fastapi/routing.py'}",
+        "run_command: {'command': 'grep -n \"class Router\" fastapi/routing.py | head -20'}",
+        "run_command: {'command': 'grep -n \"class .*Router\" fastapi/routing.py | head -20'}",
+        "run_command: {'command': 'grep -n \"import routing\" fastapi/routing.py | head -20'}",
+        "run_command: {'command': 'ls -la fastapi/'}",
+        "run_command: {'command': 'grep -n \"class Route\" fastapi/routing.py | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_14297",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 285.01,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la /workspace'}",
+        "run_command: {'command': 'grep -n \"serialize sequence value\" fastapi/_compat/v2.py | head -20'}",
+        "run_command: {'command': 'grep -n \"serialize_sequence_value\" fastapi/_compat/v2.py | head -20'}",
+        "read_file: {'end_line': 400, 'offset': 370, 'path': 'fastapi/_compat/v2.py'}",
+        "run_command: {'command': 'head -20 fastapi/_compat/v2.py'}",
+        "run_command: {'command': 'python3 -c \"from typing import Union, get_origin, get_args; print(get_origin(Union[int, None]))\"'}",
+        "run_command: {'command': 'python3 -c \"from typing import Union, get_origin, get_args; print(get_args(Union[int, None]))\"'}",
+        "edit_file: {'new_str': 'def serialize_sequence_value(*, field: ModelField, value: Any) -> Sequence[Any]:\\n    annotation = field.field_info.annotation\\n    origin_type = get_origin(annotation)\\n    if origin_type is Union:\\n        args = get_args(annotation)\\n        non_none_args = [arg for arg in args if arg is not type(None)]\\n        if len(non_none_args) == 1:\\n            inner_type = non_none_args[0]\\n            origin_type = get_origin(inner_type) or inner_type\\n        else:\\n            pass\\n    elif origin_type is None:\\n        origin_type = annotation\\n    assert issubclass(origin_type, shared.sequence_types)  # type: ignore[arg-type]\\n    return shared.sequence_annotation_to_type[origin_type](value)  # type: ignore[no-any-return]', 'old_str': 'def serialize_sequence_value(*, field: ModelField, value: Any) -> Sequence[Any]:\\n    origin_type = get_origin(field.field_info.annotation) or field.field_info.annotation\\n    assert issubclass(origin_type, shared.sequence_types)  # type: ignore[arg-type]\\n    return shared.sequence_annotation_to_type[origin_type](value)  # type: ignore[no-any-return]', 'path': 'fastapi/_compat/v2.py'}"
+      ],
+      "patch_size": 1077
+    },
+    {
+      "instance_id": "fastapi_14303",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 213.61,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -nC 5 \"received_body.items()\" fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 910, 'offset': 890, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -nC 5 \"received_body.items()\" fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 906, 'offset': 850, 'path': 'fastapi/dependencies/utils.py'}",
+        "edit_file: {'new_str': '    for key in received_body.keys():\\n        if key not in field_aliases:\\n            param_values = received_body.getlist(key)\\n            if len(param_values) == 1:\\n                values[key] = param_values[0]\\n            else:\\n                values[key] = param_values', 'old_str': '    for key, value in received_body.items():\\n        if key not in field_aliases:\\n            values[key] = value', 'path': 'fastapi/dependencies/utils.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 747,
+      "terminal_invoked": true,
+      "output_snippet": "..                                                                       [100%]\n2 passed, 4 deselected in 0.24s\n\n[2026-11-01 15:06:35,946] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
     }
   ]
 }
