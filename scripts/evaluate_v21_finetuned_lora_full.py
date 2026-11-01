@@ -82,6 +82,9 @@ def main():
     parser.add_argument("--tasks_file", default=str(DATA_DIR / "tasks.jsonl"))
     parser.add_argument("--base_model", default="/home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct")
     parser.add_argument("--lora_dir", default=str(ROOT / "models" / "lora_v21_scottweeden_finetuned"))
+    parser.add_argument("--bundle_dir", default=str(ROOT / "state_of_the_art" / "bundle_v21_plus"),
+                        help="Path to submission bundle directory containing prompts and configs")
+    parser.add_argument("--label", default="v21_plus_lora", help="Benchmark label for results")
     parser.add_argument("--timeout_sec", type=int, default=240)
     parser.add_argument("--max_turns", type=int, default=20)
     parser.add_argument("--output_file", default=None)
@@ -93,17 +96,17 @@ def main():
 
     if args.suite == "full_129":
         tasks = all_tasks
-        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / "benchmark_v21_finetuned_lora_full129_results.json"
+        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_full129_results.json"
     elif args.suite == "core_60":
         suite_file = ROOT / "state_of_the_art" / "benchmarks_data" / "test_tasks_core_60.json"
         suite_data = json.loads(suite_file.read_text(encoding="utf-8"))
         selected_ids = suite_data.get("tasks", [])
         tasks = [task_map[tid] for tid in selected_ids if tid in task_map]
-        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / "benchmark_v21_finetuned_lora_core60_results.json"
+        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_core60_results.json"
     elif args.suite == "core_12":
         suite_ids = set(BENCHMARK_SUITES["core_12"])
         tasks = [t for t in all_tasks if t["instance_id"] in suite_ids]
-        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / "benchmark_v21_finetuned_lora_core12_results.json"
+        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_core12_results.json"
 
     out_file = Path(args.output_file) if args.output_file else default_out
     out_file.parent.mkdir(parents=True, exist_ok=True)
@@ -127,7 +130,8 @@ def main():
     print(f"\nLoading processor from {args.base_model}...")
     processor = AutoProcessor.from_pretrained(args.base_model)
 
-    bundle_dir = ROOT / "state_of_the_art" / "bundle_v21"
+    bundle_dir = Path(args.bundle_dir)
+    print(f"Using bundle configuration from: {bundle_dir}")
     prompt_str = (bundle_dir / "prompts" / "system.md").read_text(encoding="utf-8")
     sampling_cfg = yaml.safe_load((bundle_dir / "configs" / "sampling.yaml").read_text(encoding="utf-8"))
 
@@ -176,7 +180,7 @@ def main():
 
         # Save checkpoint after each task
         checkpoint_data = {
-            "label": "v21_finetuned_lora",
+            "label": args.label,
             "suite": args.suite,
             "resolved": current_resolved,
             "total_evaluated": len(results),
