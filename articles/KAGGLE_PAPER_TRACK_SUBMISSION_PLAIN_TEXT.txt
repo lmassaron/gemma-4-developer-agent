@@ -174,3 +174,4 @@ v24_rank4_svd        127 MB         ~127 MB        Pending     3 / 12 (25.0%)   
 [10] C. Eckart and G. Young. "The Approximation of One Matrix by Another of Lower Rank." Psychometrika, 1(3):211-218, 1936.
 [11] T. Dettmers, A. Pagnoni, A. Holtzman, and L. Zettlemoyer. "QLoRA: Efficient Finetuning of Quantized LLMs." Advances in Neural Information Processing Systems (NeurIPS), 2023.
 ================================================================================
+
