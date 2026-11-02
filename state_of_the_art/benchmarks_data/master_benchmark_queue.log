@@ -1,0 +1,10 @@
+Master Benchmark Queue Initialized with 3 runs.
+
+===========================================================================
+ [MASTER QUEUE] STARTING: v24_rank4_svd on full_129 suite
+ LoRA Dir   : /home/lmassaron/code/gemma-4-developer-agent-competition/models/lora_v24_rank4_svd
+ Bundle Dir : /home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/bundle_v22
+ Output JSON: benchmark_v24_rank4_svd_full129_results.json
+ Log File   : benchmark_v24_rank4_svd_full129.log
+===========================================================================
+
