@@ -8,3 +8,25 @@ Master Benchmark Queue Initialized with 3 runs.
  Log File   : benchmark_v24_rank4_svd_full129.log
 ===========================================================================
 
+
+[MASTER QUEUE] Finished v24_rank4_svd with return code 0
+
+===========================================================================
+ [MASTER QUEUE] STARTING: v20_scottweeden on full_129 suite
+ LoRA Dir   : /home/lmassaron/models/kaggle/lora_scottweeden
+ Bundle Dir : /home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/bundle_v20
+ Output JSON: benchmark_v20_scottweeden_full129_results.json
+ Log File   : benchmark_v20_scottweeden_full129.log
+===========================================================================
+
+
+[MASTER QUEUE] Finished v20_scottweeden with return code 0
+
+===========================================================================
+ [MASTER QUEUE] STARTING: v20_loopbreaker on full_129 suite
+ LoRA Dir   : /home/lmassaron/models/kaggle/lora_loopbreaker
+ Bundle Dir : /home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/bundle_v20
+ Output JSON: benchmark_v20_loopbreaker_full129_results.json
+ Log File   : benchmark_v20_loopbreaker_full129.log
+===========================================================================
+
