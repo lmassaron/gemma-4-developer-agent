@@ -1,0 +1,260 @@
+{
+  "label": "v25_rank8_attn_svd_core12",
+  "suite": "core_12",
+  "resolved": 3,
+  "total_evaluated": 12,
+  "suite_total": 12,
+  "pass_rate": 25.0,
+  "elapsed_time_sec": 3010.24,
+  "tasks": [
+    {
+      "instance_id": "requests_7505",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 265.71,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"isinstance(\" -- \"*.py\" | head -40'}",
+        "read_file: {'offset': 160, 'path': 'src/requests/models.py'}",
+        "read_file: {'offset': 235, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead\" src/requests/models.py'}",
+        "read_file: {'offset': 640, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead\" src/requests/_types.py'}",
+        "run_command: {'command': 'find src/requests -name \"_types.py\"'}",
+        "read_file: {'path': 'src/requests/_types.py'}",
+        "read_file: {'offset': 160, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead\" src/requests/models.py'}",
+        "edit_file: {'new_str': '        elif isinstance(data, _SupportsRead) or hasattr(data, \"read\"):', 'old_str': '        elif isinstance(data, _SupportsRead):', 'path': 'src/requests/models.py'}"
+      ],
+      "patch_size": 507
+    },
+    {
+      "instance_id": "requests_7502",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 283.82,
+      "turns": 9,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"_encode_files\" -- \"*.py\" | head -40'}",
+        "read_file: {'limit': 100, 'offset': 184, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead =\" src/requests/models.py | head -20'}",
+        "run_command: {'command': 'grep -n \"_SupportsRead\" src/requests/models.py | head -20'}",
+        "read_file: {'limit': 100, 'offset': 0, 'path': 'src/requests/_types.py'}",
+        "run_command: {'command': 'python3 - <<\\'PY\\'\\nimport requests\\nfrom requests.models import Request\\n\\nclass FileWrapper:\\n    def __getattr__(self, name):\\n        if name == \\'read\\':\\n            return lambda length=None: b\\'hello world\\'\\n        raise AttributeError(name)\\n\\nr = Request(\\'POST\\', \\'http://example.com\\', files={\\'file\\': FileWrapper()})\\nprint(f\"Is instance of SupportsRead: {isinstance(FileWrapper(), requests._types.SupportsRead)}\")\\ntry:\\n    r.prepare()\\n    print(\"Success\")\\nexcept Exception as e:\\n    print(f\"Error: {e}\")\\nPY\\n'}",
+        "run_command: {'command': 'python3 - <<\\'PY\\'\\nimport requests\\nfrom requests.models import Request\\n\\nclass FileWrapper:\\n    def __getattr__(self, name):\\n        if name == \\'read\\':\\n            return lambda length=None: b\\'hello world\\'\\n        raise AttributeError(name)\\n\\nfw = FileWrapper()\\nprint(f\"hasattr(fw, \\'read\\'): {hasattr(fw, \\'read\\')}\")\\nPY\\n'}",
+        "edit_file: {'new_str': '            elif isinstance(fp, _SupportsRead) or hasattr(fp, \"read\"):  # defensive check for untyped callers\\n', 'old_str': '            elif isinstance(fp, _SupportsRead):  # defensive check for untyped callers\\n', 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'python3 - <<\\'PY\\'\\nimport requests\\nfrom requests.models import Request\\n\\nclass FileWrapper:\\n    def __getattr__(self, name):\\n        if name == \\'read\\':\\n            return lambda length=None: b\\'hello world\\'\\n        raise AttributeError(name)\\n\\nr = Request(\\'POST\\', \\'http://example.com\\', files={\\'file\\': FileWrapper()})\\ntry:\\n    r.prepare()\\n    print(\"Success\")\\nexcept Exception as e:\\n    print(f\"Error: {e}\")\\nPY\\n'}"
+      ],
+      "patch_size": 615
+    },
+    {
+      "instance_id": "requests_7433",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 90.28,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"prepare_body\" -- \"*.py\" | head -40'}",
+        "read_file: {'limit': 100, 'offset': 574, 'path': 'src/requests/models.py'}",
+        "edit_file: {'new_str': '        if (\\n            isinstance(data, Iterable) or hasattr(data, \"__iter__\")\\n        ) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'old_str': '        if isinstance(data, Iterable) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'path': 'src/requests/models.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 584,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 338 deselected in 0.72s\n\n[2026-11-03 20:04:03,744] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "requests_7205",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 175.68,
+      "turns": 6,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"netrc\" -- \"*.py\" | head -40'}",
+        "read_file: {'end_line': 245, 'offset': 205, 'path': 'src/requests/utils.py'}",
+        "run_command: {'command': 'python3 - <<\\'PY\\'\\nimport netrc\\nimport os\\nimport tempfile\\n\\nwith tempfile.NamedTemporaryFile(mode=\\'w\\', delete=False) as f:\\n    f.write(\\'machine example.com\\\\n\\')\\n    netrc_path = f.name\\n\\ntry:\\n    print(f\"Python version: {netrc.__name__}\") # Just to check import\\n    auth = netrc.netrc(netrc_path).authenticators(\\'example.com\\')\\n    print(f\"Authenticators result: {auth}\")\\nexcept Exception as e:\\n    print(f\"Error: {e}\")\\nfinally:\\n    os.unlink(netrc_path)\\nPY\\n'}",
+        "edit_file: {'new_str': '            if _netrc and any(_netrc):\\n                # Return with login / password\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])', 'old_str': '            if _netrc:\\n                # Return with login / password\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])', 'path': 'src/requests/utils.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 503,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 218 deselected in 0.13s\n\n[2026-11-03 20:07:00,856] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_12942",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 259.18,
+      "turns": 14,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R | grep \":$\" | head -20'}",
+        "run_command: {'command': 'git grep -n -F \"Annotated\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': \"python3 - <<'PY'\\nimport fastapi\\nprint(fastapi.__file__)\\nPY\\n\"}",
+        "run_command: {'command': 'find fastapi -name \"*.py\" | xargs grep -l \"Annotated\" | head -20'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/params.py | head -20'}",
+        "run_command: {'command': 'grep -r \"get_query_params\" fastapi | head -20'}",
+        "run_command: {'command': 'grep -r \"get_body_params\" fastapi | head -20'}",
+        "run_command: {'command': 'grep -r \"get_query_params\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"Annotated\" fastapi/routing.py | head -20'}",
+        "run_command: {'command': 'ls -R fastapi/ | grep \":$\" | head -20'}",
+        "run_command: {'command': 'grep -r \"get_query_params\" fastapi/ | head -20'}",
+        "run_command: {'command': 'grep -r \"get_query_params\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_query_params\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_query_params\" . | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_11355",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 259.68,
+      "turns": 14,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"evaluating stringified annotations\" -- \"*.py\" | head -40 || true'}",
+        "run_command: {'command': 'ls -R | grep \":$\" | head -20'}",
+        "run_command: {'command': \"find . -maxdepth 2 -not -path '*/.*'\"}",
+        "run_command: {'command': 'git grep -n \"get_type_hints\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': 'git grep -n \"get_type_hints\" -- \"fastapi/*.py\" | head -40'}",
+        "run_command: {'command': 'grep -r \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"inspect\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"annotations\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"typing\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -r \"get_type_hints\" . | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_13537",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 375.43,
+      "turns": 6,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"_get_multidict_value\" -- \"*.py\" | head -40'}",
+        "read_file: {'offset': 720, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n -F \"_extract_form_body\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': 'git grep -n -F \"_extract_form_body\" -- \"**/*.py\" | head -40'}",
+        "read_file: {'offset': 860, 'path': 'fastapi/dependencies/utils.py'}",
+        "edit_file: {'new_str': '    values = {}\\n    processed_keys = set()\\n\\n    for field in body_fields:\\n        value = _get_multidict_value(field, received_body)\\n        field_info = field.field_info\\n        if (\\n            isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and value_is_sequence(value)\\n        ):\\n            # For types\\n            assert isinstance(value, sequence_types)  # type: ignore[arg-type]\\n            results: List[Union[bytes, str]] = []\\n\\n            async def process_fn(\\n                fn: Callable[[], Coroutine[Any, Any, Any]],\\n            ) -> None:\\n                result = await fn()\\n                results.append(result)  # noqa: B023\\n\\n            async with anyio.create_task_group() as tg:\\n                for sub_value in value:\\n                    tg.start_soon(process_fn, sub_value.read)\\n            value = serialize_sequence_value(field=field, value=results)\\n        if value is not None:\\n            values[field.alias] = value\\n        processed_keys.add(field.alias)\\n    for key, value in received_body.items():\\n        if key not in processed_keys:\\n            values[key] = value\\n    return values', 'old_str': '    values = {}\\n\\n    for field in body_fields:\\n        value = _get_multidict_value(field, received_body)\\n        field_info = field.field_info\\n        if (\\n            isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and value_is_sequence(value)\\n        ):\\n            # For types\\n            assert isinstance(value, sequence_types)  # type: ignore[arg-type]\\n            results: List[Union[bytes, str]] = []\\n\\n            async def process_fn(\\n                fn: Callable[[], Coroutine[Any, Any, Any]],\\n            ) -> None:\\n                result = await fn()\\n                results.append(result)  # noqa: B023\\n\\n            async with anyio.create_task_group() as tg:\\n                for sub_value in value:\\n                    tg.start_soon(process_fn, sub_value.read)\\n            value = serialize_sequence_value(field=field, value=results)\\n        if value is not None:\\n            values[field.alias] = value\\n    for key, value in received_body.items():\\n        if key not in values:\\n            values[key] = value\\n    return values', 'path': 'fastapi/dependencies/utils.py'}"
+      ],
+      "patch_size": 828
+    },
+    {
+      "instance_id": "fastapi_11194",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 245.56,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R /workspace'}",
+        "run_command: {'command': 'git grep -n -F \"File\" -- \"fastapi/*.py\" | head -40'}",
+        "run_command: {'command': 'grep -n \"def solve_dependency\" fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"def get_body_params\" fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"def solve_dependant\" fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'grep -n \"def \" fastapi/dependencies/utils.py | head -40'}",
+        "read_file: {'limit': 100, 'offset': 870, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'cat <<\\'PY\\' > /tmp/repro.py\\nimport asyncio\\nfrom fastapi import FastAPI, File, Form, UploadFile\\nfrom httpx import AsyncClient\\nimport pytest\\n\\napp = FastAPI()\\n\\n@app.post(\"/test\")\\nasync def test_endpoint(form_val: str = Form(...), file_val: bytes = File(...)):\\n    return {\"form_val\": form_val, \"file_val\": file_val}\\n\\nasync def main():\\n    async with AsyncClient(app=app, base_url=\"http://test\") as ac:\\n        response = await ac.post(\\n            \"/test\",\\n            data={\"form_val\": \"hello\"},\\n            files={\"file_val\": b\"world\"}\\n        )\\n        print(f\"Status: {response.status_code}\")\\n        print(f\"JSON: {response.json()}\")\\n\\nif __name__ == \"__main__\":\\n    asyncio.run(main())\\nPY\\npython3 /tmp/repro.py\\n'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "rich_3052",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 282.95,
+      "turns": 7,
+      "tool_calls": [
+        "run_command: {'command': 'find . -maxdepth 2 -name \"*prompt*\"'}",
+        "read_file: {'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 80, 'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 161, 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '        choices (List[str], optional): A list of valid choices. Defaults to None.\\n        case_sensitive (bool, optional): Whether choices are case sensitive. Defaults to True.\\n        show_default (bool, optional): Show default in prompt. Defaults to True.', 'old_str': '        choices (List[str], optional): A list of valid choices. Defaults to None.\\n        show_default (bool, optional): Show default in prompt. Defaults to True.', 'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 53, 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '    def __init__(\\n        self,\\n        prompt: TextType = \"\",\\n        *,\\n        console: Optional[Console] = None,\\n        password: bool = False,\\n        choices: Optional[List[str]] = None,\\n        case_sensitive: bool = True,\\n        show_default: bool = True,\\n        show_choices: bool = True,\\n    ) -> None:\\n        self.console = console or get_console()\\n        self.prompt = (\\n            Text.from_markup(prompt, style=\"prompt\")\\n            if isinstance(prompt, str)\\n            else prompt\\n        )\\n        self.password = password\\n        if choices is not None:\\n            self.choices = choices\\n        self.case_sensitive = case_sensitive\\n        self.show_default = show_default\\n        self.show_choices = show_choices', 'old_str': '    def __init__(\\n        self,\\n        prompt: TextType = \"\",\\n        *,\\n        console: Optional[Console] = None,\\n        password: bool = False,\\n        choices: Optional[List[str]] = None,\\n        show_default: bool = True,\\n        show_choices: bool = True,\\n    ) -> None:\\n        self.console = console or get_console()\\n        self.prompt = (\\n            Text.from_markup(prompt, style=\"prompt\")\\n            if isinstance(prompt, str)\\n            else prompt\\n        )\\n        self.password = password\\n        if choices is not None:\\n            self.choices = choices\\n        self.show_default = show_default\\n        self.show_choices = show_choices', 'path': 'rich/prompt.py'}"
+      ],
+      "patch_size": 1310
+    },
+    {
+      "instance_id": "rich_2943",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 251.11,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': \"find . -maxdepth 2 -not -path '*/.*'\"}",
+        "run_command: {'command': 'git grep -n -F \"clear_meta\" -- \"*.py\" | head -40'}",
+        "read_file: {'limit': 80, 'offset': 640, 'path': 'rich/style.py'}",
+        "run_command: {'command': 'grep -n \"_hash =\" rich/style.py | head -20'}",
+        "read_file: {'limit': 80, 'offset': 640, 'path': 'rich/style.py'}",
+        "edit_file: {'new_str': '        style._hash = None', 'old_str': '        style._hash = self._hash', 'path': 'rich/style.py'}",
+        "edit_file: {'new_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = None\\n        style._null = False\\n        style._meta = None', 'old_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = self._hash\\n        style._null = False\\n        style._meta = None', 'path': 'rich/style.py'}",
+        "run_command: {'command': 'timeout 150 python -m pytest tests/test_style.py -x -q -k test_clear_meta_and_links 2>&1 | tail -40'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 400,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 26 deselected in 0.09s\n\n[2026-11-03 20:34:59,058] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_2725",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 260.07,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"box\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': 'git grep -n -F \"Table\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': 'find rich -name \"table.py\"'}",
+        "read_file: {'path': 'rich/table.py'}",
+        "run_command: {'command': 'grep -n \"render_table\" rich/table.py'}",
+        "run_command: {'command': 'grep -n \"render\" rich/table.py | head -40'}",
+        "read_file: {'offset': 500, 'path': 'rich/table.py'}",
+        "read_file: {'offset': 581, 'path': 'rich/table.py'}",
+        "read_file: {'offset': 662, 'path': 'rich/table.py'}",
+        "read_file: {'offset': 743, 'path': 'rich/table.py'}",
+        "read_file: {'offset': 824, 'path': 'rich/table.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "rich_3006",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 252.79,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n -F \"Parameters.empty\" -- \"*.py\" | head -40'}",
+        "run_command: {'command': 'grep -r \"Parameters.empty\" . | head -20'}",
+        "run_command: {'command': \"find . -maxdepth 2 -not -path '*/.*'\"}",
+        "run_command: {'command': 'grep -r \"Parameters\" rich/repr.py | head -20'}",
+        "run_command: {'command': 'grep -r \"Parameters\" rich/ | head -20'}",
+        "run_command: {'command': 'grep -r \"empty\" rich/repr.py | head -20'}",
+        "read_file: {'offset': 0, 'path': 'rich/repr.py'}",
+        "read_file: {'offset': 81, 'path': 'rich/repr.py'}",
+        "run_command: {'command': 'python3 - <<\\'PY\\'\\nimport inspect\\nfrom rich.repr import auto\\n\\nclass CustomParam:\\n    def __init__(self, value):\\n        self.value = value\\n    def __eq__(self, other):\\n        return True\\n    def __repr__(self):\\n        return \"CustomParam()\"\\n\\n@auto\\nclass MyClass:\\n    def __init__(self, x=CustomParam(1)):\\n        self.x = x\\n\\nobj = MyClass()\\nprint(f\"Repr: {repr(obj)}\")\\nPY\\n'}",
+        "run_command: {'command': 'python3 - <<\\'PY\\'\\nimport inspect\\nfrom rich.repr import auto\\n\\nclass CustomParam:\\n    def __init__(self, value):\\n        self.value = value\\n    def __eq__(self, other):\\n        return True\\n    def __repr__(self):\\n        return \"CustomParam()\"\\n\\n@auto\\nclass MyClass:\\n    def __init__(self, x=CustomParam(1)):\\n        self.x = x\\n\\nobj = MyClass()\\nprint(f\"Repr: {repr(obj)}\")\\nPY\\n'}"
+      ],
+      "patch_size": 0
+    }
+  ]
+}

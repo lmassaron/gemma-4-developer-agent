@@ -1,0 +1,25 @@
+Calibration Queue Initialized with 2 runs.
+
+===========================================================================
+ [CALIBRATION QUEUE] STARTING: v25_rank6_svd on core_12 suite
+ LoRA Dir   : /home/lmassaron/code/gemma-4-developer-agent-competition/models/lora_v25_rank6_svd
+ Bundle Dir : /home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/bundle_v25_rank6_svd
+ Output JSON: benchmark_v25_rank6_svd_core12_results.json
+ Log File   : benchmark_v25_rank6_svd_core12.log
+===========================================================================
+
+
+[CALIBRATION QUEUE] Finished v25_rank6_svd with return code 0
+
+===========================================================================
+ [CALIBRATION QUEUE] STARTING: v25_rank8_attn_svd on core_12 suite
+ LoRA Dir   : /home/lmassaron/code/gemma-4-developer-agent-competition/models/lora_v25_rank8_attn_svd
+ Bundle Dir : /home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/bundle_v25_rank8_attn_svd
+ Output JSON: benchmark_v25_rank8_attn_svd_core12_results.json
+ Log File   : benchmark_v25_rank8_attn_svd_core12.log
+===========================================================================
+
+
+[CALIBRATION QUEUE] Finished v25_rank8_attn_svd with return code 0
+
+ALL CALIBRATION RUNS FINISHED SUCCESSFULLY!

@@ -1,0 +1,256 @@
+{
+  "label": "v25_rank6_svd_core12",
+  "suite": "core_12",
+  "resolved": 3,
+  "total_evaluated": 12,
+  "suite_total": 12,
+  "pass_rate": 25.0,
+  "elapsed_time_sec": 3384.57,
+  "tasks": [
+    {
+      "instance_id": "requests_7505",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 208.51,
+      "turns": 9,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -n -F \"SupportsRead\" src/**/*.py | head -40'}",
+        "read_file: {'end_line': 170, 'offset': 140, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n -F \"isinstance(data, _SupportsRead)\" src/requests/models.py'}",
+        "read_file: {'end_line': 650, 'offset': 640, 'path': 'src/requests/models.py'}",
+        "edit_file: {'new_str': '        elif isinstance(data, _SupportsRead) or hasattr(data, \"read\"):', 'old_str': '        elif isinstance(data, _SupportsRead):', 'path': 'src/requests/models.py'}",
+        "edit_file: {'new_str': '                    if isinstance(data, basestring) or isinstance(data, _SupportsRead) or hasattr(data, \"read\"):', 'old_str': '                    if isinstance(data, basestring) or isinstance(data, _SupportsRead):', 'path': 'src/requests/models.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 1049,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 340 deselected in 0.73s\n\n[2026-11-03 18:57:49,027] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "requests_7502",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 263.62,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R /workspace'}",
+        "run_command: {'command': 'grep -n -F \"_encode_files\" src/requests/*.py | head -20'}",
+        "read_file: {'offset': 180, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'grep -n \"class _SupportsRead\" src/requests/_types.py || grep -n \"class _SupportsRead\" src/requests/models.py || grep -n \"class _SupportsRead\" src/requests/utils.py'}",
+        "run_command: {'command': 'grep -n \"class _SupportsRead\" src/requests/*.py | head -20'}",
+        "run_command: {'command': 'grep -n \"class .*Read\" src/requests/*.py | head -20'}",
+        "read_file: {'offset': 20, 'path': 'src/requests/_types.py'}",
+        "read_file: {'offset': 230, 'path': 'src/requests/models.py'}",
+        "read_file: {'offset': 0, 'path': 'src/requests/models.py'}",
+        "run_command: {'command': 'cat <<\\'PY\\' > /tmp/repro.py\\nimport requests\\nfrom requests.models import Request\\n\\nclass FileWrapper:\\n    def __getattr__(self, name):\\n        if name == \"read\":\\n            return lambda length=None: b\"hello world\"\\n        raise AttributeError(name)\\n\\nreq = Request(\\'POST\\', \\'https://httpbin.org/post\\', files={\\'file\\': FileWrapper()})\\ntry:\\n    req.prepare()\\n    print(\"Success!\")\\nexcept Exception as e:\\n    print(f\"Failed: {e}\")\\nPY\\npython3 /tmp/repro.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "requests_7433",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 108.43,
+      "turns": 6,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R | grep \":$\" | head -20'}",
+        "run_command: {'command': 'git grep -n -F \"def prepare_body\" src/requests | head -20'}",
+        "read_file: {'offset': 574, 'path': 'src/requests/models.py'}",
+        "edit_file: {'new_str': '        if (\\n            isinstance(data, Iterable) or hasattr(data, \"__iter__\")\\n        ) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'old_str': '        if isinstance(data, Iterable) and not isinstance(\\n            data, (str, bytes, list, tuple, Mapping)\\n        ):', 'path': 'src/requests/models.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 584,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 338 deselected in 0.71s\n\n[2026-11-03 19:04:02,780] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "requests_7205",
+      "repo": "psf/requests",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 318.4,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"netrc\" src | head -20'}",
+        "read_file: {'offset': 0, 'path': 'src/requests/utils.py'}",
+        "run_command: {'command': 'grep -n \"def get_netrc_auth\" src/requests/utils.py'}",
+        "read_file: {'offset': 205, 'limit': 80, 'path': 'src/requests/utils.py'}",
+        "run_command: {'command': 'python3 -c \"import netrc; print(netrc.netrc(\\'\\').authenticators(\\'example.com\\'))\" 2>&1 || echo \"Failed\"'}",
+        "run_command: {'command': 'echo \"machine example.com login= user=password\" > /tmp/.netrc && python3 -c \"import netrc; print(netrc.netrc(\\'/tmp/.netrc\\').authenticators(\\'example.com\\'))\"'}",
+        "run_command: {'command': 'echo \"machine example.com : :\" > /tmp/.netrc && python3 -c \"import netrc; print(netrc.netrc(\\'/tmp/.netrc\\').authenticators(\\'example.com\\'))\"'}",
+        "run_command: {'command': 'echo \"machine example.com\" > /tmp/.netrc && python3 -c \"import netrc; print(netrc.netrc(\\'/tmp/.netrc\\').authenticators(\\'example.com\\'))\"'}",
+        "edit_file: {'new_str': \"            if _netrc:\\n                # Return with login / password\\n                # Only return if there's actually a login or password.\\n                # Prior to Python 3.11, a netrc entry without a username, account, or password\\n                # was treated as malformed and raised a NetrcParseError.\\n                # In 3.11+, it returns ('', '', ''). We want to ignore these profiles.\\n                if any(_netrc):\\n                    login_i = 0 if _netrc[0] else 1\\n                    return (_netrc[login_i], _netrc[2])\\n\", 'old_str': '            if _netrc:\\n                # Return with login / password\\n                login_i = 0 if _netrc[0] else 1\\n                return (_netrc[login_i], _netrc[2])\\n', 'path': 'src/requests/utils.py'}"
+      ],
+      "patch_size": 1133
+    },
+    {
+      "instance_id": "fastapi_12942",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 466.15,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"get_query_param\" fastapi | head -20'}",
+        "run_command: {'command': 'grep -R \"Annotated\" fastapi | head -20'}",
+        "run_command: {'command': 'ls -la fastapi/params.py fastapi/dependencies/utils.py fastapi/routing.py fastapi/utils.py | head -20'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/params.py | head -20'}",
+        "run_command: {'command': 'grep -n \"Annotated\" fastapi/dependencies/utils.py | head -20'}",
+        "read_file: {'end_line': 460, 'offset': 360, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'python3 -c \"import pydantic; print(pydantic.VERSION)\"'}",
+        "read_file: {'end_line': 375, 'offset': 360, 'path': 'fastapi/dependencies/utils.py'}",
+        "run_command: {'command': 'cat << \\'PY\\' > reproduce_issue.py\\nfrom typing import Annotated, Any, Literal, Union\\nfrom typing_extensions import Doc\\nfrom pydantic import BaseModel, Field\\nfrom fastapi import FastAPI, Body, Depends\\nfrom fastapi.params import Body as BodyParam\\nimport inspect\\n\\n# Mocking some things since I don\\'t have the full environment setup\\n# but let\\'s try to reproduce the logic in fastapi/dependencies/utils.py\\nfrom typing_extensions import get_origin, get_args\\n\\nclass FieldInfo:\\n    def __init__(self, default=None):\\n        self.default = default\\n\\nclass Param:\\n    pass\\n\\nclass Body(Param):\\n    pass\\n\\nclass Depends(Param):\\n    def __init__(self, dependency=None):\\n        self.dependency = dependency\\n\\ndef get_param_details(annotation, value, param_name, is_path_param):\\n    field_info = None\\n    depends = None\\n    type_annotation = Any\\n    use_annotation = Any\\n    if annotation is not inspect.Signature.empty:\\n        use_annotation = annotation\\n        type_annotation = annotation\\n    \\n    # Extract Annotated info\\n    if get_origin(use_annotation) is Annotated:\\n        annotated_args = get_args(annotation)\\n        type_annotation = annotated_args[0]\\n        fastapi_annotations = [\\n            arg\\n            for arg in annotated_args[1:]\\n            if isinstance(arg, (FieldInfo, Depends)) # Simplified\\n        ]\\n        fastapi_specific_annotations = [\\n            arg\\n            for arg in fastapi_annotations\\n            if isinstance(arg, (Param, Body, Depends))\\n        ]\\n        if fastapi_specific_annotations:\\n            fastapi_annotation = fastapi_specific_annotations[-1]\\n        else:\\n            fastapi_annotation = None\\n        \\n        if isinstance(fastapi_annotation, FieldInfo):\\n            field_info = fastapi_annotation\\n        elif isinstance(fastapi_annotation, Depends):\\n            depends = fastapi_annotation\\n    \\n    return type_annotation, field_info, depends\\n\\nclass Pie(BaseModel):\\n    time_to_cook: int\\n    num_ingredients: int\\n\\nclass ApplePie(Pie):\\n    fruit: Literal[\"apple\"] = \"apple\"\\n\\nclass PumpkinPie(Pie):\\n    filling: Literal[\"pumpkin\"] = \"pumpkin\"\\n\\ndef get_discriminator_value(v: Any) -> str:\\n    if isinstance(v, dict):\\n        return v.get(\"fruit\", v.get(\"filling\"))\\n    return getattr(v, \"fruit\", getattr(v, \"filling\", None))\\n\\n# The problematic type\\nDessert = Annotated[\\n    Annotated[ApplePie, \"tag:apple\"] | Annotated[PumpkinPie, \"tag:pumpkin\"],\\n    \"Discriminator\"\\n]\\n\\nprint(f\"Type Annotation: {Dessert}\")\\nta, fi, dp = get_param_details(Dessert, inspect.Signature.empty, \"dessert\", False)\\nprint(f\"Extracted Type: {ta}\")\\nprint(f\"Field Info: {fi}\")\\nprint(f\"Depends: {dp}\")\\nPY\\npython3 reproduce_issue.py\\n'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_11355",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 254.92,
+      "turns": 13,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -R \"inspect.get_annotations\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'find . -maxdepth 2 -name \"*.py\"'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" fastapi/ | head -20'}",
+        "run_command: {'command': 'grep -R \"inspect.get_annotations\" fastapi/ | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}",
+        "run_command: {'command': 'grep -R \"get_type_hints\" . | head -20'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "fastapi_13537",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 381.1,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -nE \"_get_multidict_value|_extract_form_body\" -R fastapi | head -40'}",
+        "read_file: {'end_line': 950, 'offset': 869, 'path': 'fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 780, 'offset': 723, 'path': 'fastapi/dependencies/utils.py'}",
+        "edit_file: {'new_str': '    values = {}\\n    processed_keys = set()\\n\\n    for field in body_fields:\\n        value = _get_multidict_value(field, received_body)\\n        field_info = field.field_info\\n        if (\\n            isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and value_is_sequence(value)\\n        ):\\n            # For types\\n            assert isinstance(value, sequence_types)  # type: ignore[arg-type]\\n            results: List[Union[bytes, str]] = []\\n\\n            async def process_fn(\\n                fn: Callable[[], Coroutine[Any, Any, Any]],\\n            ) -> None:\\n                result = await fn()\\n                results.append(result)  # noqa: B023\\n\\n            async with anyio.create_task_group() as tg:\\n                for sub_value in value:\\n                    tg.start_soon(process_fn, sub_value.read)\\n            value = serialize_sequence_value(field=field, value=results)\\n        if value is not None:\\n            values[field.alias] = value\\n        processed_keys.add(field.alias)\\n    for key, value in received_body.items():\\n        if key not in processed_keys:\\n            values[key] = value\\n    return values', 'old_str': '    values = {}\\n\\n    for field in body_fields:\\n        value = _get_multidict_value(field, received_body)\\n        field_info = field.field_info\\n        if (\\n            isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and is_bytes_field(field)\\n            and isinstance(value, UploadFile)\\n        ):\\n            value = await value.read()\\n        elif (\\n            is_bytes_sequence_field(field)\\n            and isinstance(field_info, (params.File, temp_pydantic_v1_params.File))\\n            and value_is_sequence(value)\\n        ):\\n            # For types\\n            assert isinstance(value, sequence_types)  # type: ignore[arg-type]\\n            results: List[Union[bytes, str]] = []\\n\\n            async def process_fn(\\n                fn: Callable[[], Coroutine[Any, Any, Any]],\\n            ) -> None:\\n                result = await fn()\\n                results.append(result)  # noqa: B023\\n\\n            async with anyio.create_task_group() as tg:\\n                for sub_value in value:\\n                    tg.start_soon(process_fn, sub_value.read)\\n            value = serialize_sequence_value(field=field, value=results)\\n        if value is not None:\\n            values[field.alias] = value\\n    for key, value in received_body.items():\\n        if key not in values:\\n            values[key] = value\\n    return values', 'path': 'fastapi/dependencies/utils.py'}"
+      ],
+      "patch_size": 828
+    },
+    {
+      "instance_id": "fastapi_11194",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 266.9,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R /workspace | head -40'}",
+        "run_command: {'command': 'git grep -n -F \"Form\" fastapi/*.py | head -40'}",
+        "read_file: {'end_line': 700, 'offset': 550, 'path': 'fastapi/params.py'}",
+        "run_command: {'command': 'grep -n \"is_body_form =\" fastapi/routing.py'}",
+        "read_file: {'end_line': 260, 'offset': 220, 'path': 'fastapi/routing.py'}",
+        "run_command: {'command': 'python3 -c \"import fastapi; print(fastapi.__version__)\"'}",
+        "run_command: {'command': 'grep -n \"is_body_form =\" fastapi/routing.py'}",
+        "run_command: {'command': 'cat <<\\'PY\\' > repro.py\\nimport asyncio\\nfrom fastapi import FastAPI, Form, File, UploadFile\\nfrom fastapi.testclient import TestClient\\n\\napp = FastAPI()\\n\\n@app.post(\"/upload\")\\nasync def upload(form_data: str = Form(...), file: UploadFile = File(...)):\\n    return {\"form_data\": form_data, \"file\": file.filename}\\n\\nclient = TestClient(app)\\n\\ndef test_order():\\n    print(\"Testing Form before File...\")\\n    response = client.post(\\n        \"/upload\",\\n        data={\"form_data\": \"hello\"},\\n        files={\"file\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"Status: {response.status_code}\")\\n    print(f\"JSON: {response.json()}\")\\n\\nif __name__ == \"__main__\":\\n    test_order()\\nPY\\npython3 repro.py\\n'}",
+        "run_command: {'command': 'git log -n 10 --oneline'}",
+        "run_command: {'command': 'git grep -n \"isinstance(body_field.field_info, params.Form)\" fastapi/routing.py'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "rich_3052",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 388.74,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R | grep \":$\" | head -20'}",
+        "run_command: {'command': 'grep -n \"class Prompt\" rich/prompt.py | head -20'}",
+        "read_file: {'offset': 286, 'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 30, 'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 111, 'path': 'rich/prompt.py'}",
+        "read_file: {'offset': 192, 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '        Args:\\n            prompt (TextType, optional): Prompt text. Defaults to \"\".\\n            console (Console, optional): A Console instance or None to use global console. Defaults to None.\\n            password (bool, optional): Enable password input. Defaults to False.\\n            choices (List[str], optional): A list of valid choices. Defaults to None.\\n            case_sensitive (bool, optional): Whether choices are case sensitive. Defaults to True.\\n            show_default (bool, optional): Show default in prompt. Defaults to True.\\n            show_choices (bool, optional): Show choices in prompt. Defaults to True.\\n        \"\"\"\\n', 'old_str': '        Args:\\n            prompt (TextType, optional): Prompt text. Defaults to \"\".\\n            console (Console, optional): A Console instance or None to use global console. Defaults to None.\\n            password (bool, optional): Enable password input. Defaults to False.\\n            choices (List[str], optional): A list of valid choices. Defaults to None.\\n            show_default (bool, optional): Show default in prompt. Defaults to True.\\n            show_choices (bool, optional): Show choices in prompt. Defaults to True.\\n        \"\"\"\\n', 'path': 'rich/prompt.py'}",
+        "edit_file: {'new_str': '    def __init__(\\n        self,\\n        prompt: TextType = \"\",\\n        *,\\n        console: Optional[Console] = None,\\n        password: bool = False,\\n        choices: Optional[List[str]] = None,\\n        case_sensitive: bool = True,\\n        show_default: bool = True,\\n        show_choices: bool = True,\\n    ) -> None:\\n        self.console = console or get_console()\\n        self.prompt = (\\n            Text.from_markup(prompt, style=\"prompt\")\\n            if isinstance(prompt, str)\\n            else prompt\\n        )\\n        self.password = password\\n        if choices is not None:\\n            self.choices = choices\\n        self.case_sensitive = case_sensitive\\n        self.show_default = show_default\\n        self.show_choices = show_choices\\n', 'old_str': '    def __init__(\\n        self,\\n        prompt: TextType = \"\",\\n        *,\\n        console: Optional[Console] = None,\\n        password: bool = False,\\n        choices: Optional[List[str]] = None,\\n        show_default: bool = True,\\n        show_choices: bool = True,\\n    ) -> None:\\n        self.console = console or get_console()\\n        self.prompt = (\\n            Text.from_markup(prompt, style=\"prompt\")\\n            if isinstance(prompt, str)\\n            else prompt\\n        )\\n        self.password = password\\n        if choices is not None:\\n            self.choices = choices\\n        self.show_default = show_default\\n        self.show_choices = show_choices\\n', 'path': 'rich/prompt.py'}"
+      ],
+      "patch_size": 1310
+    },
+    {
+      "instance_id": "rich_2943",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 130.96,
+      "turns": 7,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R | head -40'}",
+        "run_command: {'command': 'git grep -n -F \"clear_meta\" -- \"*.py\" | head -40'}",
+        "read_file: {'limit': 100, 'offset': 600, 'path': 'rich/style.py'}",
+        "edit_file: {'new_str': '        style._hash = None', 'old_str': '        style._hash = self._hash', 'path': 'rich/style.py'}",
+        "edit_file: {'new_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = None\\n        style._null = False', 'old_str': '        style._link = None\\n        style._link_id = \"\"\\n        style._hash = self._hash\\n        style._null = False', 'path': 'rich/style.py'}",
+        "get_status: {}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 400,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 26 deselected in 0.09s\n\n[2026-11-03 19:40:55,410] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_2725",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 302.91,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'ls -R /workspace'}",
+        "run_command: {'command': 'grep -n \"box\" rich/table.py | head -20'}",
+        "run_command: {'command': 'grep -n \"box\" rich/box.py | head -20'}",
+        "read_file: {'offset': 0, 'path': 'rich/box.py'}",
+        "read_file: {'offset': 750, 'path': 'rich/table.py'}",
+        "read_file: {'offset': 831, 'path': 'rich/table.py'}",
+        "run_command: {'command': 'python3 -c \"import rich.table; print(dir(rich.table.Table))\"'}",
+        "run_command: {'command': 'cat <<\\'PY\\' > reproduce_bug.py\\nfrom rich.console import Console\\nfrom rich.table import Table\\nfrom rich import box\\n\\nconsole = Console(force_terminal=True)\\ntable = Table(box=box.Box(\\n    \"\\\\n\".join([\\n        \"1234\", # top\\n        \"5678\", # head\\n        \"9012\", # head_row\\n        \"3456\", # mid\\n        \"7890\", # row\\n        \"1234\", # foot_row\\n        \"5678\", # foot\\n        \"9012\", # bottom\\n    ])\\n))\\n\\ntable.add_column(\"Col1\")\\ntable.add_column(\"Col2\")\\ntable.add_row(\"Row1C1\", \"Row1C2\")\\ntable.add_row(\"Row2C1\", \"Row2C2\")\\ntable.add_row(\"Row3C1\", \"Row3C2\")\\n\\nconsole.print(table)\\nPY\\npython3 reproduce_bug.py\\n'}"
+      ],
+      "patch_size": 0
+    },
+    {
+      "instance_id": "rich_3006",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 285.11,
+      "turns": 11,
+      "tool_calls": [
+        "run_command: {'command': 'ls -la'}",
+        "run_command: {'command': 'grep -n -F \"Parameters.empty\" rich/*.py | head -40'}",
+        "run_command: {'command': 'grep -n -F \"Parameters.empty\" -r . | head -40'}",
+        "run_command: {'command': 'grep -n -F \"Parameters\" -r rich/ | head -40'}",
+        "run_command: {'command': 'grep -n -F \"repr\" -r rich/ | head -40'}",
+        "run_command: {'command': 'find . -name \"*repr*\"'}",
+        "read_file: {'path': 'rich/repr.py'}",
+        "read_file: {'offset': 81, 'path': 'rich/repr.py'}",
+        "run_command: {'command': 'python3 -c \"import inspect; p = inspect.Parameter(\\'x\\', inspect.Parameter.POSITIONAL_OR_KEYWORD); print(p.default == p.empty)\"'}",
+        "run_command: {'command': 'python3 -c \"import inspect; class MyParam: \\\\n    def __eq__(self, other):\\\\n        return True\\\\n\\\\np = inspect.Parameter(\\'x\\', inspect.Parameter.POSITIONAL_OR_KEYWORD, default=MyParam()); print(p.default == p.empty)\"'}",
+        "run_command: {'command': 'python3 -c \"import inspect; class MyParam: \\\\n    def __eq__(self, other):\\\\n        return True\\\\n\\\\np = inspect.Parameter(\\'x\\', inspect.Parameter.POSITIONAL_OR_KEYWORD, default=MyParam()); print(p.default == p.empty)\"'}"
+      ],
+      "patch_size": 0
+    }
+  ]
+}
