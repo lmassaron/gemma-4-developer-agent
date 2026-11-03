@@ -275,12 +275,14 @@ We evaluated all eight agent iterations across both standardized subsets (`core_
 |---|---|:---:|:---:|:---:|:---:|:---:|---|
 | **`v20_base`** | Zero-shot Base 31B (Anytime prompt) | None | 5.8 KB | **0.17** | 1 / 12 (8.3%) | ~12 / 129 (9.3%) | Hits 10/58 Kaggle ceiling; 0 FastAPI solves |
 | **`v20_scottweeden`** | Community LoRA (Scott Weeden) | 245 MB | 245 MB | *Untested* | 1 / 12 (8.3%) | **11 / 129 (8.53%)** | 42 patches (32.6%); 3 Requests, 4 FastAPI, 4 Rich |
-| **`v20_loopbreaker`** | Community LoRA (Robin Amir Bahar) | 217 KB | 217 KB | *Untested* | 1 / 12 (8.3%) | *Running (6/69)* | Circuit breaker LoRA; 6/69 resolved at checkpoint |
+| **`v20_loopbreaker`** | Community LoRA (Robin Amir Bahar) | 217 KB | 217 KB | *Untested* | 1 / 12 (8.3%) | **11 / 129 (8.53%)** | 36 patches (27.9%); 4 Requests, 4 FastAPI, 3 Rich |
 | **`v21_finetuned`** | Continued SFT LoRA (2,377 gold traces) | 509 MB | 509 MB | **0.00** *(Kaggle)* | **4 / 12 (33.3%)** | **17 / 129 (13.18%)** | 5 Requests, 5 Rich, 7 FastAPI; crashes Kaggle vLLM |
 | **`v21_plus`** | SFT LoRA + Verbose Flexonafft prompt | 509 MB | 441 MB | *Untested* | 3 / 12 (25.0%) | 14 / 129 (10.85%) | Prompt bloat pushed 31 near-misses into timeouts |
 | **`v22_fastpaced`** | SFT LoRA + Call-8 Edit Deadline | 509 MB | 441 MB | *Untested* | 4 / 12 (33.3%) | **17 / 129 (13.18%)** | Rescued 6 near-misses; verified overnight run |
-| **`v23_zero_shot`** | Zero-Shot SOTA (Flexonafft + Fast Pacing) | **None** | **7.7 KB** | **0.20–0.24** | *N/A* | *Pending* | **Kaggle Deployment SOTA**: Zero KV-cache overhead |
+| **`v23_zero_shot`** | Zero-Shot SOTA (Flexonafft + Fast Pacing) | **None** | **7.7 KB** | **0.18** *(Kaggle)*| *N/A* | *Pending* | **Leaderboard High Score**: Zero KV-cache overhead |
 | **`v24_rank4_svd`** | SVD Compressed LoRA ($r=4, \alpha=8$) | **127 MB** | **108 MB** | *Pending* | **3 / 12 (25.0%)** | **14 / 129 (10.85%)** | 4.0× parameter reduction; 76.5% variance retained; 5 Requests, 6 FastAPI, 3 Rich |
+| **`v25_rank6_svd`** | SVD Compressed LoRA ($r=6, \alpha=12$) | **191 MB** | **170 MB** | *Pending* | *Pending* | *Pending* | 2.67× reduction; 82.9% energy retained; safe under 200 MB |
+| **`v25_rank8_svd`** | SVD Compressed LoRA ($r=8, \alpha=16$) | **255 MB** | **227 MB** | *Pending* | *Pending* | *Pending* | 2.00× reduction; 87.8% energy retained; high expressivity |
 
 ### 6.2. Repository Breakdown of Solved Instances (v21 / v22)
 
