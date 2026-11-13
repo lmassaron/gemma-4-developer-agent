@@ -76,17 +76,19 @@ def load_tasks(tasks_file: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate v21 LoRA on the complete SWE benchmark.")
-    parser.add_argument("--suite", choices=["full_129", "core_60", "core_12", "calibration_48"], default="full_129",
-                        help="Benchmark suite to run (default: full_129)")
+    parser = argparse.ArgumentParser(description="Evaluate Zero-Shot or LoRA bundle on the SWE benchmark.")
+    parser.add_argument("--suite", choices=["full_129", "core_60", "core_12", "guard_17", "calibration_24", "calibration_48"], default="core_12",
+                        help="Benchmark suite to run (default: core_12)")
     parser.add_argument("--tasks_file", default=str(DATA_DIR / "tasks.jsonl"))
     parser.add_argument("--base_model", default="/home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct")
-    parser.add_argument("--lora_dir", default=str(ROOT / "models" / "lora_v21_scottweeden_finetuned"))
-    parser.add_argument("--bundle_dir", default=str(ROOT / "state_of_the_art" / "bundle_v21_plus"),
+    parser.add_argument("--lora_dir", default="none", help="Path to LoRA dir, or 'none' for Zero-Shot")
+    parser.add_argument("--bundle_dir", default=None,
                         help="Path to submission bundle directory containing prompts and configs")
-    parser.add_argument("--label", default="v21_plus_lora", help="Benchmark label for results")
-    parser.add_argument("--timeout_sec", type=int, default=240)
-    parser.add_argument("--max_turns", type=int, default=20)
+    parser.add_argument("--submission_zip", default=None,
+                        help="Path to submission .zip file (overrides bundle_dir and auto-extracts adapter if present)")
+    parser.add_argument("--label", default="v32_zero_shot_ap_bssr", help="Benchmark label for results")
+    parser.add_argument("--timeout_sec", type=int, default=360)
+    parser.add_argument("--max_turns", type=int, default=24)
     parser.add_argument("--output_file", default=None)
     parser.add_argument("--no_resume", action="store_true", help="Do not resume from existing results file")
     args = parser.parse_args()
@@ -103,14 +105,14 @@ def main():
         selected_ids = suite_data.get("tasks", [])
         tasks = [task_map[tid] for tid in selected_ids if tid in task_map]
         default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_core60_results.json"
-    elif args.suite == "core_12":
-        suite_ids = set(BENCHMARK_SUITES["core_12"])
-        tasks = [t for t in all_tasks if t["instance_id"] in suite_ids]
-        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_core12_results.json"
+    elif args.suite in ("core_12", "guard_17", "calibration_24"):
+        selected_ids = BENCHMARK_SUITES[args.suite]
+        tasks = [task_map[tid] for tid in selected_ids if tid in task_map]
+        default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_{args.suite}_results.json"
     elif args.suite == "calibration_48":
         suite_file = ROOT / "state_of_the_art" / "benchmarks_data" / "test_tasks_v22_calibration_48.json"
         suite_data = json.loads(suite_file.read_text(encoding="utf-8"))
-        selected_ids = suite_data.get("combined_48", [])
+        selected_ids = suite_data.get("combined_48") or (suite_data.get("resolved_guard_17", []) + suite_data.get("near_misses_31", []))
         tasks = [task_map[tid] for tid in selected_ids if tid in task_map]
         default_out = ROOT / "state_of_the_art" / "benchmarks_data" / f"benchmark_{args.label}_calibration48_results.json"
 
@@ -131,15 +133,43 @@ def main():
 
     remaining_tasks = [t for t in tasks if t["instance_id"] not in completed_ids]
     print(f"Total benchmark tasks: {len(tasks)} | Completed: {len(completed_ids)} | Remaining: {len(remaining_tasks)}")
+    if not remaining_tasks:
+        print("All tasks in suite already completed!")
+        return
 
     device = "cuda:0"
     print(f"\nLoading processor from {args.base_model}...")
     processor = AutoProcessor.from_pretrained(args.base_model)
 
-    bundle_dir = Path(args.bundle_dir)
-    print(f"Using bundle configuration from: {bundle_dir}")
-    prompt_str = (bundle_dir / "prompts" / "system.md").read_text(encoding="utf-8")
-    sampling_cfg = yaml.safe_load((bundle_dir / "configs" / "sampling.yaml").read_text(encoding="utf-8"))
+    if args.submission_zip and Path(args.submission_zip).is_file():
+        import zipfile, shutil
+        zip_p = Path(args.submission_zip).resolve()
+        print(f"Using submission zip: {zip_p}")
+        with zipfile.ZipFile(zip_p, "r") as z:
+            namelist = z.namelist()
+            prompt_str = z.read("prompts/system.md").decode("utf-8")
+            sampling_cfg = yaml.safe_load(z.read("configs/sampling.yaml").decode("utf-8"))
+            if (args.lora_dir == "none" or not args.lora_dir) and "agent.yaml" in namelist:
+                ag_raw = z.read("agent.yaml").decode("utf-8")
+                for ln in ag_raw.splitlines():
+                    if ln.strip().startswith("adapter:"):
+                        ad_name = ln.split(":", 1)[1].strip()
+                        ad_prefix = f"adapters/{ad_name}/"
+                        if any(n.startswith(ad_prefix) for n in namelist):
+                            ext_dir = Path(f"/tmp/gemma4_extracted_adapters/{zip_p.stem}")
+                            shutil.rmtree(ext_dir, ignore_errors=True)
+                            ext_dir.mkdir(parents=True, exist_ok=True)
+                            for m in namelist:
+                                if m.startswith(ad_prefix):
+                                    z.extract(m, ext_dir)
+                            args.lora_dir = str(ext_dir / "adapters" / ad_name)
+                            print(f"Auto-extracted LoRA adapter '{ad_name}' to {args.lora_dir}")
+                        break
+    else:
+        bundle_dir = Path(args.bundle_dir or (ROOT / "state_of_the_art" / "bundle_v21_plus"))
+        print(f"Using bundle configuration from: {bundle_dir}")
+        prompt_str = (bundle_dir / "prompts" / "system.md").read_text(encoding="utf-8")
+        sampling_cfg = yaml.safe_load((bundle_dir / "configs" / "sampling.yaml").read_text(encoding="utf-8"))
 
     print(f"Loading QAT model from {args.base_model} onto {device}...")
     t0 = time.time()
@@ -148,9 +178,12 @@ def main():
         torch_dtype="auto",
         device_map=device,
     )
-    print(f"Attaching Fine-Tuned LoRA from {args.lora_dir}...")
-    model = PeftModel.from_pretrained(model, args.lora_dir)
-    print(f"Fine-tuned LoRA successfully attached in {time.time() - t0:.2f}s!")
+    if args.lora_dir and args.lora_dir.lower() != "none" and Path(args.lora_dir).is_dir():
+        print(f"Attaching Fine-Tuned LoRA from {args.lora_dir}...")
+        model = PeftModel.from_pretrained(model, args.lora_dir)
+        print(f"Fine-tuned LoRA successfully attached in {time.time() - t0:.2f}s!")
+    else:
+        print(f"Zero-Shot QAT model ready in {time.time() - t0:.2f}s (no LoRA attached)!")
 
     agent = AgentSimulator(model, processor, prompt_str, sampling_cfg, device=device)
 

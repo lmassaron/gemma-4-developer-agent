@@ -1,0 +1,101 @@
+{
+  "adapter": "lora_v33_native_causal",
+  "submission_zip": "/home/lmassaron/code/gemma-4-developer-agent-competition/submissions_archive/submission_v33_native_causal_lora_ap_bssr.zip",
+  "sha256": "563c8a44ba68febb8491ff5933f7eb73589374a99b50262d17ff4aafbb32b607",
+  "audit_stats": {
+    "total_scanned": 1766,
+    "kept_command": 418,
+    "kept_read": 235,
+    "skipped_over_len": 769,
+    "skipped_non_canonical": 122,
+    "kept_edit": 40,
+    "rejected_no_tool_call": 53,
+    "kept_submit": 58,
+    "rejected_write_file_repro_filtered": 50,
+    "rejected_unseen_edit_filtered": 21
+  },
+  "selected_checkpoint": "CKPT-S06",
+  "selected_gamma": 0.7,
+  "final_attn_scale": 0.7,
+  "final_mlp_scale": 0.7,
+  "pre_train_val": {
+    "overall_nll": 0.12393243621314778,
+    "action_nll": 0.055938238791090306,
+    "thought_nll": 0.1483280990503801,
+    "tot_tok": 2651,
+    "act_tok": 700
+  },
+  "post_train_val": {
+    "overall_nll": 0.12401568550941991,
+    "action_nll": 0.05515994866993944,
+    "thought_nll": 0.14872046038775735,
+    "tot_tok": 2651,
+    "act_tok": 700
+  },
+  "train_history": [
+    {
+      "step": 1,
+      "loss": 0.10839,
+      "action_loss": 0.00733,
+      "grad_norm": 0.08744,
+      "lr": 2.5e-06,
+      "sup_tokens": 276
+    },
+    {
+      "step": 2,
+      "loss": 0.2039,
+      "action_loss": 0.17261,
+      "grad_norm": 0.21199,
+      "lr": 5e-06,
+      "sup_tokens": 543
+    },
+    {
+      "step": 3,
+      "loss": 0.1131,
+      "action_loss": 0.05297,
+      "grad_norm": 0.11652,
+      "lr": 5e-06,
+      "sup_tokens": 672
+    },
+    {
+      "step": 4,
+      "loss": 0.28567,
+      "action_loss": 0.11705,
+      "grad_norm": 2.37434,
+      "lr": 4.7153039830419325e-06,
+      "sup_tokens": 653
+    },
+    {
+      "step": 5,
+      "loss": 0.21553,
+      "action_loss": 0.01243,
+      "grad_norm": 0.60912,
+      "lr": 3.9375e-06,
+      "sup_tokens": 691
+    },
+    {
+      "step": 6,
+      "loss": 0.15671,
+      "action_loss": 0.13935,
+      "grad_norm": 0.13386,
+      "lr": 2.875e-06,
+      "sup_tokens": 897
+    },
+    {
+      "step": 7,
+      "loss": 0.23291,
+      "action_loss": 0.10543,
+      "grad_norm": 0.22987,
+      "lr": 1.8125000000000004e-06,
+      "sup_tokens": 991
+    },
+    {
+      "step": 8,
+      "loss": 0.15038,
+      "action_loss": 0.04269,
+      "grad_norm": 0.14675,
+      "lr": 1.0346960169580677e-06,
+      "sup_tokens": 476
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "v32_core12_resolved": 6,
+  "v32_core12_pass_rate": 50.0,
+  "v32_resolved_ids": [
+    "requests_7205",
+    "requests_7433",
+    "requests_7502",
+    "requests_7505",
+    "fastapi_13537",
+    "rich_2943"
+  ],
+  "v33_core12_resolved": 4,
+  "v33_core12_pass_rate": 33.33,
+  "v33_resolved_ids": [
+    "requests_7205",
+    "requests_7433",
+    "requests_7505",
+    "fastapi_13537"
+  ],
+  "v33_calibration24_resolved": 11,
+  "v33_calibration24_pass_rate": 45.83,
+  "v33_calibration24_resolved_ids": [
+    "requests_7205",
+    "requests_7433",
+    "requests_7505",
+    "fastapi_13537",
+    "requests_7309",
+    "requests_6589",
+    "fastapi_14786",
+    "fastapi_14372",
+    "fastapi_14301",
+    "rich_3905",
+    "fastapi_14303"
+  ]
+}

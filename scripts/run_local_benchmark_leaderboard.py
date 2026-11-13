@@ -35,6 +35,37 @@ except ImportError:
     from transformers import AutoModelForMultimodalLM
 from transformers import AutoProcessor
 from peft import PeftModel
+import peft.tuners.lora.layer as lora_layer_module
+import peft.tuners.lora.model as lora_model_module
+import peft.tuners.tuners_utils as tu
+from transformers.models.gemma4.modeling_gemma4 import Gemma4ClippableLinear
+
+# Monkey-patches to allow PEFT LoRA on compressed-tensors + Gemma4ClippableLinear
+orig_tu_in_out = tu._get_in_out_features
+def custom_tu_in_out(module):
+    if hasattr(module, "in_features") and hasattr(module, "out_features"):
+        return module.in_features, module.out_features
+    if hasattr(module, "linear") and hasattr(module.linear, "in_features"):
+        return module.linear.in_features, module.linear.out_features
+    return orig_tu_in_out(module)
+tu._get_in_out_features = custom_tu_in_out
+
+def custom_layer_in_out(self, root_module):
+    if hasattr(root_module, "in_features") and hasattr(root_module, "out_features"):
+        return root_module.in_features, root_module.out_features
+    if hasattr(root_module, "linear") and hasattr(root_module.linear, "in_features"):
+        return root_module.linear.in_features, root_module.linear.out_features
+    return orig_tu_in_out(root_module)
+lora_layer_module.Linear._get_in_out_features = custom_layer_in_out
+
+orig_create_new_module = lora_model_module.LoraModel._create_new_module
+@staticmethod
+def custom_create_new_module(lora_config, adapter_name, target, **kwargs):
+    if isinstance(target, Gemma4ClippableLinear):
+        return orig_create_new_module(lora_config, adapter_name, target.linear, **kwargs)
+    return orig_create_new_module(lora_config, adapter_name, target, **kwargs)
+lora_model_module.LoraModel._create_new_module = custom_create_new_module
+
 
 
 # Standard SWE Benchmark Suites
@@ -58,7 +89,70 @@ BENCHMARK_SUITES = {
         "rich_3006",
         "rich_3052",
     ],
+    "guard_17": [
+        "requests_7433",
+        "requests_7205",
+        "rich_2943",
+        "rich_2725",
+        "requests_7315",
+        "requests_7309",
+        "fastapi_14786",
+        "fastapi_14492",
+        "fastapi_14372",
+        "fastapi_14361",
+        "fastapi_14360",
+        "fastapi_14301",
+        "rich_3905",
+        "fastapi_14303",
+        "requests_6589",
+        "rich_3296",
+        "rich_3518",
+    ],
+    "calibration_24": [
+        "requests_7205",
+        "requests_7433",
+        "requests_7502",
+        "requests_7505",
+        "requests_7315",
+        "requests_7309",
+        "requests_6589",
+        "fastapi_11194",
+        "fastapi_11355",
+        "fastapi_12942",
+        "fastapi_13537",
+        "fastapi_14786",
+        "fastapi_14492",
+        "fastapi_14372",
+        "fastapi_14361",
+        "fastapi_14301",
+        "rich_2725",
+        "rich_2943",
+        "rich_3006",
+        "rich_3052",
+        "rich_3905",
+        "rich_3296",
+        "rich_3518",
+        "fastapi_14303",
+    ],
 }
+
+def _load_extra_suites():
+    cal48_p = Path("state_of_the_art/benchmarks_data/test_tasks_v22_calibration_48.json")
+    if cal48_p.is_file():
+        try:
+            d48 = json.loads(cal48_p.read_text(encoding="utf-8"))
+            BENCHMARK_SUITES["calibration_48"] = d48.get("resolved_guard_17", []) + d48.get("near_misses_31", [])
+        except Exception:
+            pass
+    core60_p = Path("state_of_the_art/benchmarks_data/test_tasks_core_60.json")
+    if core60_p.is_file():
+        try:
+            d60 = json.loads(core60_p.read_text(encoding="utf-8"))
+            BENCHMARK_SUITES["core_60"] = d60.get("tasks", [])
+        except Exception:
+            pass
+
+_load_extra_suites()
 
 
 def extract_target_test_info(test_patch: str) -> Tuple[List[str], List[str]]:
@@ -154,6 +248,8 @@ class TaskWorkspace:
 
     def run_command(self, cmd: str, timeout_sec: int = 30) -> str:
         try:
+            if any(b in cmd for b in ["pip install", "pip uninstall", "pip3 install", "pip3 uninstall", "uv pip"]):
+                return "[Error: pip is disabled in the offline evaluation sandbox. All required dependencies are already installed.]"
             # Map /workspace to self.work_dir so Kaggle-native commands run identically locally
             cmd = cmd.replace("/workspace/", f"{self.work_dir}/").replace("/workspace", str(self.work_dir))
             env = os.environ.copy()
@@ -175,17 +271,17 @@ class TaskWorkspace:
             out = res.stdout + res.stderr
             if not out.strip():
                 return "[Command executed successfully with no output]"
-            if len(out) > 6000:
-                out = out[:2500] + f"\n\n... [TRUNCATED {len(out) - 5000} CHARS] ...\n\n" + out[-2500:]
+            if len(out) > 5000:
+                out = out[:5000] + f"\n... [Output truncated at 5000 chars (total {len(out)} chars)]"
             return out
         except subprocess.TimeoutExpired:
             return f"[Error: Command timed out after {timeout_sec}s]"
         except Exception as e:
             return f"[Error: {e}]"
 
-    def read_file(self, path: str, offset: int = 0, limit: int = 80) -> str:
+    def read_file(self, path: str, offset: int = 0, limit: int = 150) -> str:
         path = self._normalize_workspace_path(path)
-        limit = min(int(limit), 100)
+        limit = min(int(limit), 150)
         fp = self.work_dir / path
         if not fp.is_file():
             return f"[Error: File not found: {path}]"
@@ -398,7 +494,7 @@ ADK_TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "run_command",
-            "description": "Execute a bash shell command in /workspace.",
+            "description": "Execute a shell command inside the repository sandbox.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -412,15 +508,15 @@ ADK_TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "read_file",
-            "description": "Read a slice of lines from a file in /workspace.",
+            "description": "Read the contents of a file from the repository workspace (1-indexed start_line and end_line).",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "path": {"type": "string", "description": "Relative path to the file in /workspace"},
-                    "offset": {"type": "integer", "description": "0-based starting line offset"},
-                    "limit": {"type": "integer", "description": "Maximum number of lines to read"},
+                    "filepath": {"type": "string", "description": "Relative path within the workspace directory"},
+                    "start_line": {"type": "integer", "nullable": True, "description": "Optional starting line number (1-indexed, inclusive)"},
+                    "end_line": {"type": "integer", "nullable": True, "description": "Optional ending line number (1-indexed, inclusive)"},
                 },
-                "required": ["path"],
+                "required": ["filepath"],
             },
         },
     },
@@ -428,15 +524,16 @@ ADK_TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "edit_file",
-            "description": "Replace old_str with new_str in a file in /workspace.",
+            "description": "Replace a contiguous block of text in an existing file.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "path": {"type": "string", "description": "Relative path to the file in /workspace"},
-                    "old_str": {"type": "string", "description": "Exact existing snippet to replace"},
-                    "new_str": {"type": "string", "description": "Replacement snippet"},
+                    "filepath": {"type": "string", "description": "Relative path to the target file"},
+                    "old_string": {"type": "string", "description": "Text block to replace"},
+                    "new_string": {"type": "string", "description": "Replacement text block"},
+                    "allow_multiple": {"type": "boolean", "default": False, "description": "Replace all occurrences if True"},
                 },
-                "required": ["path", "old_str", "new_str"],
+                "required": ["filepath", "old_string", "new_string"],
             },
         },
     },
@@ -444,14 +541,14 @@ ADK_TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "write_file",
-            "description": "Create or overwrite a file in /workspace.",
+            "description": "Create or overwrite a file in the workspace.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "path": {"type": "string", "description": "Relative path to the file in /workspace"},
-                    "content": {"type": "string", "description": "Full file content"},
+                    "filepath": {"type": "string", "description": "Relative path to the file to create or overwrite"},
+                    "content": {"type": "string", "description": "Full content of the file"},
                 },
-                "required": ["path", "content"],
+                "required": ["filepath", "content"],
             },
         },
     },
@@ -459,7 +556,7 @@ ADK_TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "get_status",
-            "description": "Run git status --short and git diff --stat in /workspace.",
+            "description": "Check active budget details (time, tool calls) and active patch details.",
             "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
@@ -467,7 +564,7 @@ ADK_TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "submit_patch",
-            "description": "Submit the current git diff patch and finalize the task.",
+            "description": "Capture the current working tree modifications as the agent's submission.",
             "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
@@ -498,9 +595,7 @@ class AgentSimulator:
         search_text = cleaned_text if cleaned_text else text
 
         # Pattern 0: Canonical Gemma 4 Native Tool Call: <|tool_call>call:tool_name{key:<|"|>val<|"|>}<tool_call|>
-        m_native = re.search(r"(?:<\|tool_call\|?>)?call:(run_command|read_file|edit_file|write_file|get_status|submit_patch)\{([\s\S]*?)\}(?:<tool_call\|?>|<\|tool_call\|?>)", search_text)
-        if not m_native and "<|\"|>" in search_text:
-            m_native = re.search(r"(?:call:)?(run_command|read_file|edit_file|write_file|get_status|submit_patch)\{([\s\S]*?)\}", search_text)
+        m_native = re.search(r"(?:<\|tool_call\|?>)?(?:call:)?(run_command|read_file|edit_file|write_file|get_status|submit_patch)\{((?:<\|\"\|>[\s\S]*?<\|\"\|>|[^{}])*)\}", search_text)
         if m_native and ("<|\"|>" in m_native.group(2) or not m_native.group(2).strip() or not m_native.group(2).strip().startswith('"')):
             tool_name = m_native.group(1)
             body = m_native.group(2).strip()
@@ -640,19 +735,27 @@ class AgentSimulator:
                 return "[Error: Running the entire pytest suite without a specific test file or `-k <keyword>` filter is forbidden because it times out and exhausts memory. Pass a specific test file or `-k '<keyword>'`.]", False
             return ws.run_command(cmd), False
         elif tool_name == "read_file":
-            path = args.get("path") or args.get("file_path") or args.get("file") or ""
-            offset = int(args.get("offset", 0))
-            limit = int(args.get("limit", 80))
+            path = args.get("filepath") or args.get("path") or args.get("file_path") or args.get("file") or ""
+            if "start_line" in args and args["start_line"] is not None:
+                start_line = max(1, int(args["start_line"]))
+                offset = start_line - 1
+                if "end_line" in args and args["end_line"] is not None:
+                    limit = max(1, int(args["end_line"]) - start_line + 1)
+                else:
+                    limit = int(args.get("limit", 150))
+            else:
+                offset = int(args.get("offset", 0))
+                limit = int(args.get("limit", 150))
             return ws.read_file(path, offset, limit), False
         elif tool_name == "edit_file":
-            path = args.get("path") or args.get("file_path") or args.get("file") or ""
+            path = args.get("filepath") or args.get("path") or args.get("file_path") or args.get("file") or ""
             if not path and getattr(ws, "last_read_path", ""):
                 path = ws.last_read_path
-            old_str = args.get("old_str") or args.get("old_content") or args.get("old_string") or ""
-            new_str = args.get("new_str") or args.get("new_content") or args.get("new_string") or ""
+            old_str = args.get("old_string") or args.get("old_str") or args.get("old_content") or ""
+            new_str = args.get("new_string") or args.get("new_str") or args.get("new_content") or ""
             return ws.edit_file(path, old_str, new_str), False
         elif tool_name == "write_file":
-            path = args.get("path") or args.get("file_path") or args.get("file") or ""
+            path = args.get("filepath") or args.get("path") or args.get("file_path") or args.get("file") or ""
             content = args.get("content") or ""
             return ws.write_file(path, content), False
         elif tool_name == "get_status":
@@ -682,19 +785,12 @@ class AgentSimulator:
         terminal_invoked = False
 
         try:
+            timed_out = False
             while turns_used < max_turns:
                 elapsed = time.time() - start_time
                 if elapsed > timeout_sec:
-                    return {
-                        "instance_id": task["instance_id"],
-                        "repo": task["repo"],
-                        "status": "TIMEOUT",
-                        "resolved": False,
-                        "duration_sec": round(elapsed, 2),
-                        "turns": turns_used,
-                        "tool_calls": tool_calls_log,
-                        "patch_size": len(ws.get_diff()),
-                    }
+                    timed_out = True
+                    break
 
                 turns_used += 1
 
@@ -824,7 +920,12 @@ class AgentSimulator:
 
             has_patch = bool(patch_text.strip())
             resolved = passed and has_patch
-            status = "RESOLVED" if resolved else ("FAILED" if has_patch else "NO_PATCH")
+            if resolved:
+                status = "RESOLVED" if not timed_out else "RESOLVED_ANYTIME"
+            elif timed_out:
+                status = "TIMEOUT"
+            else:
+                status = "FAILED" if has_patch else "NO_PATCH"
 
             return {
                 "instance_id": task["instance_id"],
@@ -936,7 +1037,7 @@ def update_leaderboard_files(entry: Dict[str, Any], json_path: Path, md_path: Pa
 
 def main():
     parser = argparse.ArgumentParser(description="Gemma 4 Local Benchmark & Leaderboard Runner")
-    parser.add_argument("--suite", choices=["smoke_3", "core_12", "custom"], default="smoke_3")
+    parser.add_argument("--suite", choices=["smoke_3", "core_12", "guard_17", "calibration_24", "calibration_48", "core_60", "custom"], default="smoke_3")
     parser.add_argument("--tasks_file", default="data/tasks.jsonl", help="Path to tasks.jsonl")
     parser.add_argument("--data_dir", default="data", help="Root data directory containing snapshots/")
     parser.add_argument("--submission_zip", help="Path to submission.zip to benchmark")
@@ -977,6 +1078,23 @@ def main():
                 import yaml
                 sampling_config = yaml.safe_load(z.read("configs/sampling.yaml").decode("utf-8")) or {}
                 print(f"  - Loaded sampling config: {sampling_config}")
+            if not args.adapter_dir and "agent.yaml" in namelist:
+                import yaml
+                ag_raw = z.read("agent.yaml").decode("utf-8")
+                for ln in ag_raw.splitlines():
+                    if ln.strip().startswith("adapter:"):
+                        ad_name = ln.split(":", 1)[1].strip()
+                        ad_prefix = f"adapters/{ad_name}/"
+                        if any(n.startswith(ad_prefix) for n in namelist):
+                            ext_dir = Path(f"/tmp/gemma4_extracted_adapters/{zip_p.stem}")
+                            shutil.rmtree(ext_dir, ignore_errors=True)
+                            ext_dir.mkdir(parents=True, exist_ok=True)
+                            for member in namelist:
+                                if member.startswith(ad_prefix):
+                                    z.extract(member, ext_dir)
+                            args.adapter_dir = str(ext_dir / "adapters" / ad_name)
+                            print(f"  - Auto-extracted adapter '{ad_name}' from zip to {args.adapter_dir}")
+                        break
         if not args.model_name:
             args.model_name = zip_p.stem
 
