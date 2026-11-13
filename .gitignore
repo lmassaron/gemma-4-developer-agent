@@ -12,6 +12,7 @@ data/
 *.npy
 *.safetensors
 *.zip
+!submissions/*.zip
 
 # Caches and temporary directories
 __pycache__/

@@ -606,7 +606,7 @@ class AgentSimulator:
             n = len(body)
             parsed_any = False
             while pos < n:
-                while pos < n and body[pos] in " ,\n\r\t":
+                while pos < n and body[pos] in " ,:\n\r\t":
                     pos += 1
                 if pos >= n:
                     break
@@ -627,7 +627,7 @@ class AgentSimulator:
                     args[key] = val
                     parsed_any = True
                 else:
-                    vm = re.match(r"([^,}]+)", body[pos:])
+                    vm = re.match(r"([^,}:]+)", body[pos:])
                     if vm:
                         raw_val = vm.group(1).strip()
                         pos += vm.end()
@@ -735,17 +735,25 @@ class AgentSimulator:
                 return "[Error: Running the entire pytest suite without a specific test file or `-k <keyword>` filter is forbidden because it times out and exhausts memory. Pass a specific test file or `-k '<keyword>'`.]", False
             return ws.run_command(cmd), False
         elif tool_name == "read_file":
+            def _safe_int(val, default):
+                if val is None:
+                    return default
+                if isinstance(val, int):
+                    return val
+                m_int = re.search(r"-?\d+", str(val))
+                return int(m_int.group(0)) if m_int else default
+
             path = args.get("filepath") or args.get("path") or args.get("file_path") or args.get("file") or ""
             if "start_line" in args and args["start_line"] is not None:
-                start_line = max(1, int(args["start_line"]))
+                start_line = max(1, _safe_int(args["start_line"], 1))
                 offset = start_line - 1
                 if "end_line" in args and args["end_line"] is not None:
-                    limit = max(1, int(args["end_line"]) - start_line + 1)
+                    limit = max(1, _safe_int(args["end_line"], start_line + 149) - start_line + 1)
                 else:
-                    limit = int(args.get("limit", 150))
+                    limit = _safe_int(args.get("limit"), 150)
             else:
-                offset = int(args.get("offset", 0))
-                limit = int(args.get("limit", 150))
+                offset = _safe_int(args.get("offset"), 0)
+                limit = _safe_int(args.get("limit"), 150)
             return ws.read_file(path, offset, limit), False
         elif tool_name == "edit_file":
             path = args.get("filepath") or args.get("path") or args.get("file_path") or args.get("file") or ""

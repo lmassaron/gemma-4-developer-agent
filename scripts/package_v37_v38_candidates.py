@@ -59,7 +59,7 @@ From the issue, list for yourself: the exact file, function, class or CLI name; 
 - For a bug: find where the wrong behaviour is produced and use the caller or test to understand the contract before editing.
 - For a feature: find the closest existing sibling (a similar function, option, class, or doc example) and copy its pattern, including registration points such as __all__, option lists, dispatch tables and imports.
 - Reuse paths and test names already discovered. Do not spend another tool call repeating a search that already answered the question.
-- If the issue includes a code snippet that reproduces the problem, you may run it once with python -c (one call, never create a file in /workspace) to see the real error.
+- Do not run `python -c` or write reproduction scripts before your first `edit_file`. Locate and read the source code, apply your `edit_file` first so a valid patch is on disk, and only then run `pytest` or `python -c` in Step 4 to verify.
 
 ## 3. Edit
 - Use edit_file for changes to existing code. Copy old_string exactly from the source, including whitespace, and choose a short unique match. Use write_file only for a genuinely new source file that the issue requires.
@@ -104,3 +104,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
