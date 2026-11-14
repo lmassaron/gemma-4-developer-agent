@@ -18,31 +18,32 @@
 | #10 | **v37_v23_restored_plus_tailguard** | `core_12` | **50.0%** | 6/12 | 540.4s | 6 | 13.3 | 2026-11-14 00:21:00 |
 | #11 | **v18_hill_climbed** | `external_hf_py312` | **41.7%** | 5/12 | 346.8s | 6 | 12.3 | 2026-10-29 15:46:00 |
 | #12 | **v34_clean024_mandatory_verify_anchor** | `core_12` | **41.7%** | 5/12 | 416.6s | 6 | 12.4 | 2026-11-11 10:26:45 |
-| #13 | **v38_patchsmith_v9_tailguard** | `core_12` | **25.0%** | 3/12 | 501.3s | 9 | 11.5 | 2026-11-13 22:25:40 |
-| #14 | **v19_hill_climbed** | `core_60` | **23.3%** | 14/60 | 294.0s | 38 | 11.3 | 2026-10-30 01:50:22 |
-| #15 | **v16_phased_edit_enforcement** | `core_60` | **20.0%** | 12/60 | 350.9s | 33 | 12.6 | 2026-10-29 01:35:00 |
-| #16 | **gemma-4-12b-sft-v6** | `smoke_3` | **0.0%** | 0/3 | 146.3s | 0 | 20.0 | 2026-10-19 08:47:43 |
-| #17 | **v10_lean_thinking** | `smoke_3` | **0.0%** | 0/3 | 269.2s | 1 | 15.0 | 2026-10-25 11:08:51 |
+| #13 | **v40_nearmiss_hard12** | `custom` | **41.7%** | 5/12 | 448.4s | 5 | 12.7 | 2026-11-15 00:28:16 |
+| #14 | **v38_patchsmith_v9_tailguard** | `core_12` | **25.0%** | 3/12 | 501.3s | 9 | 11.5 | 2026-11-13 22:25:40 |
+| #15 | **v19_hill_climbed** | `core_60` | **23.3%** | 14/60 | 294.0s | 38 | 11.3 | 2026-10-30 01:50:22 |
+| #16 | **v16_phased_edit_enforcement** | `core_60` | **20.0%** | 12/60 | 350.9s | 33 | 12.6 | 2026-10-29 01:35:00 |
+| #17 | **gemma-4-12b-sft-v6** | `smoke_3` | **0.0%** | 0/3 | 146.3s | 0 | 20.0 | 2026-10-19 08:47:43 |
+| #18 | **v10_lean_thinking** | `smoke_3` | **0.0%** | 0/3 | 269.2s | 1 | 15.0 | 2026-10-25 11:08:51 |
 
 ## Benchmark Suites
 - **`smoke_3`**: 3 representative tasks across core repositories (`psf/requests`, `fastapi/fastapi`, `Textualize/rich`) for rapid timeout verification and regression testing.
 - **`core_12`**: 12 balanced tasks (4 Requests, 4 FastAPI, 4 Rich) providing a high-confidence local signal.
 
 ## Latest Evaluation Run Details
-**Run ID**: `v40_heldout12_custom_2026-11-14 22:31:16`  
-**Model**: `v40_heldout12` | **Suite**: `custom`  
+**Run ID**: `v40_nearmiss_hard12_custom_2026-11-15 00:28:16`  
+**Model**: `v40_nearmiss_hard12` | **Suite**: `custom`  
 
 | Instance ID | Repository | Status | Resolved | Duration (s) | Turns | Tool Calls | Patch Size |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `requests_7315` | `psf/requests` | `RESOLVED` | ✅ PASS | 80.15s | 5 | 5 | 522 B |
-| `requests_7309` | `psf/requests` | `RESOLVED` | ✅ PASS | 129.75s | 5 | 5 | 692 B |
-| `fastapi_14786` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 134.94s | 8 | 8 | 406 B |
-| `fastapi_14492` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 102.15s | 7 | 7 | 393 B |
-| `fastapi_14372` | `fastapi/fastapi` | `FAILED` | ❌ FAIL | 71.72s | 5 | 5 | 342 B |
-| `fastapi_14361` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 216.6s | 8 | 8 | 1044 B |
-| `fastapi_14360` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 196.68s | 8 | 8 | 637 B |
-| `fastapi_14301` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 176.82s | 10 | 10 | 620 B |
-| `fastapi_14303` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 103.93s | 5 | 5 | 747 B |
-| `rich_3905` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 110.56s | 5 | 5 | 521 B |
-| `rich_3296` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 144.04s | 8 | 8 | 541 B |
-| `rich_3518` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 234.02s | 12 | 12 | 529 B |
+| `requests_7328` | `psf/requests` | `RESOLVED` | ✅ PASS | 179.0s | 9 | 9 | 536 B |
+| `fastapi_15588` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 487.4s | 11 | 11 | 953 B |
+| `fastapi_14964` | `fastapi/fastapi` | `FAILED` | ❌ FAIL | 340.89s | 9 | 9 | 1248 B |
+| `fastapi_14873` | `fastapi/fastapi` | `RESOLVED_ANYTIME` | ✅ PASS | 702.86s | 14 | 14 | 1685 B |
+| `fastapi_14794` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 190.66s | 8 | 8 | 793 B |
+| `fastapi_14605` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 499.21s | 19 | 19 | 1955 B |
+| `fastapi_14463` | `fastapi/fastapi` | `RESOLVED` | ✅ PASS | 357.63s | 11 | 11 | 735 B |
+| `fastapi_14258` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 838.2s | 7 | 7 | 0 B |
+| `rich_4075` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 480.75s | 21 | 21 | 0 B |
+| `rich_3944` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 504.07s | 19 | 19 | 0 B |
+| `rich_3882` | `Textualize/rich` | `RESOLVED_ANYTIME` | ✅ PASS | 486.63s | 14 | 14 | 503 B |
+| `rich_3675` | `Textualize/rich` | `FAILED` | ❌ FAIL | 313.9s | 10 | 10 | 633 B |
