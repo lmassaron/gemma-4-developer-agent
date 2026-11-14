@@ -1,0 +1,255 @@
+{
+  "model_name": "v40_heldout12",
+  "suite": "custom",
+  "resolved": 11,
+  "total": 12,
+  "resolution_rate_percent": 91.67,
+  "mean_duration_sec": 141.78,
+  "timeouts": 0,
+  "mean_turns": 7.17,
+  "timestamp": "2026-11-14 22:31:16",
+  "tasks": [
+    {
+      "instance_id": "requests_7315",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 80.15,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"def request_url\" -- \\'*.py\\' \\':!tests/\\' \\':!docs/\\''}",
+        "read_file: {'end_line': 560, 'filepath': 'src/requests/adapters.py', 'start_line': 520}",
+        "edit_file: {'filepath': 'src/requests/adapters.py', 'new_string': '        url = request.path_url\\n', 'old_string': '        url = request.path_url\\n        if url.startswith(\"//\"):  # Don\\'t confuse urllib3\\n            url = f\"/{url.lstrip(\\'/\\')}\"\\n'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 522,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed in 0.01s\n\n[2026-11-14 22:04:01,822] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "requests_7309",
+      "repo": "psf/requests",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 129.75,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"_parse_content_type_header\" -- \\'*.py\\' \\':!tests/\\' \\':!docs/\\''}",
+        "read_file: {'end_line': 530, 'filepath': 'src/requests/utils.py', 'start_line': 504}",
+        "edit_file: {'filepath': 'src/requests/utils.py', 'new_string': '    for param in params:\\n        param = param.strip()\\n        if param:\\n            index_of_equals = param.find(\"=\")\\n            if index_of_equals != -1:\\n                key = param[:index_of_equals].strip(items_to_strip)\\n                value = param[index_of_equals + 1 :].strip(items_to_strip)\\n                params_dict[key.lower()] = value', 'old_string': '    for param in params:\\n        param = param.strip()\\n        if param:\\n            key, value = param, True\\n            index_of_equals = param.find(\"=\")\\n            if index_of_equals != -1:\\n                key = param[:index_of_equals].strip(items_to_strip)\\n                value = param[index_of_equals + 1 :].strip(items_to_strip)\\n            params_dict[key.lower()] = value'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 692,
+      "terminal_invoked": true,
+      "output_snippet": "................................................ [ 65%]\n...........................................................sssssssssss.. [ 98%]\n...s                                                                     [100%]\n207 passed, 13 skipped in 0.10s\n\n[2026-11-14 22:06:16,605] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14786",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 134.94,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"def get_authorization_scheme_param\" fastapi/security/utils.py'}",
+        "read_file: {'end_line': 20, 'filepath': 'fastapi/security/utils.py', 'start_line': 1}",
+        "edit_file: {'filepath': 'fastapi/security/utils.py', 'new_string': '    return scheme, param.strip()', 'old_string': '    return scheme, param'}",
+        "run_command: {'command': 'find tests -name \"*security*\"'}",
+        "run_command: {'command': 'python3 -m pytest tests/test_security_http_bearer.py -x -q --tb=short'}",
+        "run_command: {'command': 'python3 -c \"from fastapi.security.utils import get_authorization_scheme_param; assert get_authorization_scheme_param(\\'Bearer   xxx\\') == (\\'Bearer\\', \\'xxx\\'); assert get_authorization_scheme_param(\\'Bearer xxx \\') == (\\'Bearer\\', \\'xxx\\'); print(\\'Tests passed\\')\"'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 406,
+      "terminal_invoked": true,
+      "output_snippet": "..                                                                       [100%]\n2 passed, 7 deselected in 0.14s\n\n[2026-11-14 22:08:32,479] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14492",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 102.15,
+      "turns": 7,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"Apache 2.0\" \\':!tests/\\' \\':!docs/\\' \\':!docs_src/\\' | head -n 20'}",
+        "run_command: {'command': 'git grep -n \"MIT\" \\'docs_src/\\' | head -n 20'}",
+        "read_file: {'end_line': 40, 'filepath': 'docs_src/metadata/tutorial001_1_py39.py', 'start_line': 20}",
+        "edit_file: {'filepath': 'docs_src/metadata/tutorial001_1_py39.py', 'new_string': '        \"identifier\": \"Apache-2.0\",', 'old_string': '        \"identifier\": \"MIT\",'}",
+        "run_command: {'command': 'git grep -n \"MIT\" \\'docs_src/\\' | grep \"identifier\"'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 393,
+      "terminal_invoked": true,
+      "output_snippet": "..                                                                       [100%]\n2 passed in 0.15s\n\n[2026-11-14 22:10:15,418] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14372",
+      "repo": "fastapi/fastapi",
+      "status": "FAILED",
+      "resolved": false,
+      "duration_sec": 71.72,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': \"git grep -n -F -e 'class Depends' -e 'class Security' -- '*.py' ':!tests/' ':!docs/' ':!docs_src/'\"}",
+        "read_file: {'end_line': 785, 'filepath': 'fastapi/params.py', 'start_line': 760}",
+        "edit_file: {'filepath': 'fastapi/params.py', 'new_string': '@dataclass(frozen=True)\\nclass Depends:', 'old_string': '@dataclass\\nclass Depends:'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 342,
+      "terminal_invoked": true,
+      "output_snippet": "=============== short test summary info ============================\nERROR tests/test_depends_hashable.py - TypeError: cannot inherit non-frozen d...\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.19s\n\n[2026-11-14 22:11:28,044] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14361",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 216.6,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \\\\\"\\\\$ref\\\\\" -- \\'*.py\\' \\':!tests/\\' \\':!docs/\\' \\':!docs_src/\\' | head -n 30'}",
+        "read_file: {'end_line': 320, 'filepath': 'fastapi/_compat/v2.py', 'start_line': 250}",
+        "read_file: {'end_line': 320, 'filepath': 'fastapi/_compat/v2.py', 'start_line': 300}",
+        "edit_file: {'filepath': 'fastapi/_compat/v2.py', 'new_string': '        if \"$ref\" not in schema:\\n            continue\\n        old_name = schema[\"$ref\"].split(\"/\")[-1]', 'old_string': '        old_name = schema[\"$ref\"].split(\"/\")[-1]'}",
+        "read_file: {'end_line': 275, 'filepath': 'fastapi/_compat/v2.py', 'start_line': 260}",
+        "edit_file: {'filepath': 'fastapi/_compat/v2.py', 'new_string': '        if key == \"$ref\":\\n            if isinstance(value, str):\\n                ref_name = value.split(\"/\")[-1]\\n                if ref_name in old_name_to_new_name_map:\\n                    new_name = old_name_to_new_name_map[ref_name]\\n                    new_schema[\"$ref\"] = REF_TEMPLATE.format(model=new_name)\\n            continue', 'old_string': '        if key == \"$ref\":\\n            value = schema[\"$ref\"]\\n            if isinstance(value, str):\\n                ref_name = schema[\"$ref\"].split(\"/\")[-1]\\n                if ref_name in old_name_to_new_name_map:\\n                    new_name = old_name_to_new_name_map[ref_name]\\n                    new_schema[\"$ref\"] = REF_TEMPLATE.format(model=new_name)\\n            continue'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 1044,
+      "terminal_invoked": true,
+      "output_snippet": "..                                                                       [100%]\n2 passed in 0.16s\n\n[2026-11-14 22:15:05,601] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14360",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 196.68,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': \"git grep -n -F -e 'Query' -e 'Header' -e 'Cookie' -- '*.py' ':!tests/' ':!docs/' ':!docs_src/' | head -n 30\"}",
+        "run_command: {'command': 'git grep -n \"processed_keys\" -- \\'*.py\\' \\':!tests/\\' \\':!docs/\\' \\':!docs_src/\\''}",
+        "read_file: {'end_line': 810, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 750}",
+        "read_file: {'end_line': 770, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 730}",
+        "read_file: {'end_line': 788, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 770}",
+        "edit_file: {'filepath': 'fastapi/dependencies/utils.py', 'new_string': '        value = _get_multidict_value(field, received_params, alias=alias)\\n        if value is not None:\\n            params_to_process[alias or field.alias] = value\\n        processed_keys.add(alias or field.alias)', 'old_string': '        value = _get_multidict_value(field, received_params, alias=alias)\\n        if value is not None:\\n            params_to_process[field.name] = value\\n        processed_keys.add(alias or field.alias)\\n        processed_keys.add(field.name)'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 637,
+      "terminal_invoked": true,
+      "output_snippet": "......                                                                   [100%]\n6 passed in 0.15s\n\n[2026-11-14 22:18:23,177] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14301",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 176.82,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"get_parameterless_sub_dependant\" -- \\'*.py\\' \\':!tests/\\' \\':!docs/\\' \\':!docs_src/\\''}",
+        "read_file: {'end_line': 140, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 120}",
+        "read_file: {'end_line': 150, 'filepath': 'fastapi/dependencies/models.py', 'start_line': 130}",
+        "run_command: {'command': 'grep -n \"class Dependant\" fastapi/dependencies/models.py'}",
+        "read_file: {'end_line': 60, 'filepath': 'fastapi/dependencies/models.py', 'start_line': 20}",
+        "run_command: {'command': 'grep -n \"def get_dependant\" fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 250, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 220}",
+        "edit_file: {'filepath': 'fastapi/dependencies/utils.py', 'new_string': '    return get_dependant(\\n        path=path, call=depends.dependency, security_scopes=use_security_scopes, scope=depends.scope\\n    )', 'old_string': '    return get_dependant(\\n        path=path, call=depends.dependency, security_scopes=use_security_scopes\\n    )'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 620,
+      "terminal_invoked": true,
+      "output_snippet": "....                                                                     [100%]\n4 passed, 7 deselected in 0.16s\n\n[2026-11-14 22:21:20,840] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_14303",
+      "repo": "fastapi/fastapi",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 103.93,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"received_body.items()\" fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 920, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 890}",
+        "edit_file: {'filepath': 'fastapi/dependencies/utils.py', 'new_string': '    for key in received_body.keys():\\n        if key not in field_aliases:\\n            param_values = received_body.getlist(key)\\n            if len(param_values) == 1:\\n                values[key] = param_values[0]\\n            else:\\n                values[key] = param_values', 'old_string': '    for key, value in received_body.items():\\n        if key not in field_aliases:\\n            values[key] = value'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 747,
+      "terminal_invoked": true,
+      "output_snippet": "..                                                                       [100%]\n2 passed, 4 deselected in 0.14s\n\n[2026-11-14 22:23:05,676] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_3905",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 110.56,
+      "turns": 5,
+      "tool_calls": [
+        "run_command: {'command': 'git grep -n \"class Progress\" rich/progress.py'}",
+        "read_file: {'end_line': 1200, 'filepath': 'rich/progress.py', 'start_line': 1061}",
+        "edit_file: {'filepath': 'rich/progress.py', 'new_string': '    def stop(self) -> None:\\n        \"\"\"Stop the progress display.\"\"\"\\n        self.live.stop()\\n        if not self.disable and not self.console.is_interactive and not self.console.is_jupyter:\\n            self.console.print()', 'old_string': '    def stop(self) -> None:\\n        \"\"\"Stop the progress display.\"\"\"\\n        self.live.stop()\\n        if not self.console.is_interactive and not self.console.is_jupyter:\\n            self.console.print()'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 521,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 38 deselected in 0.04s\n\n[2026-11-14 22:24:57,069] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_3296",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 144.04,
+      "turns": 8,
+      "tool_calls": [
+        "run_command: {'command': \"git grep -n -F -e 'padding' -- 'rich/syntax.py'\"}",
+        "read_file: {'end_line': 630, 'filepath': 'rich/syntax.py', 'start_line': 600}",
+        "read_file: {'end_line': 300, 'filepath': 'rich/syntax.py', 'start_line': 240}",
+        "read_file: {'end_line': 625, 'filepath': 'rich/syntax.py', 'start_line': 615}",
+        "edit_file: {'filepath': 'rich/syntax.py', 'new_string': '            yield Padding(\\n                segments, style=self.background_style or self._theme.get_background_style(), pad=self.padding\\n            )', 'old_string': '            yield Padding(\\n                segments, style=self._theme.get_background_style(), pad=self.padding\\n            )'}",
+        "run_command: {'command': 'python3 -m py_compile rich/syntax.py'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 541,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 23 deselected in 0.04s\n\n[2026-11-14 22:27:21,719] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_3518",
+      "repo": "Textualize/rich",
+      "status": "RESOLVED",
+      "resolved": true,
+      "duration_sec": 234.02,
+      "turns": 12,
+      "tool_calls": [
+        "run_command: {'command': \"git grep -n -F -e 'class Table' -e 'def add_row' -- '*.py' ':!tests/' ':!docs/' ':!docs_src/' | head -n 30\"}",
+        "read_file: {'end_line': 460, 'filepath': 'rich/table.py', 'start_line': 423}",
+        "read_file: {'end_line': 200, 'filepath': 'rich/table.py', 'start_line': 154}",
+        "read_file: {'end_line': 230, 'filepath': 'rich/table.py', 'start_line': 201}",
+        "read_file: {'end_line': 140, 'filepath': 'rich/table.py', 'start_line': 100}",
+        "edit_file: {'filepath': 'rich/table.py', 'new_string': '                column = Column(_index=index, highlight=self.highlight)', 'old_string': '                column = Column(_index=index)'}",
+        "run_command: {'command': 'python3 -m py_compile rich/table.py'}",
+        "run_command: {'command': 'find tests -name \"*table*.py\" | head -n 10'}",
+        "run_command: {'command': 'python3 -m pytest tests/test_table.py -x -q --tb=short -k \"add_row\"'}",
+        "run_command: {'command': 'python3 -m pytest tests/test_table.py -x -q --tb=short'}",
+        "run_command: {'command': 'git status --short && git diff'}",
+        "submit_patch: {}"
+      ],
+      "patch_size": 529,
+      "terminal_invoked": true,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 19 deselected in 0.02s\n\n[2026-11-14 22:31:16,290] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    }
+  ]
+}
