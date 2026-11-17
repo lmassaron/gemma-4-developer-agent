@@ -33,7 +33,7 @@ try:
     from transformers import AutoModelForImageTextToText as AutoModelForMultimodalLM
 except ImportError:
     from transformers import AutoModelForMultimodalLM
-from transformers import AutoProcessor
+from transformers import AutoProcessor, LogitsProcessor, LogitsProcessorList
 from peft import PeftModel
 import peft.tuners.lora.layer as lora_layer_module
 import peft.tuners.lora.model as lora_model_module
@@ -571,15 +571,69 @@ ADK_TOOL_SCHEMAS = [
 ]
 
 
+class ThinkingBudgetLogitsProcessor(LogitsProcessor):
+    """Closes Gemma 4 thought channel once thinking_budget generated tokens are reached."""
+
+    def __init__(
+        self,
+        prompt_len: int,
+        thinking_budget: int,
+        channel_end_id: int,
+        channel_start_id: Optional[int] = None,
+        tool_call_id: Optional[int] = None,
+        started_in_thought: bool = False,
+    ):
+        self.prompt_len = prompt_len
+        self.thinking_budget = thinking_budget
+        self.channel_end_id = channel_end_id
+        self.channel_start_id = channel_start_id
+        self.tool_call_id = tool_call_id
+        self.started_in_thought = started_in_thought
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        gen_ids = input_ids[:, self.prompt_len :]
+        if gen_ids.shape[1] < self.thinking_budget:
+            return scores
+        if (gen_ids == self.channel_end_id).any():
+            return scores
+        if self.tool_call_id is not None and self.tool_call_id >= 0 and (gen_ids == self.tool_call_id).any():
+            return scores
+        in_thought = self.started_in_thought or (
+            self.channel_start_id is not None
+            and self.channel_start_id >= 0
+            and (gen_ids == self.channel_start_id).any()
+        )
+        if not in_thought:
+            return scores
+        forced = torch.full_like(scores, float("-inf"))
+        forced[:, self.channel_end_id] = 0.0
+        return forced
+
+
 class AgentSimulator:
     """Multi-turn Gemma 4 Agent Rollout Simulator."""
 
-    def __init__(self, model, processor, system_prompt: str, sampling_config: Optional[Dict[str, Any]] = None, device: str = "cuda:0"):
+    def __init__(
+        self,
+        model,
+        processor,
+        system_prompt: str,
+        sampling_config: Optional[Dict[str, Any]] = None,
+        device: str = "cuda:0",
+        respect_thinking: bool = False,
+    ):
         self.model = model
         self.processor = processor
         self.system_prompt = system_prompt
         self.sampling_config = sampling_config or {}
         self.device = device
+        self.respect_thinking = respect_thinking
+        thinking_cfg = self.sampling_config.get("thinking_config") or {}
+        self.thinking_budget = int(thinking_cfg.get("thinking_budget", 0) or 0)
+        self.use_thinking = bool(
+            self.respect_thinking
+            and (self.thinking_budget > 0 or bool(thinking_cfg.get("include_thoughts", False)))
+        )
 
     def parse_tool_call(self, text: str) -> Optional[Tuple[str, Dict[str, Any]]]:
         """Parses Gemma 4 native <|tool_call>call:name{key:<|"|>val<|"|>}<tool_call|> syntax or JSON/Python fallback."""
@@ -806,23 +860,24 @@ class AgentSimulator:
                 prompt_str = self.processor.apply_chat_template(
                     messages,
                     tools=ADK_TOOL_SCHEMAS,
-                    enable_thinking=False,
+                    enable_thinking=self.use_thinking,
                     tokenize=False,
                     add_generation_prompt=True,
                 )
-                if prompt_str.endswith("<tool_response|>"):
+                if not self.use_thinking and prompt_str.endswith("<tool_response|>"):
                     prompt_str += "<|channel>thought\n<channel|>"
                 inputs = self.processor.tokenizer(prompt_str, return_tensors="pt").to(self.device)
 
                 temp = float(self.sampling_config.get("temperature", 0.2))
                 top_p = float(self.sampling_config.get("top_p", 0.95))
                 do_sample = temp > 0.0
-                max_toks = int(self.sampling_config.get("max_new_tokens") or self.sampling_config.get("max_output_tokens") or 1024)
+                default_cap = 8192 if self.use_thinking else 1024
+                max_toks = int(self.sampling_config.get("max_new_tokens") or self.sampling_config.get("max_output_tokens") or default_cap)
 
                 gen_kwargs = {
                     "input_ids": inputs.input_ids,
                     "attention_mask": inputs.attention_mask,
-                    "max_new_tokens": min(max_toks, 1024),
+                    "max_new_tokens": min(max_toks, default_cap),
                     "do_sample": do_sample,
                     "repetition_penalty": float(self.sampling_config.get("repetition_penalty", 1.05)),
                     "eos_token_id": [1, 106, 49, 50],
@@ -830,6 +885,22 @@ class AgentSimulator:
                 if do_sample:
                     gen_kwargs["temperature"] = temp
                     gen_kwargs["top_p"] = top_p
+                    if self.sampling_config.get("top_k") is not None:
+                        gen_kwargs["top_k"] = int(self.sampling_config["top_k"])
+                if self.use_thinking and self.thinking_budget > 0:
+                    tok = self.processor.tokenizer
+                    ch_end = tok.convert_tokens_to_ids("<channel|>")
+                    if ch_end is not None and ch_end >= 0:
+                        gen_kwargs["logits_processor"] = LogitsProcessorList([
+                            ThinkingBudgetLogitsProcessor(
+                                prompt_len=inputs.input_ids.shape[1],
+                                thinking_budget=self.thinking_budget,
+                                channel_end_id=ch_end,
+                                channel_start_id=tok.convert_tokens_to_ids("<|channel>"),
+                                tool_call_id=tok.convert_tokens_to_ids("<|tool_call>"),
+                                started_in_thought=prompt_str.endswith("<|channel>thought\n"),
+                            )
+                        ])
                 with torch.no_grad():
                     try:
                         gen_ids = self.model.generate(**gen_kwargs)
@@ -837,7 +908,7 @@ class AgentSimulator:
                         import gc
                         gc.collect()
                         torch.cuda.empty_cache()
-                        gen_kwargs["max_new_tokens"] = 512
+                        gen_kwargs["max_new_tokens"] = 1024 if self.use_thinking else 512
                         gen_ids = self.model.generate(**gen_kwargs)
                     except Exception:
                         gen_kwargs["mm_token_type_ids"] = torch.zeros_like(inputs.input_ids)
@@ -852,11 +923,20 @@ class AgentSimulator:
 
                 parsed = self.parse_tool_call(response_text)
                 if not parsed:
-                    preview = response_text.replace("\n", " ").strip()[:140]
+                    if "<channel|>" in response_text:
+                        clean_reply = response_text.split("<channel|>")[-1].replace("<turn|>", "").strip()
+                        nudge = "Please invoke a tool: call:tool_name{arguments}."
+                    elif "<|channel>thought" in response_text or prompt_str.endswith("<|channel>thought\n"):
+                        clean_reply = "(reasoning truncated before tool call)"
+                        nudge = "Finish reasoning briefly and invoke a tool now: call:tool_name{arguments}."
+                    else:
+                        clean_reply = response_text
+                        nudge = "Please invoke a tool: call:tool_name{arguments}."
+                    preview = clean_reply.replace("\n", " ").strip()[:140]
                     print(f"    Turn {turns_used:02d} | [NO TOOL PARSED] Preview: {preview}", flush=True)
                     tool_calls_log.append(f"[NO_TOOL]: {preview}")
-                    messages.append({"role": "model", "content": response_text})
-                    messages.append({"role": "user", "content": "Please invoke a tool: call:tool_name{arguments}."})
+                    messages.append({"role": "model", "content": clean_reply})
+                    messages.append({"role": "user", "content": nudge})
                     continue
 
                 tool_name, tool_args = parsed
@@ -1056,6 +1136,8 @@ def main():
     parser.add_argument("--timeout_sec", type=int, default=360, help="Per-task timeout in seconds")
     parser.add_argument("--max_turns", type=int, default=20, help="Max agent turns per task")
     parser.add_argument("--output_file", help="Path to save detailed benchmark JSON results")
+    parser.add_argument("--respect-thinking", "--respect_thinking", dest="respect_thinking", action="store_true", help="Respect configs/sampling.yaml thinking_config and max_output_tokens (up to 8192)")
+    parser.add_argument("--timeout-override", "--timeout_override", dest="timeout_override", type=int, default=None, help="Override per-task wall-clock timeout in seconds after reading eval_config.yaml")
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir).resolve()
@@ -1081,6 +1163,8 @@ def main():
                     args.max_turns = int(ev["max_tool_calls"])
                 if "max_time_minutes" in ev:
                     args.timeout_sec = int(float(ev["max_time_minutes"]) * 60)
+                if args.timeout_override is not None:
+                    args.timeout_sec = int(args.timeout_override)
                 print(f"  - Configured evaluation limits: max_turns={args.max_turns}, timeout_sec={args.timeout_sec}")
             if "configs/sampling.yaml" in namelist:
                 import yaml
@@ -1143,7 +1227,19 @@ def main():
     model.eval()
 
     # 4. Execute Suite
-    agent = AgentSimulator(model, processor, system_prompt, sampling_config=sampling_config, device=device)
+    agent = AgentSimulator(
+        model,
+        processor,
+        system_prompt,
+        sampling_config=sampling_config,
+        device=device,
+        respect_thinking=args.respect_thinking,
+    )
+    print(
+        f"[Agent] Thinking mode: {'ENABLED' if agent.use_thinking else 'DISABLED'} "
+        f"(respect_thinking={agent.respect_thinking}, thinking_budget={agent.thinking_budget}, "
+        f"max_new_tokens_cap={8192 if agent.use_thinking else 1024})"
+    )
     task_results = []
     print("\n" + "=" * 65)
     print(f"      STARTING BENCHMARK SUITE: {args.suite} ({model_name})")

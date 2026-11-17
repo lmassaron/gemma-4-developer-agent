@@ -1,0 +1,88 @@
+{
+  "model_name": "v45_exp021_surgical_smoke3_thinking",
+  "suite": "smoke_3",
+  "resolved": 1,
+  "total": 3,
+  "resolution_rate_percent": 33.33,
+  "mean_duration_sec": 2309.54,
+  "timeouts": 2,
+  "mean_turns": 12.0,
+  "timestamp": "2026-11-17 11:46:49",
+  "tasks": [
+    {
+      "instance_id": "requests_7205",
+      "repo": "psf/requests",
+      "status": "RESOLVED_ANYTIME",
+      "resolved": true,
+      "duration_sec": 2062.92,
+      "turns": 10,
+      "tool_calls": [
+        "run_command: {'command': 'grep -rn \"netrc\" .'}",
+        "read_file: {'filepath': 'src/requests/utils.py', 'start_line': 205}",
+        "write_file: {'content': 'import os\\nfrom requests.utils import get_netrc_auth\\nimport tempfile\\n\\ndef test_empty_netrc_entry():\\n    with tempfile.NamedTemporaryFile(mode=\\'w\\', delete=False) as tmp:\\n        # An empty entry for example.com\\n        # According to netrc format: machine host login password secret\\n        # An empty entry might look like just \"machine example.com\"\\n        tmp.write(\"machine example.com\\\\n\")\\n        tmp_path = tmp.name\\n\\n    os.environ[\"NETRC\"] = tmp_path\\n    try:\\n        auth = get_netrc_auth(\"http://example.com\")\\n        print(f\"Auth returned: {auth!r}\")\\n        # We expect it to be None to ignore the profile\\n        assert auth is None, f\"Expected None, got {auth!r}\"\\n    finally:\\n        os.remove(tmp_path)\\n        del os.environ[\"NETRC\"]\\n\\nif __name__ == \"__main__\":\\n    try:\\n        test_empty_netrc_entry()\\n        print(\"Test passed!\")\\n    except AssertionError as e:\\n        print(f\"Test failed: {e}\")\\n    except Exception as e:\\n        print(f\"An error occurred: {e}\")\\n', 'filepath': '/tmp/repro.py'}",
+        "run_command: {'command': 'python3 /tmp/repro.py'}",
+        "write_file: {'content': 'import os\\nfrom requests.utils import get_netrc_auth\\nimport tempfile\\n\\ndef test_netrc_cases():\\n    cases = [\\n        (\"machine example.com\\\\n\", \"Empty entry\", None),\\n        (\"machine example.com login pass\\\\n\", \"Full entry\", (\"login\", \"pass\")),\\n        (\"machine example.com login\\\\n\", \"Login only\", (\"login\", \"\")),\\n        (\"machine example.com : pass\\\\n\", \"Password only\", (\"\", \"pass\")),\\n        (\"machine example.com login account pass\\\\n\", \"Login account pass\", (\"login\", \"pass\")),\\n        (\"machine example.com  account pass\\\\n\", \"Account pass\", (\"account\", \"pass\")),\\n    ]\\n\\n    for content, name, expected in cases:\\n        with tempfile.NamedTemporaryFile(mode=\\'w\\', delete=False) as tmp:\\n            tmp.write(content)\\n            tmp_path = tmp.name\\n\\n        os.environ[\"NETRC\"] = tmp_path\\n        try:\\n            auth = get_netrc_auth(\"http://example.com\")\\n            print(f\"{name}: expected {expected!r}, got {auth!r}\")\\n            assert auth == expected, f\"{name}: expected {expected!r}, got {auth!r}\"\\n        finally:\\n            os.remove(tmp_path)\\n            del os.environ[\"NETRC\"]\\n\\nif __name__ == \"__main__\":\\n    try:\\n        test_netrc_cases()\\n        print(\"All tests passed!\")\\n    except AssertionError as e:\\n        print(f\"Test failed: {e}\")\\n    except Exception as e:\\n        print(f\"An error occurred: {e}\")\\n', 'filepath': '/tmp/test_netrc_cases.py'}",
+        "run_command: {'command': 'python3 -c \"import netrc; import tempfile; import os; tmp = tempfile.NamedTemporaryFile(mode=\\'w\\', delete=False); tmp.write(\\'machine example.com\\\\n\\'); tmp.close(); os.environ[\\'NETRC\\'] = tmp.name; print(f\\'Result: {netrc.netrc().authenticators(\\\\\"example.com\\\\\")!r}\\'); os.remove(tmp.name)\"'}",
+        "run_command: {'command': 'python3 /tmp/test_netrc_cases.py'}",
+        "edit_file: {'filepath': 'src/requests/utils.py', 'new_string': '            if any(_netrc):', 'old_string': '            if _netrc:'}",
+        "run_command: {'command': 'python3 /tmp/test_netrc_cases.py'}",
+        "run_command: {'command': 'python3 -c \"import netrc, tempfile, os; tmp = tempfile.NamedTemporaryFile(mode=\\'w\\', delete=False); tmp.write(\\'machine example.com login pass\\\\n\\'); tmp.close(); os.environ[\\'NETRC\\'] = tmp.name; print(f\\'Full: {netrc.netrc().authenticators(\\\\\"example.com\\\\\")!r}\\'); os.remove(tmp.name)\"'}"
+      ],
+      "patch_size": 492,
+      "terminal_invoked": false,
+      "output_snippet": ".                                                                        [100%]\n1 passed, 218 deselected in 0.04s\n\n[2026-11-17 10:25:36,992] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "fastapi_11194",
+      "repo": "fastapi/fastapi",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 2292.1,
+      "turns": 13,
+      "tool_calls": [
+        "run_command: {'command': \"git grep -n -F -e 'File' -e 'Form' -- '*.py' | grep -v 'test_' | head -n 20\"}",
+        "run_command: {'command': 'git grep -n \"class Form\" fastapi/*.py\\ngit grep -n \"class File\" fastapi/*.py'}",
+        "read_file: {'end_line': 720, 'filepath': 'fastapi/params.py', 'start_line': 580}",
+        "run_command: {'command': 'git grep -n \"multipart/form-data\" fastapi/'}",
+        "write_file: {'content': 'from fastapi import FastAPI, File, Form, UploadFile\\nfrom fastapi.testclient import TestClient\\n\\napp = FastAPI()\\n\\n@app.post(\"/test\")\\nasync def test_endpoint(form_data: str = Form(...), file: UploadFile = File(...)):\\n    return {\"form_data\": form_data, \"file\": file.filename}\\n\\nclient = TestClient(app)\\n\\ndef test_form_then_file():\\n    # This is the case reported to fail\\n    response = client.post(\\n        \"/test\",\\n        data={\"form_data\": \"hello\"},\\n        files={\"file\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"Response status: {response.status_code}\")\\n    print(f\"Response body: {response.json()}\")\\n    assert response.status_code == 200\\n\\ndef test_file_then_form():\\n    # This is the case reported to work\\n    @app.post(\"/test_reversed\")\\n    async def test_reversed_endpoint(file: UploadFile = File(...), form_data: str = Form(...)):\\n        return {\"form_data\": form_data, \"file\": file.filename}\\n    \\n    response = client.post(\\n        \"/test_reversed\",\\n        data={\"form_data\": \"hello\"},\\n        files={\"file\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"Response status: {response.status_code}\")\\n    print(f\"Response body: {response.json()}\")\\n    assert response.status_code == 200\\n\\nif __name__ == \"__main__\":\\n    try:\\n        test_form_then_file()\\n        print(\"test_form_then_file passed\")\\n    except Exception as e:\\n        print(f\"test_form_then_file failed: {e}\")\\n    \\n    try:\\n        test_file_then_form()\\n        print(\"test_file_then_form passed\")\\n    except Exception as e:\\n        print(f\"test_file_then_form failed: {e}\")\\n', 'filepath': '/tmp/repro.py'}",
+        "run_command: {'command': 'python /tmp/repro.py'}",
+        "write_file: {'content': 'from fastapi import FastAPI, File, Form, UploadFile\\nfrom fastapi.testclient import TestClient\\nfrom typing import Union\\n\\napp = FastAPI()\\n\\n@app.post(\"/test_uploadfile\")\\nasync def test_uploadfile(form_data: str = Form(...), file: UploadFile = File(...)):\\n    return {\"form_data\": form_data, \"file\": file.filename}\\n\\n@app.post(\"/test_bytes\")\\nasync def test_bytes(form_data: str = Form(...), file: bytes = File(...)):\\n    return {\"form_data\": form_data, \"file\": len(file)}\\n\\nclient = TestClient(app)\\n\\ndef test_uploadfile_form_then_file():\\n    response = client.post(\\n        \"/test_uploadfile\",\\n        data={\"form_data\": \"hello\"},\\n        files={\"file\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"UploadFile form_then_file: {response.status_code} {response.text}\")\\n    assert response.status_code == 200\\n\\ndef test_bytes_form_then_file():\\n    response = client.post(\\n        \"/test_bytes\",\\n        data={\"form_data\": \"hello\"},\\n        files={\"file\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"Bytes form_then_file: {response.status_code} {response.text}\")\\n    assert response.status_code == 200\\n\\nif __name__ == \"__main__\":\\n    try:\\n        test_uploadfile_form_then_file()\\n    except Exception as e:\\n        print(f\"test_uploadfile_form_then_file failed: {e}\")\\n    \\n    try:\\n        test_bytes_form_then_file()\\n    except Exception as e:\\n        print(f\"test_bytes_form_then_file failed: {e}\")\\n', 'filepath': '/tmp/repro.py'}",
+        "run_command: {'command': 'git grep -n \"media_type\" fastapi/routing.py fastapi/dependencies/utils.py'}",
+        "read_file: {'end_line': 1030, 'filepath': 'fastapi/dependencies/utils.py', 'start_line': 970}",
+        "run_command: {'command': 'pip show fastapi'}",
+        "run_command: {'command': 'cat fastapi/__init__.py | grep \"__version__\"'}",
+        "write_file: {'content': 'from fastapi import FastAPI, File, Form, UploadFile\\nfrom fastapi.testclient import TestClient\\nfrom typing import Annotated\\n\\napp = FastAPI()\\n\\n@app.post(\"/test_annotated\")\\nasync def test_annotated(\\n    form_data: Annotated[str, Form()], \\n    file: Annotated[UploadFile, File()]\\n):\\n    return {\"form_data\": form_data, \"file\": file.filename}\\n\\nclient = TestClient(app)\\n\\ndef test_annotated_form_then_file():\\n    response = client.post(\\n        \"/test_annotated\",\\n        data={\"form_data\": \"hello\"},\\n        files={\"file\": (\"test.txt\", b\"content\")}\\n    )\\n    print(f\"Annotated form_then_file: {response.status_code} {response.text}\")\\n    assert response.status_code == 200\\n\\nif __name__ == \"__main__\":\\n    try:\\n        test_annotated_form_then_file()\\n        print(\"Passed\")\\n    except Exception as e:\\n        print(f\"Failed: {e}\")\\n', 'filepath': '/tmp/repro_annotated.py'}",
+        "run_command: {'command': 'git grep -n \"media_type\" fastapi/routing.py'}"
+      ],
+      "patch_size": 0,
+      "terminal_invoked": false,
+      "output_snippet": "=========================\nFAILED tests/test_file_and_form_order_issue_9116.py::test_file_form_order[/file_after_form]\nFAILED tests/test_file_and_form_order_issue_9116.py::test_file_list_form_order[/file_list_after_form]\n2 failed, 2 passed in 0.14s\n\n[2026-11-17 11:03:54,807] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    },
+    {
+      "instance_id": "rich_2725",
+      "repo": "Textualize/rich",
+      "status": "TIMEOUT",
+      "resolved": false,
+      "duration_sec": 2573.59,
+      "turns": 13,
+      "tool_calls": [
+        "run_command: {'command': 'grep -rnE \"box\\\\.(head|mid|foot)\" . | head -n 20'}",
+        "read_file: {'end_line': 800, 'filepath': 'rich/table.py', 'start_line': 750}",
+        "read_file: {'end_line': 850, 'filepath': 'rich/table.py', 'start_line': 801}",
+        "read_file: {'end_line': 950, 'filepath': 'rich/table.py', 'start_line': 851}",
+        "write_file: {'content': '\\nfrom rich.console import Console\\nfrom rich.table import Table\\nfrom rich.box import Box\\n\\nclass CustomBox(Box):\\n    def __init__(self):\\n        super().__init__()\\n        self.head_left = \\'1\\'\\n        self.head_vertical = \\'2\\'\\n        self.head_right = \\'3\\'\\n        self.mid_left = \\'4\\'\\n        self.mid_vertical = \\'5\\'\\n        self.mid_right = \\'6\\'\\n        self.foot_left = \\'7\\'\\n        self.foot_vertical = \\'8\\'\\n        self.foot_right = \\'9\\'\\n\\ndef test_table_box_rendering():\\n    console = Console(width=100, force_terminal=False)\\n    table = Table(box=CustomBox())\\n    table.add_column(\"A\")\\n    table.add_column(\"B\")\\n    table.add_row(\"1\", \"2\")\\n    table.add_row(\"3\", \"4\")\\n    table.add_row(\"5\", \"6\")\\n    \\n    with console.capture() as capture:\\n        console.print(table)\\n    \\n    output = capture.get()\\n    print(output)\\n\\nif __name__ == \"__main__\":\\n    test_table_box_rendering()\\n', 'filepath': '/tmp/repro.py'}",
+        "run_command: {'command': 'python /tmp/repro.py'}",
+        "run_command: {'command': 'grep -n \"class Box\" rich/box.py'}",
+        "read_file: {'end_line': 50, 'filepath': 'rich/box.py', 'start_line': 10}",
+        "write_file: {'content': '\\nfrom rich.console import Console\\nfrom rich.table import Table\\nfrom rich.box import Box\\n\\nclass CustomBox(Box):\\n    def __init__(self):\\n        # Provide a dummy 8-line string to satisfy Box.__init__\\n        super().__init__(\"\\\\n\" * 7)\\n        self.head_left = \\'1\\'\\n        self.head_vertical = \\'2\\'\\n        self.head_right = \\'3\\'\\n        self.mid_left = \\'4\\'\\n        self.mid_vertical = \\'5\\'\\n        self.mid_right = \\'6\\'\\n        self.foot_left = \\'7\\'\\n        self.foot_vertical = \\'8\\'\\n        self.foot_right = \\'9\\'\\n\\ndef test_table_box_rendering():\\n    console = Console(width=100, force_terminal=False)\\n    table = Table(box=CustomBox())\\n    table.add_column(\"A\")\\n    table.add_column(\"B\")\\n    table.add_row(\"1\", \"2\")\\n    table.add_row(\"3\", \"4\")\\n    table.add_row(\"5\", \"6\")\\n    \\n    with console.capture() as capture:\\n        console.print(table)\\n    \\n    output = capture.get()\\n    print(output)\\n\\nif __name__ == \"__main__\":\\n    test_table_box_rendering()\\n', 'filepath': '/tmp/repro.py'}",
+        "write_file: {'content': '\\nfrom rich.console import Console\\nfrom rich.table import Table\\nfrom rich.box import Box\\n\\nclass CustomBox(Box):\\n    def __init__(self):\\n        # 8 lines of 4 characters each\\n        super().__init__(\"....\\\\n....\\\\n....\\\\n....\\\\n....\\\\n....\\\\n....\\\\n....\")\\n        self.head_left = \\'1\\'\\n        self.head_vertical = \\'2\\'\\n        self.head_right = \\'3\\'\\n        self.mid_left = \\'4\\'\\n        self.mid_vertical = \\'5\\'\\n        self.mid_right = \\'6\\'\\n        self.foot_left = \\'7\\'\\n        self.foot_vertical = \\'8\\'\\n        self.foot_right = \\'9\\'\\n\\ndef test_table_box_rendering():\\n    console = Console(width=100, force_terminal=False)\\n    table = Table(box=CustomBox())\\n    table.add_column(\"A\")\\n    table.add_column(\"B\")\\n    table.add_row(\"1\", \"2\")\\n    table.add_row(\"3\", \"4\")\\n    table.add_row(\"5\", \"6\")\\n    \\n    with console.capture() as capture:\\n        console.print(table)\\n    \\n    output = capture.get()\\n    print(output)\\n\\nif __name__ == \"__main__\":\\n    test_table_box_rendering()\\n', 'filepath': '/tmp/repro.py'}",
+        "run_command: {'command': 'python /tmp/repro.py'}",
+        "run_command: {'command': 'grep -n \"def get_plain_headed_box\" rich/box.py'}",
+        "read_file: {'end_line': 110, 'filepath': 'rich/box.py', 'start_line': 91}"
+      ],
+      "patch_size": 0,
+      "terminal_invoked": false,
+      "output_snippet": "h\\n4Dec  5Skywalker5275M5375M 6\\n4May  5Solo     5275M5393M 6\\nijjjjjkjjjjjjjjjkjjjjkjjjjjl\\n4Dec  5Last Jedi5262M51333M6\\nmnnnnnonnnnnnnnnonnnnonnnnnp\\n7MONTH8NICKNAME 8COST8GROSS9\\nqrrrrrsrrrrrrrrrsrrrrsrrrrrt\\n]\n4 failed, 15 deselected in 0.04s\n\n[2026-11-17 11:46:49,243] WARNING in core: flasgger is not installed; serving the static landing page at / and skipping the Swagger UI and /spec.json.\n"
+    }
+  ]
+}
