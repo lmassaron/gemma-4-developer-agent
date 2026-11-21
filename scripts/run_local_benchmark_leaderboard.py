@@ -838,8 +838,13 @@ class AgentSimulator:
         tool_calls_log = []
 
         issue_text = task.get("problem_statement") or task.get("issue") or ""
+        hints_text = task.get("hints_text") or task.get("hints") or ""
+        rendered_sys = (
+            self.system_prompt.replace("{problem_description}", issue_text)
+            .replace("{hints?}", hints_text)
+        )
         messages = [
-            {"role": "system", "content": self.system_prompt},
+            {"role": "system", "content": rendered_sys},
             {"role": "user", "content": f"# PROBLEM STATEMENT\n{issue_text}"},
         ]
 
