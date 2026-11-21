@@ -1,159 +1,140 @@
-# Handoff & Current Frontier Briefing (`v40` -> `v46` LoRA)
+# Handoff & Current Frontier Briefing (`v40` -> `v49` Edit-Span DPO)
 
-> **Purpose**: Complete state-of-the-art summary, experimental results, harness quirks, and next frontier directions as of **2026-11-19**, written so another Antigravity instance can resume work seamlessly with zero context loss.
-
----
-
-## 1. Current Workspace & Submission State
-
-- **Git HEAD**: `a08441d` (`main`, pushed to `origin/main`).
-- **Uncommitted `v46` & live workspace artifacts**:
-  - `submission_v46_patchsmith_lora.zip` (`192,272,427` B / `183.37 MB`, SHA-256 `547acf1077679e84000a3b9655f4bd9bee037655211b61324419a370bf34c683`) — built and passed `data/dmitrii_kit/check_submission.py` (`result: rules passed`). Ready to copy (`cp submission_v46_patchsmith_lora.zip submission.zip`) if submitting to Kaggle next.
-  - `models/lora_v46_patchsmith/` — exported `CKPT-S41` x `1.0` (`r=16, lora_alpha=8, scale=0.50`, `410` `language_model` modules, `820` `bfloat16` tensors), plus saved checkpoints under `models/lora_v46_patchsmith/checkpoints/{CKPT-S16,CKPT-S32,CKPT-S41}/`.
-  - `scripts/train_v46_patchsmith_lora.py` — reproducible curation, training, held-out NLL/scale-sweep, and ZIP packaging pipeline.
-  - `state_of_the_art/benchmarks_data/v46_lora_training.log`, `v46_lora_training_report.json`, `benchmark_v46_core12.{json,log}`.
-  - Updated `LEADERBOARD.md` and `leaderboard.json`.
-  - Note: old `submission_v37`–`submission_v40` zips in `submissions/` were removed locally (tracked deletions committed in `a08441d`); root `v42`–`v45` zips can be regenerated anytime via `scripts/package_v4{2,3,4,5}_candidate.py`.
-  - Untracked legacy items to keep out of git: `models/lora_v33_native_causal/` (`102M`) and `notebook_artifacts/` (contains `best/score_022_submission.zip` and `controls/exp021_*.zip`).
+> **Purpose**: Complete state-of-the-art summary, verified Kaggle LB & local benchmark tables, failure EDA, environment quirks, and concrete final-week playbook as of **2026-11-21**, written so another Antigravity instance can resume seamlessly with zero context loss.
 
 ---
 
-## 2. Kaggle Public Leaderboard History (`v23` – `v45`)
+## 1. Competition Deadlines, Live LB & Current Workspace State
 
-Observed user Kaggle Public LB scores vs. public `exp021` reference (`N ≈ 60–72` public tasks; `0.18` vs `0.22` is ~`2–3` tasks):
+- **Competition**: `gemma-4-developer-agent` (*Google – The Gemma 4 Developer Agent Competition*)
+- **Deadlines**: Team Merger **2026-11-25** | Final Submission **2026-12-02** (**11 days remaining**).
+- **Exact Public LB Structure (verified Nov 20 via `kaggle==2.2.5` API & `dariushafshar` analysis)**:
+  - Public LB has **exact `N = 58` tasks**, truncated to 2 decimals (**`1` task = `0.01724`**): `9/58=0.15`, `10/58=0.17`, `11/58=0.18`, `12/58=0.20`, `13/58=0.22`, `14/58=0.24`.
+  - Live Nov 20 top leaderboard: **Top 16 teams (`#1–#16`) are all tied at `0.24` (`14/58`)**, `#17–#20+` at `0.22` (`13/58`). Eleven of the 16 teams at `0.24` submitted Nov 18–20 right after the Nov 14–17 `40`-call / pinned-issue notebooks (`bliverrigpdoge`, `denpugovkin exp025`, `Patchsmith V11`).
+  - Single-draw stochastic SD at `T = 0.2` is **~`1.43–1.78` tasks (`±0.025–0.031`)** — proven directly by our own control: byte-for-byte `exp021` (`score_022_submission`, `ref 58582549`) scored **`0.17` (`10/58`)** on our account vs `0.22` (`13/58`) on `denpugovkin`'s draw.
+- **Ready, Validated Local Submission Zips (all passed `data/dmitrii_kit/check_submission.py` -> `result: rules passed`)**:
+  1. **`submission_v47_patchsmith_v11_pinned40.zip`** (`6,046 B`, SHA-256 `e330227f2a8676a19338f96b3d9629cb684f049e2cc905fdfb6b13adc7317c3f`) — **SUBMITTED TO KAGGLE (`ref 58637088`, `2026-11-20 21:50 UTC`, currently `PENDING`)**.
+  2. **`submission_v49_patchsmith_v11_edit_dpo.zip`** (`40.55 MB`, SHA-256 `98a445174baf8366cbd6038518a4f0defb095cf0c5990819f989c249c8d6a1a1`) — **RECOMMENDED NEXT KAGGLE UPLOAD** (`v47` + upper-30-layer 90-module Edit-Span DPO+NLL LoRA initialized from `v48`; `5/12` clean `RESOLVED`, `10.67` avg turns).
+  3. **`submission_v48_patchsmith_v11_edit_lora.zip`** (`40.54 MB`, SHA-256 `b46b99a1083a0b39bbbe23c551a99925cc75853213aba634de2b76eb08d11d57`) — **RECOMMENDED FOLLOWING KAGGLE UPLOAD** (`v47` + upper-30-layer 90-module Edit-Only SFT LoRA; `6/12` total `core_12`, `4` clean + `2` anytime).
+- **Untracked large artifacts (intentionally kept out of git)**:
+  - `models/lora_v33_native_causal/`, `models/lora_v46_patchsmith/`, `models/lora_v48_edit_only/`, `models/lora_v49_edit_dpo/` (plus `checkpoints/` inside each), `notebook_artifacts/`, and root `submission_*.zip` files.
 
-| Candidate | Type | Tools | `timeout_seconds` | Prompt / Config Delta | Public LB |
+---
+
+## 2. Kaggle Public Leaderboard History (`v23` – `v47`)
+
+| Ref / Candidate | Type | Tools | Call / Time Budget | Key Delta | Public LB |
 | :--- | :--- | :---: | :---: | :--- | :---: |
-| **`v23`** (`bundle_v23_zero_shot`) | Zero-shot | 9 | 240s | `T=0.2`, `thinking_budget=4096`, `8m`, `28` calls | **`0.18`** |
-| **`v37`** (`v23` restored + tailguard) | Zero-shot | — | — | Restored `v23` + tailguard | `0.17` |
-| **`v40`** (`budget_surgical_v2`) | Zero-shot | 6 | 240s | `Zero pre-edit probes`, strict `Calls 1-7/8-10/11-17/18+` | `0.17` |
-| **`v42`** (`patchsmith_surgical`) | Zero-shot | 6 | 60s | Patchsmith V7 + `v40/v41` rules (`5,259 B` prompt) | **`0.18`** |
-| **`v45`** (`exp021_surgical`) | Zero-shot | 6 | 60s | `exp021` verbatim (`4,892 B`) + 3 fixes (`5,018 B`) | **`0.18`** |
-| **Public `exp021`** (`score_022_submission.zip`) | Zero-shot | 6 | 60s | Original Patchsmith V7 (`4,892 B`), `T=0.2`, `tb=4096` | **`0.22`** |
-| **Public `flexonafft`** (Nov 13) | Zero-shot | 6 | 240s | Same `exp021` prompt with `thinking_budget=1024`, `10m` | `0.17` |
-
-**Core conclusion**: Zero-shot prompt tuning around `exp021` / `Budget-Fit` hits a **`0.17–0.22` ceiling** (`0.18` across `v23`, `v42`, `v45`, with ~`±0.04` binomial/sampling variance at `T=0.2`).
-
----
-
-## 3. Local Benchmark Progression (`v32` – `v46`)
-
-All fast-mode benchmarks run `enable_thinking=False` with `max_new_tokens <= 1024` unless `--respect-thinking` is passed.
-
-### A. Zero-Shot & Post-`v40` Iteration (`leaderboard.json` + custom suites)
-
-| Run | Suite | Mode | Resolved | Avg Dur | Timeouts | Avg Turns | Notes |
-| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **`v40`** | `core_12` | fast | **`8/12` (`66.7%`)** | `366.1s` | 3 | 12.2 | Local `core_12` flagship |
-| **`v40`** | `heldout_12` (`/tmp/v40_heldout12.jsonl`) | fast | **`11/12` (`91.7%`)** | `141.8s` | 0 | 7.2 | Missed only `fastapi_14372` |
-| **`v40`** | `nearmiss_hard12` (`/tmp/v40_nearmiss_hard12.jsonl`) | fast | **`5/12` (`41.7%`)** | `448.4s` | 5 | 12.7 | Grep loops, `curl`, unverified edits |
-| **`v40`** | `sympy12` (`data/external_hf_benchmark_py312.jsonl`) | fast | **`5/12` (`41.7%`)** | `502.3s` | 7 | 14.1 | `3` zero-byte diffs; `repro.py` timeouts |
-| **`v41`** | `core_12` / `nearmiss_hard12` | fast | `7/12` / `3/12` | `412s` / `383s` | 5 / 4 | 12.8 / 13.3 | Regressed vs `v40` |
-| **`v42`** | `core_12` | fast | `4/12` (`33.3%`) | `469.3s` | 8 | 12.5 | `| tail -n 45` & test-hiding regressions |
-| **`v42`** | `core_12` | `--respect-thinking` (`480s`) | `1/12` (`8.3%`) | `660.9s` | 11 | 5.8 | Local `bf16` timed out in 4–8 turns |
-| **`v43`** | `core_12` | fast | `6/12` (`50.0%`) | `437.0s` | 5 | 12.7 | Pre-edit `python3 -c` probes returned |
-| **`v44`** | `core_12` | fast | **`8/12` (`66.7%`)** | `395.7s` | 4 | 12.7 | Tied `v40` on `core_12` |
-| **`v44`** | `nearmiss_hard12` | fast | `4/12` (`33.3%`) | `403.4s` | 4 | 13.1 | Regressed `fastapi_14873` (`repro.py`) |
-| **`v44`** | `sympy12` | `--respect-thinking` (`480s`) | `2/12` (`16.7%`) | `723.4s` | 10 | 6.3 | Wrote `repro*.py` on 5/12 tasks |
-| **`v45`** | `smoke_3` | `--respect-thinking` (`1800s`) | `1/3` (`33.3%`) | `2309.5s` | 2 | 12.0 | `requests_7205` solved; `/tmp/repro.py` stalls |
-
-### B. LoRA Progression (`v28` – `v46`)
-
-| Run | Data / Config | Scale (`alpha/r`) | `core_12` Resolved | Notes |
-| :--- | :--- | :---: | :---: | :--- |
-| `v28`–`v30` | External / community LoRAs | varied | `1/12`–`3/12` (`8.3%–25.0%`) | Format/reasoning mismatch |
-| `v33` | 32 native steps (8 opt steps), `r=8, alpha=4`, `0.0015` norm choke | `0.50` (choked) | `4/12` (`33.3%`) | Pre/post NLL flat (`0.12393 -> 0.12402`) |
-| `v35` | `lora_v33` rescaled (`alpha=2`) + lean6 prompt | `0.25` | **`6/12` (`50.0%`)** | Best local `core_12` LoRA (`438.6s`) |
-| **`v46`** | `328` curated Patchsmith-aligned native steps (`41` opt steps, `r=16, alpha=8`) | `0.50` | **`4/12` (`33.3%`)** | `529.2s`; Gate A NLL dropped `-4.5% / -13.4%` |
+| **`v23`** (`bundle_v23_zero_shot`) | Zero-shot | 9 | `28` calls / `8m` / `240s` | `T=0.2`, `tb=4096` | **`0.18`** (`11/58`) |
+| **`v34`** (`clean024_mandatory_verify`) | Zero-shot | 6 | `28` calls / `5m` | Cutting time cap to `5m` lost `49%` of solvable runs | `0.10` (`6/58`) |
+| **`v37`** (`v23` restored + tailguard) | Zero-shot | 9 | `28` calls / `8m` | Restored `v23` + tailguard | `0.17` (`10/58`) |
+| **`v40`** (`budget_surgical_v2`) | Zero-shot | 6 | `28` calls / `8m` / `240s` | Zero pre-edit probes, strict call phases | `0.17` (`10/58`) |
+| **`v42`** (`patchsmith_surgical`) | Zero-shot | 6 | `28` calls / `8m` / `60s` | Patchsmith V7 + `v40/v41` rules (`5,259 B`) | **`0.18`** (`11/58`) |
+| **`v45`** (`exp021_surgical`) | Zero-shot | 6 | `28` calls / `8m` / `60s` | `exp021` verbatim + 3 fixes (`5,018 B`) | **`0.18`** (`11/58`) |
+| **`v46`** (`patchsmith_lora`) | Full-turn LoRA | 6 | `28` calls / `8m` / `60s` | `410` modules (all 60 layers), full thought+action SFT (`183 MB`) | `0.15` (`9/58`) |
+| **`score_022_submission`** (`58582549`) | Zero-shot control | 6 | `28` calls / `8m` / `60s` | Byte-for-byte `exp021` (`4,892 B`) — variance control | `0.17` (`10/58`) |
+| **`v47`** (`58637088`, Nov 20 21:50 UTC) | Zero-shot | 6 | **`40` calls / `8m` / `60s`** | Patchsmith V11 + compaction-pinned `{problem_description}`/`{hints?}` + fast exit | **`PENDING`** |
 
 ---
 
-## 4. Critical Engineering Findings (`v42` – `v46`)
+## 3. Local Benchmark Progression (`v40` – `v49`)
 
-1. **Local vs. Kaggle Inversion (`enable_thinking=False` vs. `True`)**:
-   - Under local fast mode (`enable_thinking=False`), `v40`/`v44` (`Zero pre-edit probes`) score `8/12` on `core_12`, while `Patchsmith` (`v42`, `v46`) scores `4/12`. On Kaggle (`thinking_budget=4096`), `v42`/`v45` scored `0.18` vs `v40`'s `0.17` (`exp021`: `0.22`).
-   - `scripts/run_local_benchmark_leaderboard.py` now supports `--respect-thinking` (enables `enable_thinking=True`, raises `max_new_tokens` cap to `8192`, closes `<channel|>` at `thinking_budget` via `ThinkingBudgetLogitsProcessor`, preserves `top_k`) and `--timeout_override` (overrides `eval_config.yaml` `max_time_minutes`).
-   - On local `NVIDIA GB10` (`bfloat16` 31B), `--respect-thinking` runs at ~`80–190s/turn`, so Kaggle's `480s` timeout stops runs after ~`5–9` turns (`1/12` for `v42`, `2/12` for `v44` `sympy12`). Use `--timeout_override 1800` for `smoke_3` thinking diagnostics (~12 turns, `0` unparsed turns).
+All default `core_12` runs execute `enable_thinking=False` (`max_new_tokens <= 1024`) on `google/gemma-4-31B-it` (`bfloat16` on local `NVIDIA GB10`).
 
-2. **Four Regressions Found in `v42` vs `exp021` (Fixed in `v45` / `v46`)**:
-   - `v42` added `| tail -n 45` to pytest commands (masked non-zero exit codes as `0`!).
-   - `v42` added `':!tests/' ':!docs/' ':!docs_src/' | head -n 30` to `git grep` (hid test clues & truncated matches).
-   - `v42` added rigid `<= 15-20 changed lines` and `60-100` line caps (`5,259 B` vs `exp021`'s `4,892 B`).
-   - `v42` omitted `exp022`'s `If edit_file returns status: ok, do not repeat it, regardless of strategy` clarity.
+### A. Flagship 5-Way Paired Progression on `core_12` (`v42` -> `v49`)
 
-3. **Python Environments & `Gemma4ClippableLinear` Trap**:
-   - `.venv/bin/python` (`torch 2.14.1`, `transformers 5.20.2`, `peft 0.21.2`) runs local evaluation on `google/gemma-4-31B-it`.
-   - `/home/lmassaron/code/venv_gemma4_12b/bin/python` has `compressed-tensors==0.20.1` required to load `/home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct` in packed INT4 via `Int4LoRALinear`.
-   - `Gemma4ForConditionalGeneration` uses `Gemma4ClippableLinear` inside `vision_tower` (`1152`-dim). Never pass bare projection suffixes like `["q_proj", ...]` without filtering to `model.language_model.layers.\d+\....`; `v46` lists all `410` `language_model` projection paths explicitly (`820` tensors; `10` layers share KV without `v_proj`), loading cleanly in `PeftModel.from_pretrained` with zero errors.
+| Run | Total Resolved | Clean `RESOLVED` (`submit_patch`) | `ANYTIME` | Mean Dur | Mean Turns | Timeouts | `edit_file` Calls | Unparsed |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`v42`** zero-shot (`0.18` LB) | `4 / 12` (`33.3%`) | `2` | `2` | `469.3s` | `12.50` | `8` | — | `0` |
+| **`v46`** full-turn 410-mod LoRA (`0.15` LB) | `4 / 12` (`33.3%`) | `2` | `2` | `529.2s` | `14.50` | `8` | — | `0` |
+| **`v47`** zero-shot (`40` calls + pinned) | `5 / 12` (`41.7%`) | `1` | `4` | `509.6s` | `13.50` | `7` | `12` | `0` |
+| **`v48`** edit-only SFT LoRA (`90` mod) | **`6 / 12` (`50.0%`)** | `4` | `2` | `530.6s` | `11.75` | `6` | **`19`** | `0` |
+| **`v49`** edit-only DPO+NLL LoRA (`90` mod) | `5 / 12` (`41.7%`) | **`5`** | **`0`** | **`490.2s`** | **`10.67`** | `7` | `17` | **`0`** |
 
-4. **Dataset Findings in `data/dmitrii_kit/`**:
-   - **`lora_native_resolved.jsonl`** (`103` trajectories, `1,766` steps across `52` repos) has **zero repository overlap** with `psf/requests`, `fastapi/fastapi`, `Textualize/rich`, or `sympy/sympy`. All `1,766` steps use only the 6 core tools (`0` graph tool calls).
-   - Auditing turn $t$ against turn $t+1$'s tool output uncovered substantial hidden noise inside resolved native episodes: `173` `read_file` errors, `123` duplicate/forbidden commands, `113` `write_file` scratch/repro/test scripts, `89` empty-fail commands, `14` `edit_file` errors, and `145` post-submit prose turns.
-   - **`lora_external_A.jsonl` (`382` steps) & `lora_external_B.part*.jsonl` (`25,165` steps)** have empty thought channels (`<|channel>thought\n<channel|>`). Supervising empty thoughts would collapse Kaggle `thinking_budget=4096` reasoning (`flexonafft` drop `0.22 -> 0.17`).
-   - **`lora_native_unresolved.jsonl`** (`56` failed trajectories, `1,228` steps) is available for contrastive/DPO preference pairs against failure loops.
+**Per-Task Diagnostic (`v47` vs `v48` vs `v49`)**:
+- **Shared 5 solves (`requests_7205`, `requests_7433`, `requests_7505`, `rich_2943`, `rich_3006`)**: `v49` cleanly called `submit_patch` on **all 5 (`5/5`, `0` `ANYTIME`)**, averaging **`342s` and `11.2` turns** vs `v48`'s `406s` / `12.6` turns (`4/5` clean) and `v47`'s `1/5` clean (`requests_7433` timed out). Notably, `v49` is the **only model ever** to cleanly resolve `requests_7205` before timeout (`381s` vs `v48` `554s` `ANYTIME`), and cut `requests_7433` to `234s` (`8` turns).
+- **Sole `v48` vs `v49` discrepancy (`fastapi_13537`)**: Log diff confirmed `v48` and `v49` followed the **exact same 7-turn trajectory** (`grep _extract_form_body` -> read `utils.py` -> write/run/edit `/tmp/repro.py`); `v49` simply hit local GB10 `bf16` `480s` timeout after Turn 7 (`546s`), while `v48` started Turn 9 at `475s` (`703s` `ANYTIME`). On Kaggle vLLM GPUs, both reach Turn 9 in under a minute.
+- **Historical non-`core_12` references**: `v40` (`core_12` fast `8/12`, `heldout_12` `11/12`, `nearmiss_hard12` `5/12`, `sympy12` `5/12`); `v44` (`core_12` `8/12`, `nearmiss_hard12` `4/12`, `sympy12` thinking `2/12`); `v42` (`core_12` thinking `1/12`); `v45` (`smoke_3` thinking `1800s` `1/3`, `0` unparsed).
 
 ---
 
-## 5. Deep Dive on `v46` (`submission_v46_patchsmith_lora.zip`)
+## 4. Key Discoveries & Why `v47` / `v48` / `v49` Work
 
-- **Pipeline ([train_v46_patchsmith_lora.py](file:///home/lmassaron/code/gemma-4-developer-agent-competition/scripts/train_v46_patchsmith_lora.py))**:
-  - Replaced `2,328`-token native 9-tool system prefix with exact `1,461`-token `V45_SYSTEM_MD` 6-tool Patchsmith prefix while preserving served `completion_token_ids` verbatim.
-  - Filtered `<= 10,240` tokens (zero truncation): **`328` train steps** (`99` command, `83` read, `77` edit, `69` submit across `43` repos -> `41` opt steps at `grad_accum=8`, `lr=1.5e-5`) and **`58` held-out validation steps** across `8` repos.
-  - `ACTION_PHASE_WEIGHT=1.25`, `THOUGHT_PHASE_WEIGHT=0.90`, `r=16, lora_alpha=8` (`scale=0.50`).
-- **Gate A (`enable_thinking=True` Held-Out Repo NLL)**:
-  - `PRE-TRAIN`: `Overall=0.11445 | Action=0.01751 | Thought=0.14852`
-  - `CKPT-S16`: `Overall=0.11333 | Action=0.01676 | Thought=0.14727`
-  - `CKPT-S32`: `Overall=0.10992 | Action=0.01540 | Thought=0.14313`
-  - `CKPT-S41` (`1.0x`, `scale=0.50`): **`Overall=0.10931 (-4.5%) | Action=0.01516 (-13.4%) | Thought=0.14239 (-4.1%)`** (strictly beat `0.75x`, `0.50x`, `0.25x` in scale sweep).
-- **Gate B (`core_12`, `enable_thinking=False`, [benchmark_v46_core12.json](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/benchmark_v46_core12.json))**:
-  - **`4/12` (`33.33%`)**, `529.21s` avg, `8` timeouts, `14.5` avg turns (vs `v42` `4/12`, `469.33s`, `8` timeouts, `12.5` turns).
-  - **Positives**: `6/12` non-empty source patches (vs `4/12` in `v42`); gained `fastapi_13537` (`0B -> 828B RESOLVED_ANYTIME`), sped up `rich_3006` (`496.5s RESOLVED_ANYTIME -> 394.5s RESOLVED`), applied multi-site edits on `requests_7505` (`507B`) and `rich_3052` (`1450B`).
-  - **Remaining flaws**: regressed `requests_7433` (`223s RESOLVED -> 548.5s TIMEOUT 0B` stuck editing `/tmp/repro.py`), `fastapi_12942` hit a grep loop (`24` `[CIRCUIT BREAKER]` triggers total in the run), and `529.2s` avg duration locally.
+### A. Why `v47` Improves Structurally Over `exp021` (`28` calls)
+Built by [package_v47_candidate.py](file:///home/lmassaron/code/gemma-4-developer-agent-competition/scripts/package_v47_candidate.py):
+1. **`max_tool_calls: 40`** (`max_time_minutes: 8`, `timeout_seconds: 60`, `max_turns: 80`, `T=0.2`, `top_p=0.95`, `max_output_tokens=8192`, `thinking_budget=4096`): removes the `28`-call cutoff on multi-file fixes while keeping `8m` (`95.6%` of solvable runs vs `51.1%` at `5m`).
+2. **Compaction-proof `{problem_description}` + `{hints?}` pinned at bottom of `prompts/system.md`**: ADK compacts conversation history around ~`14,000` tokens; valid ADK state keys `{problem_description}` and `{hints?}` (the ONLY allowed `{}` braces in `system.md`) keep exact issue specs intact through calls `15–40`.
+3. **Fast exit rules**: immediate `submit_patch` on call-budget exhaustion + single-word `Done` afterward protects valid diffs and 12h wall-clock headroom.
+
+### B. Why `v46` Failed (`0.15` LB) and Why `v48` / `v49` Fix It
+- **`v46` (`0.15` LB)** supervised **full turns (thoughts + commands + edits)** across **all 60 layers (`410` modules, `183.4 MB`)** — causing subtle thought/loop drift (`14.5` avg turns, `529s`) and 4.5x higher vLLM LoRA overhead. Japan Open Data Lab's Discussion `760014` (`1,800+` E4B trials) independently echoed that standard full-turn teacher SFT loses to the base model and that disabling thoughts or choking output tokens spikes tool-call JSON/truncation errors.
+- **`v48` ([train_v48_edit_only_lora.py](file:///home/lmassaron/code/gemma-4-developer-agent-competition/scripts/train_v48_edit_only_lora.py))** — inspired by `ayush04barai/version-1-added-adaptor` (`0.22` live Nov 20 LB):
+  - **Loss strictly on `<|tool_call>call:edit_file{...}` spans on source files** (`loss = 0` on ALL thoughts and bash commands -> zero thought collapse, safely mixes `143` native Gemma + `97` Qwen3-Coder `external_A`/`B` edits across `103` repos = `46,280` edit tokens, `0` eval repo overlap).
+  - **Upper 30 layers only (`layers 30..59` × `q_proj`/`o_proj`/`down_proj` = `90` modules, `180` tensors, `40.5 MB` zip — 4.5x smaller/faster than `v46`)**, `r=16, lora_alpha=16`, `max_output_tokens: 6144`.
+  - **Gate A ([v48_edit_lora_training_report.json](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/v48_edit_lora_training_report.json))**: Held-out `Edit-Span NLL` (`32` edits across `19` unseen repos, `6,027` tokens) dropped **`-33.0%`** (`0.09266 -> 0.06204` at `CKPT-S40 x 1.00`, strictly monotonic scale sweep `1.00/0.75/0.50/0.25`).
+- **Native Gemma 4 `edit_file` Failure EDA (`data/dmitrii_kit`)**:
+  - Real native Gemma 4 `edit_file` error rate is **`28.5%` (`103 / 362` calls with tool responses)**: `20.0%` (`26/130`) even on resolved tasks, jumping to **`51.3%` (`59/115`)** on unresolved tasks!
+  - Exact error breakdown: **`55.3%` (`57/103`) schema/delimiter corruption** (e.g. Gemma emits backtick `` ` `` instead of `<|"|>` before `,old_string:`, triggering ADK `mandatory input parameters are not present: old_string`), **`39.8%` (`41/103`) `old_string_not_found`** (indentation shift, double-escaped `\\n`, `# ...` ellipsis), **`3.9%` (`4/103`) ambiguous short `old_string`**, **`1.0%` (`1/103`) empty `old_string`**.
+  - `lora_external_B2.part000..003.jsonl` also provides **`113` additional clean source edits (`<=12k`)** unseen by `v48`.
+- **`v49` ([train_v49_edit_dpo.py](file:///home/lmassaron/code/gemma-4-developer-agent-competition/scripts/train_v49_edit_dpo.py))** — **Edit-Span DPO + SFT NLL Anchor (RPO)** initialized from `v48` (`CKPT-S40`):
+  - Precomputes fixed `v48` reference log-probs once (`no_grad()`), trains `16` opt steps (`lr=2e-5`, `β=0.2` on token-mean log-probs, `nll_anchor=0.25`) on **`64` pairs across `47` repos** (`9` real native Gemma 4 self-correction pairs + `28` native + `16` fresh `ext_B2` + `7` `ext_B` + `4` `ext_A`; negatives strictly matched to the 4 real error modes above).
+  - **Gate A ([v49_edit_dpo_training_report.json](file:///home/lmassaron/code/gemma-4-developer-agent-competition/state_of_the_art/benchmarks_data/v49_edit_dpo_training_report.json))**: Across `24` held-out pairs (`21` unseen repos, `4,650` chosen edit tokens), `CKPT-S16` (`blend=1.00`) cut `chosen_nll` another **`-16.4%`** (`0.01529 -> 0.01278`), pushed `rejected_nll` **up** (`0.11137 -> 0.11731`), widened clean-vs-broken `raw_margin` by **`+57.3%`** (`+0.0961 -> +0.1511`), and hit **`1.000` (`24/24`) DPO accuracy** (`dpo_margin = +0.0550`).
 
 ---
 
-## 6. Current Frontier & Concrete Next Steps
+## 5. Do-Not-Repeat List & Environment Traps
 
-1. **Immediate Action (Pending `v46` Kaggle LB Result)**:
-   - Submit `submission_v46_patchsmith_lora.zip` (copied as `submission.zip`) or run a quick `smoke_3 --respect-thinking --timeout_override 1800` check vs `v45` (`1/3`) to see how `v46` behaves under its native `enable_thinking=True` distribution.
+1. **Abandoned approaches (do NOT repeat)**:
+   - Full-turn SFT LoRA supervising thoughts/commands across all 60 layers (`v4`, `v33`, `v46` -> `0.15` LB).
+   - Multi-agent / reviewer / analyzer pipelines (`0.06–0.12` LB; `p=0.0005` worse than single coder).
+   - Cutting `max_time_minutes` to `5m` (`0.10` LB) or `thinking_budget` to `1024` (`0.17` LB) or disabling thoughts.
+   - Piping pytest through `| tail -n 45` (masks exit codes as `0`) or censoring `':!tests/'` in `git grep`.
+2. **Python Environments**:
+   - **Evaluation / Kaggle API**: `.venv/bin/python` (`torch 2.14.1`, `transformers 5.20.2`, `peft 0.21.2`, **`kaggle==2.2.5`** using `~/.kaggle/access_token`).
+   - **Packed INT4 QAT LoRA training**: MUST use `/home/lmassaron/code/venv_gemma4_12b/bin/python` (`compressed-tensors==0.20.1`, `peft==0.21.2`, `transformers==5.21.0.dev0`) to load `/home/lmassaron/models/kaggle/gemma-4-31b-it-qat-w4a16-ct`.
+3. **PEFT `Gemma4ClippableLinear` Trap**: Never use bare `target_modules=["q_proj", ...]`; always write explicit `model.language_model.layers.{i}...` paths into `adapter_config.json` to avoid `vision_tower`.
+4. **Remote Host Auto-Shutdown Caveat (`spark-d8ec`)**: `antigravity-ide-server` runs with `--enable-remote-auto-shutdown`. Long overnight runs launched as IDE child processes will be killed if the user closes their MacBook lid and macOS sleeps; use `nohup setsid ... </dev/null &` or `tmux` if the user wants to close the lid overnight.
+5. **Gemma 4 Tool-Call Closing Tag**: Exact Gemma 4 tool-call syntax is `<|tool_call>call:edit_file{filepath:<|"|>...<|"|>,new_string:<|"|>...<|"|>,old_string:<|"|>...<|"|>}<tool_call|><|tool_response>` (note `<tool_call|>`, NOT `<|tool_call|>`).
 
-2. **Frontier A — Contrastive / DPO LoRA (`v47`) Against Actual Observed Failure Modes**:
-   - Positive SFT alone (even after filtering `lora_native_resolved.jsonl`) still allowed `v46` to loop on `/tmp/repro.py` (`requests_7433`), repeat `grep` (`fastapi_12942`), and spend early turns on scratch probes.
-   - Use **`data/dmitrii_kit/lora_native_unresolved.jsonl`** (`56` failed episodes, `1,228` steps) + local `benchmark_v4*` failure logs (`rich_4075`, `fastapi_11355`, `fastapi_12942`, `requests_7433`) to build DPO / SimPO / unlikelihood preference pairs:
-     - **Chosen**: bounded targeted reads / grounded `edit_file` / single verification -> `submit_patch`.
-     - **Rejected**: duplicate identical commands, `/tmp/repro.py` iteration loops, `write_file` scratch scripts, ungrounded edits, `0B` `submit_patch`.
-   - Start from `models/lora_v46_patchsmith/checkpoints/CKPT-S41` (or `CKPT-S32`) and gate on **both** `smoke_3 --respect-thinking --timeout_override 1800` and `core_12` (`> 4/12`, fewer `[CIRCUIT BREAKER]` triggers, lower avg duration).
+---
 
-3. **Frontier B — Action-Only Masked SFT on `external_B` (`729` Trajectories Across Unseen Repos)**:
-   - `lora_external_B.part000..003.jsonl` provides `13,110` steps (`<= 16k` tokens) across `729` resolved issues — **13x larger** repo diversity than `native_resolved`.
-   - Crucially: **mask the empty `<|channel>thought\n<channel|>` header (`-100`)** on `external_B` and supervise only `<|tool_call>...<tool_call|>` tokens, mixed `1:1` with full thought+action steps from `lora_native_resolved.jsonl` (fixing prompt alignment + filtering next-turn errors just like `v46`).
+## 6. Final-Week Action Plan (Nov 21 -> Dec 2)
 
-4. **Frontier C — Kaggle Budget & Sampling Calibration on `exp021` / `v46`**:
-   - Sweep `scale_mult` (`0.25` vs `0.50` — note `v35` hit `6/12` on `core_12` at `scale=0.25` vs `v33`'s `4/12`) on `smoke_3` thinking.
-   - Test `thinking_budget: 2048` or `3072` (reducing per-turn latency so 28 tool calls complete inside `8m` / `12h` without `flexonafft`'s `1024`-token collapse) and `temperature: 0.0` / `0.1` + `top_k: 64` (reducing stochastic misses at `T=0.2`).
-   - Also keep `notebook_artifacts/best/score_022_submission.zip` (`exp021` verbatim) as an optional zero-shot control baseline.
+1. **Check `v47` Kaggle Score (`ref 58637088`)**:
+   - Run `.venv/bin/kaggle competitions submissions -c gemma-4-developer-agent -v | head -n 8`.
+   - Confirm `v47` finished cleanly inside the 12-hour global cap (`40` calls + pinned issue) and check its score (`expected 0.20–0.22`, upside `0.24`).
+2. **Upload `v49` Next, Then `v48` on the Following Slot**:
+   - **Slot 1**: Upload `submission_v49_patchsmith_v11_edit_dpo.zip` (highest clean solve rate `5/12`, fewest turns `10.67`, fastest `490.2s`, `+57.3%` edit preference margin).
+   - **Slot 2**: Upload `submission_v48_patchsmith_v11_edit_lora.zip` (`6/12` local `core_12`, pure Edit-SFT control vs `v49` Edit-DPO).
+3. **Conditional `v50` Iteration (Based on `v47` / `v48` / `v49` Live LB Scores)**:
+   - **If `v47`/`v48`/`v49` shows any 12h timeout risk**: test `thinking_budget: 2048` or `3072` (keeping `max_tool_calls: 40` and `max_output_tokens: 6144`) to recover runtime margin without `1024`-token collapse.
+   - **If `v48`/`v49` outperforms `v47` on Kaggle (`>= 0.22`)**:
+     - Test **`v49` scaled to `0.75`** (`blend=0.75` or `scale=0.75`, since `ayush04barai` and `icfoer` saw lower scales stabilize long-horizon sampling), OR
+     - Run **`v50`: Single-step Verifiable `edit_file` GRPO / Extended Edit-Span DPO** adding `<=16k` `external_B` + `B2` pairs (`MAX_CONTEXT=14336`) and real `v47`/`v48`/`v49` local `core_12` failure pairs (strictly excluding eval repos if benchmarking on `core_12`, or training on `sympy`/held-out repos).
+   - **If pure zero-shot `v47` beats LoRA on Kaggle**: tune `v47` sampling (`temperature: 0.1–0.2`, `top_k: 64`, `thinking_budget: 2048–4096`) and take 2–3 draws to separate mean from `±1.5`-task `T=0.2` variance.
+4. **Two Diverse Final Selections Before Dec 2**:
+   - Select **1 best pure zero-shot (`v47` family)** + **1 best surgical edit-only LoRA (`v48`/`v49`/`v50` family)** as the two final Private LB submissions to hedge against unseen-repo distribution shift.
 
 ---
 
 ## 7. Quick Command Reference
 
 ```bash
-# 1. Regenerate v45 zero-shot zip or validate any candidate zip
-.venv/bin/python scripts/package_v45_candidate.py
-cp submission_v46_patchsmith_lora.zip /tmp/submission.zip && \
+# 1. Check live Kaggle submissions & top leaderboard
+.venv/bin/kaggle competitions submissions -c gemma-4-developer-agent -v | head -n 10
+.venv/bin/kaggle competitions leaderboard -c gemma-4-developer-agent --show | head -n 25
+
+# 2. Validate any submission zip (MUST be copied to /tmp/submission.zip)
+cp submission_v49_patchsmith_v11_edit_dpo.zip /tmp/submission.zip && \
   .venv/bin/python data/dmitrii_kit/check_submission.py /tmp/submission.zip
 
-# 2. Train LoRA on packed QAT 31B weights (MUST use venv_gemma4_12b for compressed-tensors==0.20.1)
-/home/lmassaron/code/venv_gemma4_12b/bin/python scripts/train_v46_patchsmith_lora.py --dry-run
-PYTHONUNBUFFERED=1 /home/lmassaron/code/venv_gemma4_12b/bin/python -u scripts/train_v46_patchsmith_lora.py
+# 3. Retrain v48 (Edit-SFT) or v49 (Edit-DPO) on packed QAT 31B (MUST use venv_gemma4_12b)
+/home/lmassaron/code/venv_gemma4_12b/bin/python scripts/train_v48_edit_only_lora.py --dry-run
+/home/lmassaron/code/venv_gemma4_12b/bin/python scripts/train_v49_edit_dpo.py --dry-run
 
-# 3. Local evaluation: fast mode vs faithful thinking mode (uses .venv)
+# 4. Run local core_12 benchmark (uses .venv; supports --respect-thinking --timeout_override 1800)
 PYTHONUNBUFFERED=1 .venv/bin/python -u scripts/run_local_benchmark_leaderboard.py \
-  --suite core_12 --submission_zip submission_v46_patchsmith_lora.zip \
-  --model_name v46_patchsmith_lora --output_file out.json
-
-PYTHONUNBUFFERED=1 .venv/bin/python -u scripts/run_local_benchmark_leaderboard.py \
-  --suite smoke_3 --respect-thinking --timeout_override 1800 \
-  --submission_zip submission_v46_patchsmith_lora.zip \
-  --model_name v46_smoke3_thinking --output_file out_think.json
+  --suite core_12 --submission_zip submission_v49_patchsmith_v11_edit_dpo.zip \
+  --model_name "v49-patchsmith-v11-edit-dpo" \
+  --output_file state_of_the_art/benchmarks_data/benchmark_v49_core12.json
 ```
