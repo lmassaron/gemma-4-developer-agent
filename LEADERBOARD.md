@@ -24,38 +24,39 @@
 | #16 | **v34_clean024_mandatory_verify_anchor** | `core_12` | **41.7%** | 5/12 | 416.6s | 6 | 12.4 | 2026-11-11 10:26:45 |
 | #17 | **v40_nearmiss_hard12** | `custom` | **41.7%** | 5/12 | 448.4s | 5 | 12.7 | 2026-11-15 00:28:16 |
 | #18 | **v40_budget_surgical_v2_sympy12** | `custom` | **41.7%** | 5/12 | 502.3s | 7 | 14.1 | 2026-11-15 21:43:42 |
-| #19 | **v44_v40_surgical_v3** | `custom` | **33.3%** | 4/12 | 403.4s | 4 | 13.1 | 2026-11-15 19:54:50 |
-| #20 | **v42_patchsmith_surgical** | `core_12` | **33.3%** | 4/12 | 469.3s | 8 | 12.5 | 2026-11-15 15:22:34 |
-| #21 | **v46_patchsmith_lora** | `core_12` | **33.3%** | 4/12 | 529.2s | 8 | 14.5 | 2026-11-18 23:04:51 |
-| #22 | **v45_exp021_surgical_smoke3_thinking** | `smoke_3` | **33.3%** | 1/3 | 2309.5s | 2 | 12.0 | 2026-11-17 11:46:49 |
-| #23 | **v41_nearmiss_hard12** | `custom` | **25.0%** | 3/12 | 382.6s | 4 | 13.3 | 2026-11-15 03:25:10 |
-| #24 | **v38_patchsmith_v9_tailguard** | `core_12` | **25.0%** | 3/12 | 501.3s | 9 | 11.5 | 2026-11-13 22:25:40 |
-| #25 | **v19_hill_climbed** | `core_60` | **23.3%** | 14/60 | 294.0s | 38 | 11.3 | 2026-10-30 01:50:22 |
-| #26 | **v16_phased_edit_enforcement** | `core_60` | **20.0%** | 12/60 | 350.9s | 33 | 12.6 | 2026-10-29 01:35:00 |
-| #27 | **v44_v40_surgical_v3_sympy12_thinking** | `custom` | **16.7%** | 2/12 | 723.4s | 10 | 6.3 | 2026-11-17 00:40:53 |
-| #28 | **v42_patchsmith_surgical_thinking** | `core_12` | **8.3%** | 1/12 | 660.9s | 11 | 5.8 | 2026-11-16 22:08:13 |
-| #29 | **gemma-4-12b-sft-v6** | `smoke_3` | **0.0%** | 0/3 | 146.3s | 0 | 20.0 | 2026-10-19 08:47:43 |
-| #30 | **v10_lean_thinking** | `smoke_3` | **0.0%** | 0/3 | 269.2s | 1 | 15.0 | 2026-10-25 11:08:51 |
+| #19 | **v47-patchsmith-v11-pinned40** | `core_12` | **41.7%** | 5/12 | 509.6s | 7 | 13.5 | 2026-11-21 10:54:18 |
+| #20 | **v44_v40_surgical_v3** | `custom` | **33.3%** | 4/12 | 403.4s | 4 | 13.1 | 2026-11-15 19:54:50 |
+| #21 | **v42_patchsmith_surgical** | `core_12` | **33.3%** | 4/12 | 469.3s | 8 | 12.5 | 2026-11-15 15:22:34 |
+| #22 | **v46_patchsmith_lora** | `core_12` | **33.3%** | 4/12 | 529.2s | 8 | 14.5 | 2026-11-18 23:04:51 |
+| #23 | **v45_exp021_surgical_smoke3_thinking** | `smoke_3` | **33.3%** | 1/3 | 2309.5s | 2 | 12.0 | 2026-11-17 11:46:49 |
+| #24 | **v41_nearmiss_hard12** | `custom` | **25.0%** | 3/12 | 382.6s | 4 | 13.3 | 2026-11-15 03:25:10 |
+| #25 | **v38_patchsmith_v9_tailguard** | `core_12` | **25.0%** | 3/12 | 501.3s | 9 | 11.5 | 2026-11-13 22:25:40 |
+| #26 | **v19_hill_climbed** | `core_60` | **23.3%** | 14/60 | 294.0s | 38 | 11.3 | 2026-10-30 01:50:22 |
+| #27 | **v16_phased_edit_enforcement** | `core_60` | **20.0%** | 12/60 | 350.9s | 33 | 12.6 | 2026-10-29 01:35:00 |
+| #28 | **v44_v40_surgical_v3_sympy12_thinking** | `custom` | **16.7%** | 2/12 | 723.4s | 10 | 6.3 | 2026-11-17 00:40:53 |
+| #29 | **v42_patchsmith_surgical_thinking** | `core_12` | **8.3%** | 1/12 | 660.9s | 11 | 5.8 | 2026-11-16 22:08:13 |
+| #30 | **gemma-4-12b-sft-v6** | `smoke_3` | **0.0%** | 0/3 | 146.3s | 0 | 20.0 | 2026-10-19 08:47:43 |
+| #31 | **v10_lean_thinking** | `smoke_3` | **0.0%** | 0/3 | 269.2s | 1 | 15.0 | 2026-10-25 11:08:51 |
 
 ## Benchmark Suites
 - **`smoke_3`**: 3 representative tasks across core repositories (`psf/requests`, `fastapi/fastapi`, `Textualize/rich`) for rapid timeout verification and regression testing.
 - **`core_12`**: 12 balanced tasks (4 Requests, 4 FastAPI, 4 Rich) providing a high-confidence local signal.
 
 ## Latest Evaluation Run Details
-**Run ID**: `v48-patchsmith-v11-edit-lora_core_12_2026-11-21 09:05:09`  
-**Model**: `v48-patchsmith-v11-edit-lora` | **Suite**: `core_12`  
+**Run ID**: `v47-patchsmith-v11-pinned40_core_12_2026-11-21 10:54:18`  
+**Model**: `v47-patchsmith-v11-pinned40` | **Suite**: `core_12`  
 
 | Instance ID | Repository | Status | Resolved | Duration (s) | Turns | Tool Calls | Patch Size |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `requests_7205` | `psf/requests` | `RESOLVED_ANYTIME` | ✅ PASS | 554.12s | 9 | 9 | 503 B |
-| `requests_7433` | `psf/requests` | `RESOLVED` | ✅ PASS | 426.5s | 11 | 11 | 584 B |
-| `requests_7502` | `psf/requests` | `TIMEOUT` | ❌ FAIL | 481.0s | 11 | 11 | 0 B |
-| `requests_7505` | `psf/requests` | `RESOLVED` | ✅ PASS | 357.98s | 12 | 12 | 1049 B |
-| `fastapi_11194` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 482.03s | 16 | 16 | 0 B |
-| `fastapi_11355` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 485.66s | 16 | 16 | 0 B |
-| `fastapi_12942` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 842.82s | 11 | 11 | 953 B |
-| `fastapi_13537` | `fastapi/fastapi` | `RESOLVED_ANYTIME` | ✅ PASS | 702.53s | 9 | 9 | 828 B |
-| `rich_2725` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 833.98s | 8 | 8 | 0 B |
-| `rich_2943` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 277.27s | 12 | 12 | 400 B |
-| `rich_3006` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 415.15s | 19 | 19 | 558 B |
-| `rich_3052` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 508.15s | 7 | 7 | 1741 B |
+| `requests_7205` | `psf/requests` | `RESOLVED_ANYTIME` | ✅ PASS | 489.01s | 13 | 13 | 614 B |
+| `requests_7433` | `psf/requests` | `TIMEOUT` | ❌ FAIL | 523.9s | 12 | 12 | 0 B |
+| `requests_7502` | `psf/requests` | `RESOLVED_ANYTIME` | ✅ PASS | 490.24s | 14 | 14 | 615 B |
+| `requests_7505` | `psf/requests` | `RESOLVED` | ✅ PASS | 321.35s | 14 | 14 | 1049 B |
+| `fastapi_11194` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 483.6s | 18 | 18 | 0 B |
+| `fastapi_11355` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 536.55s | 18 | 18 | 0 B |
+| `fastapi_12942` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 481.7s | 20 | 20 | 0 B |
+| `fastapi_13537` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 498.3s | 8 | 8 | 0 B |
+| `rich_2725` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 810.91s | 9 | 9 | 0 B |
+| `rich_2943` | `Textualize/rich` | `RESOLVED_ANYTIME` | ✅ PASS | 484.88s | 12 | 12 | 400 B |
+| `rich_3006` | `Textualize/rich` | `RESOLVED_ANYTIME` | ✅ PASS | 486.66s | 14 | 14 | 558 B |
+| `rich_3052` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 508.63s | 10 | 10 | 0 B |
