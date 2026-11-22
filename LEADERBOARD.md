@@ -29,35 +29,27 @@
 | #21 | **v44_v40_surgical_v3** | `custom` | **33.3%** | 4/12 | 403.4s | 4 | 13.1 | 2026-11-15 19:54:50 |
 | #22 | **v42_patchsmith_surgical** | `core_12` | **33.3%** | 4/12 | 469.3s | 8 | 12.5 | 2026-11-15 15:22:34 |
 | #23 | **v46_patchsmith_lora** | `core_12` | **33.3%** | 4/12 | 529.2s | 8 | 14.5 | 2026-11-18 23:04:51 |
-| #24 | **v45_exp021_surgical_smoke3_thinking** | `smoke_3` | **33.3%** | 1/3 | 2309.5s | 2 | 12.0 | 2026-11-17 11:46:49 |
-| #25 | **v41_nearmiss_hard12** | `custom` | **25.0%** | 3/12 | 382.6s | 4 | 13.3 | 2026-11-15 03:25:10 |
-| #26 | **v38_patchsmith_v9_tailguard** | `core_12` | **25.0%** | 3/12 | 501.3s | 9 | 11.5 | 2026-11-13 22:25:40 |
-| #27 | **v19_hill_climbed** | `core_60` | **23.3%** | 14/60 | 294.0s | 38 | 11.3 | 2026-10-30 01:50:22 |
-| #28 | **v16_phased_edit_enforcement** | `core_60` | **20.0%** | 12/60 | 350.9s | 33 | 12.6 | 2026-10-29 01:35:00 |
-| #29 | **v44_v40_surgical_v3_sympy12_thinking** | `custom` | **16.7%** | 2/12 | 723.4s | 10 | 6.3 | 2026-11-17 00:40:53 |
-| #30 | **v42_patchsmith_surgical_thinking** | `core_12` | **8.3%** | 1/12 | 660.9s | 11 | 5.8 | 2026-11-16 22:08:13 |
-| #31 | **gemma-4-12b-sft-v6** | `smoke_3` | **0.0%** | 0/3 | 146.3s | 0 | 20.0 | 2026-10-19 08:47:43 |
-| #32 | **v10_lean_thinking** | `smoke_3` | **0.0%** | 0/3 | 269.2s | 1 | 15.0 | 2026-10-25 11:08:51 |
+| #24 | **v49_patchsmith_v11_edit_dpo_smoke3_thinking** | `smoke_3` | **33.3%** | 1/3 | 2008.0s | 2 | 11.7 | 2026-11-21 20:52:22 |
+| #25 | **v45_exp021_surgical_smoke3_thinking** | `smoke_3` | **33.3%** | 1/3 | 2309.5s | 2 | 12.0 | 2026-11-17 11:46:49 |
+| #26 | **v41_nearmiss_hard12** | `custom` | **25.0%** | 3/12 | 382.6s | 4 | 13.3 | 2026-11-15 03:25:10 |
+| #27 | **v38_patchsmith_v9_tailguard** | `core_12` | **25.0%** | 3/12 | 501.3s | 9 | 11.5 | 2026-11-13 22:25:40 |
+| #28 | **v19_hill_climbed** | `core_60` | **23.3%** | 14/60 | 294.0s | 38 | 11.3 | 2026-10-30 01:50:22 |
+| #29 | **v16_phased_edit_enforcement** | `core_60` | **20.0%** | 12/60 | 350.9s | 33 | 12.6 | 2026-10-29 01:35:00 |
+| #30 | **v44_v40_surgical_v3_sympy12_thinking** | `custom` | **16.7%** | 2/12 | 723.4s | 10 | 6.3 | 2026-11-17 00:40:53 |
+| #31 | **v42_patchsmith_surgical_thinking** | `core_12` | **8.3%** | 1/12 | 660.9s | 11 | 5.8 | 2026-11-16 22:08:13 |
+| #32 | **gemma-4-12b-sft-v6** | `smoke_3` | **0.0%** | 0/3 | 146.3s | 0 | 20.0 | 2026-10-19 08:47:43 |
+| #33 | **v10_lean_thinking** | `smoke_3` | **0.0%** | 0/3 | 269.2s | 1 | 15.0 | 2026-10-25 11:08:51 |
 
 ## Benchmark Suites
 - **`smoke_3`**: 3 representative tasks across core repositories (`psf/requests`, `fastapi/fastapi`, `Textualize/rich`) for rapid timeout verification and regression testing.
 - **`core_12`**: 12 balanced tasks (4 Requests, 4 FastAPI, 4 Rich) providing a high-confidence local signal.
 
 ## Latest Evaluation Run Details
-**Run ID**: `v49-patchsmith-v11-edit-dpo_core_12_2026-11-21 18:33:34`  
-**Model**: `v49-patchsmith-v11-edit-dpo` | **Suite**: `core_12`  
+**Run ID**: `v49_patchsmith_v11_edit_dpo_smoke3_thinking_smoke_3_2026-11-21 20:52:22`  
+**Model**: `v49_patchsmith_v11_edit_dpo_smoke3_thinking` | **Suite**: `smoke_3`  
 
 | Instance ID | Repository | Status | Resolved | Duration (s) | Turns | Tool Calls | Patch Size |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `requests_7205` | `psf/requests` | `RESOLVED` | ✅ PASS | 381.14s | 11 | 11 | 503 B |
-| `requests_7433` | `psf/requests` | `RESOLVED` | ✅ PASS | 234.0s | 8 | 8 | 584 B |
-| `requests_7502` | `psf/requests` | `TIMEOUT` | ❌ FAIL | 524.74s | 12 | 12 | 0 B |
-| `requests_7505` | `psf/requests` | `RESOLVED` | ✅ PASS | 426.54s | 14 | 14 | 1049 B |
-| `fastapi_11194` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 529.43s | 13 | 13 | 0 B |
-| `fastapi_11355` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 518.8s | 13 | 13 | 0 B |
-| `fastapi_12942` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 796.76s | 12 | 12 | 749 B |
-| `fastapi_13537` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 545.85s | 7 | 7 | 0 B |
-| `rich_2725` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 746.93s | 8 | 8 | 0 B |
-| `rich_2943` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 314.43s | 11 | 11 | 400 B |
-| `rich_3006` | `Textualize/rich` | `RESOLVED` | ✅ PASS | 354.99s | 12 | 12 | 558 B |
-| `rich_3052` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 509.21s | 7 | 7 | 1741 B |
+| `requests_7205` | `psf/requests` | `RESOLVED_ANYTIME` | ✅ PASS | 1843.5s | 13 | 13 | 503 B |
+| `fastapi_11194` | `fastapi/fastapi` | `TIMEOUT` | ❌ FAIL | 2259.66s | 11 | 11 | 0 B |
+| `rich_2725` | `Textualize/rich` | `TIMEOUT` | ❌ FAIL | 1920.71s | 11 | 11 | 0 B |

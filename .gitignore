@@ -39,3 +39,4 @@ data/
 !state_of_the_art/benchmarks_data/*.log
 checkpoint-*/
 adapters/**/checkpoint-*/
+logs/
